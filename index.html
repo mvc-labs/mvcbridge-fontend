@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Pragma" content="no-store" />
+    <meta http-equiv="Cache-control" content="no-store" />
+    <meta http-equiv="Cache" content="no-store" />
+    <!-- <link rel="alternate icon" href="/favicon.ico" type="image/png" sizes="16x16" /> -->
+    <!-- <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" /> -->
+    <meta name="theme-color" content="#ffffff" />
+    <title></title>
+    <meta name="description" content="" />
+
+    <!-- 要动态更改 icon 所以不初始化设置 -->
+    <!-- <link rel="icon" key="favicon" href="/favicon.ico" /> -->
+    <style>
+      @font-face {
+        font-family: 'SF-Pro-Regular';
+        src: url('./public/fonts/SF_PRO_Regular.ttf');
+      }
+    </style>
+    <script>
+      ;(function (doc, win, designSize, htmlFontSize) {
+        var docEl = doc.documentElement,
+          isIOS = navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
+          dpr = isIOS ? Math.min(win.devicePixelRatio, 3) : 1,
+          dpr = window.top === window.self ? dpr : 1, //被iframe引用时，禁止缩放
+          resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize'
+        docEl.dataset.dpr = dpr
+        var recalc = function () {
+          var width = docEl.clientWidth
+          if (width / dpr > designSize) {
+            width = designSize * dpr
+          }
+          docEl.dataset.width = width
+          docEl.dataset.percent = htmlFontSize * (width / designSize)
+          var fontSize = htmlFontSize * (width / designSize)
+          let minFontSize = 90
+          var agent = navigator.userAgent.toLowerCase()
+          //  微信浏览器
+          if (agent.match(/MicroMessenger/i) == 'micromessenger') {
+            minFontSize = 62
+          }
+          if (fontSize < minFontSize) {
+            fontSize = minFontSize
+          }
+          docEl.style.fontSize = fontSize + 'px'
+        }
+        recalc()
+        if (!doc.addEventListener) return
+        win.addEventListener(resizeEvt, recalc, false)
+      })(document, window, parseFloat('<% VITE_Design_Size />'), 100)
+    </script>
+    <script>
+      // if (
+      //   localStorage.theme === 'dark' ||
+      //   (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      // ) {
+      //   document.documentElement.classList.add('dark')
+      // } else {
+      //   document.documentElement.classList.remove('dark')
+      // }
+
+      // 计算屏幕宽度
+      function calculateVh() {
+        var vh = window.innerHeight * 0.01
+        document.documentElement.style.setProperty('--vh', vh + 'px')
+      }
+
+      // Initial calculation
+      calculateVh()
+
+      // Re-calculate on resize
+      window.addEventListener('resize', calculateVh)
+
+      // Re-calculate on device orientation change
+      window.addEventListener('orientationchange', calculateVh)
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,308 @@
+.item-wrap{
+   
+    display: flex;
+    flex-direction: column;
+    font-size: 18px;
+    .top{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        .chain-origin{
+            margin-right: 20px;
+        }
+        .chain-select{
+            cursor: pointer;
+            width: fit-content;
+            padding: 8px 18px;
+            background-color: var(--themeBgFiveColor);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            &:hover{
+                box-shadow: 0px 0px 5px 0px #4D5260;
+                opacity: .7;
+            }
+            .left{
+                margin-right: 38px;
+            }
+        }
+    }
+    .input-wrap{
+        margin-top: 18px;
+        
+        background-color: var(--themeBgFiveColor);
+        width: 100%;
+        border-radius: 12px;
+        &:hover{
+            box-shadow: 0 0 3px #4D5260;
+        }
+        .input-inner-wrap{
+            display: flex;
+        flex-direction: column;
+        padding: 30px;
+        .title{
+            margin-bottom: 37px;
+        }
+        .input-container{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+           .el-input{
+            height: 45px !important;
+            // border: 3px solid var(--themeBgFourColor) !important;
+            // border-radius: 4px !important;
+           }
+         
+           .chain-select{
+            margin-left: 30px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            &:hover{
+                opacity: .7;
+            }
+            .left{
+                margin-right: 10px;
+            }
+           }
+        }
+        }
+        @media screen and (max-width:500px) {
+           .input-inner-wrap{
+            padding: 15px;
+           }
+        }
+    }
+    .exchangIcon{
+        margin: 45px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      
+        img{
+            cursor: pointer;
+            border-radius: 50%;
+            &:hover{
+                 box-shadow: 0 0 10px #4D5260;
+                 opacity: .7;
+            }
+        }
+    }
+    @media screen and (max-width:500px) {
+         .exchangIcon{
+        margin: 20px 0;
+        
+        img{
+          width: 40px;
+          height: 40px;
+            cursor: pointer;
+            border-radius: 50%;
+            &:hover{
+                 box-shadow: 0 0 10px #4D5260;
+            }
+        }
+    }
+    }
+    .swap-btn{
+        margin-top: 60px;
+        width: 100%;
+        .el-button{
+            width: 100%;
+            padding: 20px 0;
+            font-size: 24px;
+            border-radius: 12px;
+            background: var(--themeBtnBgColor);
+            color: #fff;
+            border: none;
+           &:hover{
+             box-shadow: 0 0 10px #4D5260;
+           }
+        }
+        .disable{
+            background: #696D7E;
+            color: #9C9C9C;
+            border: none;
+            &:hover{
+             box-shadow: none;
+           }
+        }
+
+    }
+    @media screen and (max-width:500px) {
+        .swap-btn{
+            margin-top: 30px;
+        }
+    }
+}
+
+
+.chain-select{
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    grid-column-gap:20px;
+    grid-row-gap:30px;
+    .item{
+        padding: 12px 30px;
+        background: var(--coinItemBgColor);
+      
+        border-radius: 12px;
+        cursor: pointer;
+      
+        
+        &:active{
+             border: 1px solid #fff;
+             
+        }
+        &:hover{
+             box-shadow: 0 0 4px #fff;
+             opacity: .7;
+        }
+    }
+}
+
+.coin-select{
+    display: flex;
+    flex-direction: column;
+    
+    .item{
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 30px;
+        border-radius: 12px;
+        background: var(--coinItemBgColor);
+        margin-bottom: 12px;
+        &:hover{
+            box-shadow: 0 0 4px #fff;
+            opacity: .7;
+        }
+         &:active{
+             border: 1px solid #fff;
+             
+        }
+    }
+}
+
+.txInfo{
+    display: flex;
+    flex-direction: column;
+   .item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    .title{
+        font-size: 16px;
+        color: #9C9C9C;
+    }
+    .symbol{
+        font-size: 18px;
+        color: #fff;
+        display: flex;
+        .amount{
+            margin-right: 5px;
+        }
+
+    }
+   }
+  
+
+}
+
+.minimumReceived{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    .title{
+        font-size: 16px;
+        color: #9C9C9C;
+    }
+    .symbol{
+        font-size: 18px;
+        color: #fff;
+         display: flex;
+        .amount{
+            margin-right: 5px;
+        }
+    }
+}
+.swapSuccessWrap{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .icon{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 136px;
+        height: 136px;
+        border-radius: 50%;
+        background: var(--themeBtnBgColor);
+        i{
+            font-size: 60px;
+        }
+        @media screen and (max-width:750px) {
+            i{
+                font-size: 40px;
+            }
+        }
+    }
+    .success{
+        font-size: 32px;
+        font-weight: bold;
+        margin: 64px 0;
+        text-align: center;
+    }
+    .success-btn{
+        width: 200px;
+        padding: 19px 0;
+        font-size: 24px;
+    }
+    @media screen and (max-width:1200px) {
+          .icon{
+            width: 110px;
+            height: 110px;
+        }
+        .success{
+            font-size: 26px;
+            margin: 40px 0;
+            line-height: 1.5em;
+        }
+        .success-btn{
+            width: 120px;
+            font-size: 20px;
+        }
+    }
+    @media screen and (max-width:750px) {
+        .icon{
+            width: 90px;
+            height: 90px;
+        }
+        .success{
+            font-size: 25px;
+            margin: 40px 0;
+            line-height: 1.5em;
+        }
+        .success-btn{
+            width: 120px;
+            font-size: 20px;
+        }
+    }
+}
+.txBtn{
+    margin-top:50px;
+    margin-bottom: 20px;
+    width: 100%;
+    padding: 18px 0;
+    font-size: 18px;
+}

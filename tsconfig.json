@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": [
+      "node"
+    ],
+     "plugins": [
+      {
+        "name": "@vuedx/typescript-plugin-vue"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+  },
+ 
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue","node_modules/element-plus/global.d.ts"],
+  "exclude": ["node_modules", "dist", "public", "tests"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

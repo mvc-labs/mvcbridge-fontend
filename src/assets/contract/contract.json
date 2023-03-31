@@ -1,0 +1,18 @@
+{
+  "eth": {
+    "usdt": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    "usdc": "0xdAa08b2b3A9138b72d11145cCad130dBcF6DBc2f"
+  },
+  "sepolias": {
+    "usdt": "0xd6D360247373C1Ac1A110631b1139bdD9b50b4B9",
+    "usdc": "0xd6D360247373C1Ac1A110631b1139bdD9b50b4B9"
+  },
+  "bsc": {
+    "usdt": "0x3Da00DBF201E2b83bF1ED4ad0841ccD1Dbc09Ab0",
+    "usdc": "0xBA5Fe23f8a3a24BEd3236F05F2FcF35fd0BF0B5C"
+  },
+  "polygon": {
+    "usdt": "0x7ffb3d637014488b63fb9858e279385685afc1e2",
+    "usdc": "0xdd9185db084f5c4fff3b4f70e7ba62123b812226"
+  }
+}

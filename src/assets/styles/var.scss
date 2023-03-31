@@ -1,0 +1,122 @@
+$bgColor: #F5F7F9;
+$bgDarkColor: #000;
+$mainColor: #ffdc51;
+
+%text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+$themeBgColor:var(--themeBgColor);
+$themeBgSecondColor: var(--themeBgSecondColor);
+$themeBgThreeColor: var(--themeBgThreeColor);
+$themeTextColor: var(--themeTextColor);
+$themeBtnBgColor:var(--themeBtnBgColor);
+$themeBgFourColor:var(--themeBgFourColor);
+$themeBgFiveColor:var(--themeBgFiveColor);
+$dialogBgColor:var(--dialogBgColor);
+:root {
+    
+    --color-primary: #ffdc51;
+    --color-primaryRgb: 255, 220, 81;
+    --color-hover: #5586BB;
+    --color-error: #FC6D5E;
+    --color-success: #20a124;
+    --themeBgColor: #fff;
+    --themeBgSecondColor: #303133;
+    --themeBgSecondColorRgb: 255, 255, 255;
+    --themeBgThreeColor: #080808;
+    --themeBgFourColor:#232530;
+    --themeBgFiveColor:#17171A;
+    --themeTextColor: #fff;
+    --themeTextColorRgb: 48, 49, 51;
+    --themeFadedTextColor: rgba(var(--themeTextColorRgb), 0.5);
+    --themeBtnTextColor: #303133;
+    --themeBtnBgColor:linear-gradient(132deg, #72F5F6 0%, #171AFF 100%);
+    font-family: 'SF-Pro-Regular Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB,Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    --border-color: #BFC2CC;
+    --faded-border-color: #BFC2CC;
+    --normal-border-color: #303133;
+    --standard-offset: 1PX;
+    --standard-border-width: 2PX;
+    --right-offset: 1PX;
+    --move-range: 2PX;
+    --rounded: 12PX;
+    --header-height: 60PX;
+    --divid-color: #F4F7F9;
+    --input-height: 56px;
+    --sm-content-width: 600PX;
+    --nft-topbar-height: 108px; // --nft-topbar-height: 0px
+    --padding-normal: 18px;
+    --padding-lg: 30px;
+    --dialogBgColor:#232531;
+    --dialogCloseColor:#B4C0C9;
+    --coinItemBgColor:#33343C;
+         --disableBgColor: #696D7E ;
+            --disableTextColor: #9C9C9C ;
+            --addressBgColor:#30303A;
+            --formItemLableColor:#CDCDCD;
+           
+}
+
+html.dark {
+    --themeBgColor: #303133;
+    --themeBgSecondColor: #1f2937;
+    --themeBgSecondColorRgb: 31, 41, 55;
+    --themeBgThreeColor: #303133;
+    --border-color: #d1d5db;
+    --faded-border-color: #6b7280;
+    --el-color-primary: #FFDC51;
+    --themeTextColor: #fff;
+    --themeTextColorRgb: 255, 255, 255;
+    --primary-border-color: #6b7280;
+    --divid-color: #4a576c;
+}
+
+
+
+
+@mixin author($avatorWidth, $mrginRight, $nameFontSize, $metaIdFontSize, $marginTop) {
+    .avatar {
+        width: $avatorWidth;
+        height: $avatorWidth;
+        margin-right: $mrginRight;
+        background: #eee;
+    }
+
+    .author-msg {
+        .creater {
+            font-weight: 400;
+            font-size: $nameFontSize;
+        }
+
+        .metaid {
+            font-size: $metaIdFontSize;
+            font-weight: 400;
+            color: #909399;
+            margin-top: $marginTop;
+        }
+    }
+}
+
+@mixin text-many-ellipsis($lineNum) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: $lineNum;
+    -webkit-box-orient: vertical;
+}
+
+@media only screen and (max-width: 1024PX) {
+
+    :root {
+        --header-height: 70px;
+    }
+
+}
+
+// @media only screen and (max-width: 750PX) {
+//     :root {
+//         --nft-topbar-height: 138px;
+//     }
+// }

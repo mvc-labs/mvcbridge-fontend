@@ -1,0 +1,349 @@
+@import '@/assets/styles/var.scss';
+@import '@/assets/styles/flex.scss';
+@import '@/assets/styles/element-plus.scss';
+
+
+
+html {
+
+  body {
+   
+    // background: $bgColor;
+    font-size: 16px;
+    font-family: "ABC Ginto Normal", Whitney, 'SF Pro', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+      'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+
+
+    color: var(--themeTextColor);
+    
+    background: var(--themeBgThreeColor);
+   
+    @media only screen and (max-width: 1024PX) {
+      user-select: none;
+    }
+
+    -webkit-user-drag: none;
+
+    // 禁用过度滚动
+    overscroll-behavior: none; // 好像会影响下拉滚动加载
+
+    .nftDetailContainer {
+      max-width: 1200px;
+      margin: 0 auto;
+
+      @media only screen and (max-width: 1024PX) {
+        padding: 0 28px;
+      }
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+
+      @media only screen and (max-width: 1024PX) {
+        padding: 0 18px;
+      }
+    }
+
+    .slim-scrollbar {
+
+      ::-webkit-scrollbar {
+        /* prettier-ignore */
+        width: 6PX !important;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #edeff2;
+      }
+
+      .dark & ::-webkit-scrollbar-track {
+        background: #111827;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: #bfc2cc;
+        /* prettier-ignore */
+        border-radius: 20PX;
+      }
+
+      .dark & ::-webkit-scrollbar-thumb {
+        background-color: #374151;
+      }
+    }
+
+    #app {
+  
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     height: 100vh;
+     width: 100vw;
+          background: url('@/assets/images/bg.jpg') no-repeat;
+   background-size: 100%;
+  
+     
+    }
+
+    .buzz-warp {
+      font-size: 14PX;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #edeff2;
+    border-radius: 20px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #bfc2cc;
+    border-radius: 20px;
+  }
+
+  &.dark :not(.no-dark)::-webkit-scrollbar-track {
+    background: #111827 !important;
+  }
+
+  &.dark :not(.no-dark)::-webkit-scrollbar-thumb {
+    background-color: #374151 !important;
+  }
+
+}
+
+.user-card-warp {
+  box-shadow: 0px 0px 6px 0px rgba(var(--themeTextColorRgb), 0.15);
+  border-radius: var(--rounded);
+  left: 15px !important;
+  z-index: 9;
+  max-width: 280PX;
+}
+
+@media screen and (max-width: 750PX) {
+  .user-card-warp {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 100%;
+    max-width: none !important;
+    transform: none !important;
+    background: var(--el-overlay-color-lighter);
+    z-index: 99;
+    padding: 30px;
+    display: flex;
+    border-radius: 0 !important;
+
+    .bg-white {
+      flex: 1;
+    }
+  }
+
+
+
+}
+
+
+
+pre {
+  white-space: break-spaces;
+  font-family: 'SF Pro', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+
+}
+
+.pre-line {
+  white-space: pre-line;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+
+
+
+.v-enter-from,
+.v-leave-to {
+  transition: opacity 0.5s ease;
+}
+
+.v-leave-from,
+.v-enter-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.avatar-rounded {
+  border-radius: 40%;
+}
+
+// 全屏高
+.fullscreen {
+  height: calc(var(--vh) * 100)
+}
+
+
+.main-border {
+background:var(--themeBgFiveColor);
+&:hover{
+      opacity: .9;
+      box-shadow: 0 0 6px 0 var(--border-color); ;
+    }
+  &.primary {
+    // background: var(--el-color-primary);
+    background:var(--themeBtnBgColor);
+  }
+
+  .dark &.primary {
+    --border-color: var(--primary-border-color);
+    color: var(--normal-border-color);
+  }
+
+  // 褪色边框
+  &.faded {
+    --border-color: var(--faded-border-color);
+
+    background: #EDEFF2;
+    color: var(--faded-border-color);
+  }
+
+  .dark &.faded {
+    --border-color: var(--faded-border-color);
+    background: #1F2937;
+    color: var(--faded-border-color);
+  }
+
+  &.faded-switch:not(:active, :hover):placeholder-shown {
+    --border-color: var(--faded-border-color);
+  }
+
+  &.small {
+    --standard-offset: 2PX;
+    --standard-border-width: 1PX;
+  }
+
+
+  // 只有下阴影的情况
+  &.only-bottom {
+    --right-offset: 0PX;
+  }
+
+  // border: var(--standard-border-width) solid var(--border-color);
+  // box-shadow: var(--right-offset) var(--standard-offset) 0 var(--border-color);
+  border-radius: var(--rounded);
+  // transition-property: all;
+  // transition-duration: 200ms;
+  user-select: none;
+
+  // hover时浮起（只在桌面端）
+  // @media (min-width: 1024PX) {
+  //   &:not(.still):hover:not(:active) {
+  //     box-shadow: calc(var(--right-offset) + var(--move-range) / 2) calc(var(--standard-offset) + var(--move-range) / 2) 0 var(--border-color);
+  //     transform: translateX(calc(0PX - var(--move-range) / 2)) translateY(calc(0PX - var(--move-range) / 2));
+  //   }
+  // }
+
+  // active时下沉
+  // &:not(.still):active {
+  //   box-shadow: calc(var(--right-offset) - var(--move-range)) calc(var(--standard-offset) - var(--move-range)) 0 var(--border-color);
+  //   transform: translateX(var(--move-range)) translateY(var(--move-range));
+  // }
+
+  &.disabled {
+    cursor: not-allowed;
+    
+    // @media (min-width: 1024PX) {
+    //   &:hover:not(:active) {
+    //     box-shadow: var(--right-offset) var(--standard-offset) 0 var(--border-color);
+    //     transform: none;
+    //   }
+
+    //   &:active {
+    //     box-shadow: var(--right-offset) var(--standard-offset) 0 var(--border-color);
+    //     transform: none;
+    //   }
+    // }
+  }
+
+  // v-loading
+  .el-loading-mask {
+    border-radius: var(--rounded);
+  }
+}
+
+// 输入框
+.field-input {
+  outline-width: 0;
+  background-color: white;
+  width: 100%;
+  padding: 12PX 16PX;
+  font-size: 14PX;
+  line-height: 1.5;
+
+  .dark & {
+    background-color: #1f2937;
+  }
+}
+
+// MetaName字体样式
+.meta-name {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  color: transparent;
+  background-image: linear-gradient(to right, #F700FB, #FFC051);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: rgba(255, 192, 81, 0.3) 0 -1PX 1PX;
+
+  &.ens {
+    background-image: linear-gradient(to bottom right, #4F40F5, #7EDFFA);
+    text-shadow: rgba(126, 223, 250, 0.3) 0 -1PX 1PX;
+
+    .dark & {
+      text-shadow: rgba(126, 223, 250, 0.4) 0 -1PX 4PX;
+    }
+  }
+
+  .dark & {
+    text-shadow: rgba(255, 192, 81, 0.4) 0 -1PX 4PX;
+
+
+    &.with-reflection {
+      -webkit-box-reflect: below 0px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(35%, transparent), to(rgba(255, 255, 255, 0.08)));
+    }
+  }
+}
+
+
+
+
+input {
+  background: var(--themeBgSecondColor);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

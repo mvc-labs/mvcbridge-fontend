@@ -1,0 +1,134 @@
+.bind-metaid {
+    padding: 28px 0;
+
+    .choose {
+        .title {
+            line-height: 30px;
+            font-size: 16px;
+            padding-bottom: 30px;
+            border-bottom: 1px dashed #EDEFF2;
+        }
+
+        .cont {
+            margin-top: 48px;
+
+            .sub-title {
+                font-size: 18px;
+            }
+
+            .list {
+                margin-top: 24px;
+
+                .main-border {
+                    margin-bottom: 15px;
+                    padding: 12px;
+                    cursor: pointer;
+
+                    .icon-warp {
+                        width: 48px;
+                        height: 48px;
+                        background: var(--el-color-primary);
+                        margin-right: 12px;
+                        border-radius: 50%;
+
+                        img {
+                            width: 26px;
+                            height: 26px;
+                        }
+                    }
+
+                    .text {
+                        font-size: 16px;
+                    }
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+
+
+            .userInfo {
+                text-align: center;
+
+                .avatar {
+                    width: 110px;
+                    height: 110px;
+                    margin: 0 auto;
+                }
+
+                .username {
+                    font-size: 24px;
+                    margin-top: 15px;
+                }
+
+                .metaid {
+                    font-size: 18px;
+                    color: #909399;
+                    margin-top: 6px;
+                }
+
+                .operate {
+                    margin-top: 40px;
+
+                    .main-border {
+                        padding: 16px;
+                        cursor: pointer;
+
+                        .icon {
+                            width: 24px;
+                            height: 24px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .bind-haved-metaid {
+        .title {
+            font-size: 24px;
+        }
+
+        .intro {
+            margin-top: 48px;
+            font-size: 16px;
+            line-height: 30px;
+        }
+
+        .el-form {
+            margin-top: 30px;
+        }
+
+        .operate {
+            margin-top: 60px;
+
+            a {
+                color: #909399;
+                cursor: pointer;
+
+                &:hover {
+                    color: var(--color-hover);
+                }
+            }
+
+            .main-border {
+                cursor: pointer;
+                padding: 16px;
+
+                .icon {
+                    width: 24px;
+                    height: 24px;
+                }
+
+                &.faded {
+                    .icon {
+                        :deep(use) {
+                            fill: var(--el-border-color)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
