@@ -11,7 +11,8 @@ import { GetMetaNameInfo, GetMetaIdByAddress, GetUserAllInfo } from '@/api/aggre
 import i18n from './i18n'
 import dayjs from 'dayjs'
 import { resolveAddress, isAddress } from 'ethers'
-
+import { OrderApi, OrderRegisterRequest } from 'mvcbridge-sdk/api'
+import { SignatureHelper } from 'mvcbridge-sdk/signature'
 export function diffTime() {
   const lastTime = window.localStorage.getItem('lastedGetRateTime')
   if (!lastTime) {
@@ -338,4 +339,15 @@ export function ensConvertAddress(ens: string) {
       reject(`Target Is Not a ENS OR Address`)
     }
   })
+}
+
+export function GeneratorSignatrue(registerRequest: OrderRegisterRequest): OrderRegisterRequest {
+  const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
+  const userStore = useUserStore()
+  const signature = SignatureHelper.signMessageBitcoin(
+    message,
+    userStore.showWallet!.wallet!.wallet!.deriveChild(0).deriveChild(0).privateKey.toString()
+  )
+  registerRequest.signature = signature
+  return registerRequest
 }

@@ -28,6 +28,7 @@
     .menu{
         display: flex;
         align-items: center;
+        margin-left: 10px;
         .wallet{
           cursor: pointer;
           margin-right: 18px;
@@ -37,6 +38,9 @@
           padding: 12px 21px;
           background: var(--dialogBgColor);
           border-radius: 12px;
+           @media screen and (max-width:500px) {
+            margin-right: 10px;
+          }
           &:hover{
             box-shadow: 0 0 4px 0#4d5260;
             opacity: .8;
@@ -47,6 +51,7 @@
             color: #fff;
           }
         }
+       
        .login-btn{
         cursor: pointer;
         background: var(--themeBtnBgColor);
@@ -312,6 +317,10 @@
   }
 }
 
+
+
+
+
 .el-select{
  
 .el-input__validateIcon{
@@ -320,5 +329,13 @@
 }
 .el-select__popper{
   border:none !important;
+}
+
+.blankHistoryWrap{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  height: 350px;
 }
 

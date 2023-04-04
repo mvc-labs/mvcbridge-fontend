@@ -5,6 +5,9 @@
         <img :src="Logo" alt="" />
       </div>
       <div class="menu">
+        <div class="wallet" @click="historyDialog = true">
+          <el-icon><Timer /></el-icon>
+        </div>
         <div class="wallet" @click="checkWalletInfo">
           <el-icon><Wallet /></el-icon>
         </div>
@@ -129,6 +132,18 @@
       </div>
     </template>
   </Drawer>
+
+  <Dialog v-model="historyDialog">
+    <template #title>
+      <div>Select a token</div>
+    </template>
+    <template #content>
+      <div v-if="!transationHistoryList.length" class="blankHistoryWrap">
+        <span>No transfers yet</span>
+      </div>
+      <div v-else></div>
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -139,7 +154,7 @@ import twitter from '@/assets/images/twitter.svg?url'
 import reddit from '@/assets/images/reddit.svg?url'
 import instagram from '@/assets/images/instagram.svg?url'
 import discord from '@/assets/images/discord.svg?url'
-import { Wallet, ArrowLeftBold } from '@element-plus/icons-vue'
+import { Wallet, ArrowLeftBold, Timer } from '@element-plus/icons-vue'
 import Logo from '@/assets/images/logo_mvc.svg?url'
 import Drawer from '@/components/Drawer/Drawer.vue'
 import {
@@ -155,7 +170,7 @@ import {
 import { ElMessage, FormInstance, FormRules } from 'element-plus'
 import { ElLoading } from 'element-plus'
 import IconMetaMask from '@/assets/images/MetaMask_Fox.svg.svg?url'
-import { formatUnits, toQuantity, verifyMessage, resolveAddress } from 'ethers'
+import { formatUnits, toQuantity, verifyMessage, resolveAddress, Transaction } from 'ethers'
 import { useRootStore } from '@/store/root'
 import { useUserStore } from '@/store/user'
 import {
@@ -167,6 +182,7 @@ import {
   ensConvertAddress,
 } from '@/utils/util'
 import Decimal from 'decimal.js-light'
+
 const contractList: string[] = [mvc, twitter, instagram, reddit, discord]
 const DrawerOperate = ref(false)
 const innerDrawer = ref(false)
@@ -177,6 +193,8 @@ const rootStore = useRootStore()
 const userStore = useUserStore()
 const currentTransferType = ref()
 const currentCoinUit = ref(CoinUint.Space)
+const historyDialog = ref(false)
+const transationHistoryList = reactive([])
 onMounted(async () => {
   // const preMessage = '\u0019Ethereum Signed Message:\n'
   // const message = 'hello'
@@ -191,6 +209,7 @@ onMounted(async () => {
   //   `0xfa847a842519f9031da788ce140ea49d3fd6343bdccd97edfb383bf6451832576daa24a990244d3b81c79ef62f7e4cb0af66449ec3a0165d1d2252ad1e23e7ad1c`
   // )
   // console.log('zxc2xczxcres', res)
+  // const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
 })
 
 watch(

@@ -184,22 +184,32 @@ import Dialog from '@/components/Dialog/Dialog.vue'
 import { useUserStore } from '@/store/user'
 import { useRootStore } from '@/store/root'
 import { ElMessage } from 'element-plus'
-import { mappingChainName } from '@/utils/util'
+import { mappingChainName, GeneratorSignatrue } from '@/utils/util'
 import Decimal from 'decimal.js-light'
 import { toQuantity } from 'ethers'
 import { registerOrder } from '@/api/api'
+import { OrderRegisterRequest } from 'mvcbridge-sdk/api'
+import { SignatureHelper } from 'mvcbridge-sdk/signature'
 const selectChainDialog = ref(false)
 const selectCoinDialog = ref(false)
 const transationDetailDialog = ref(false)
 const swapSuccess = ref(false)
-const allowSwap = ref(false)
+
 const sendInput = ref('')
-const swapLoading = ref(false)
-const rootStore = useRootStore()
-const userStore = useUserStore()
 const receiveInput = computed(() => {
   return sendInput.value
 })
+const allowSwap = computed(() => {
+  if (sendInput.value && receiveInput.value) {
+    return false
+  } else {
+    return true
+  }
+})
+const swapLoading = ref(false)
+const rootStore = useRootStore()
+const userStore = useUserStore()
+
 const currentContractOperate = computed(() => {
   if (fromChain.value == MappingChainName.ETH) {
     if (currentAssert.value == MappingIcon.USDT) {
@@ -450,15 +460,14 @@ async function confrimSwap() {
       const value = toQuantity(
         new Decimal(sendInput.value).mul(10 ** currentContractOperate.value.decimal).toString()
       )
-      const hash = await currentContractOperate.value.contract
+      const { hash } = await currentContractOperate.value.contract
         .transfer(`0x03Dc88eF1127053d8A2c68aacBC1634411E8d45c`, value)
         .catch((e: any) => {
           swapLoading.value = false
           throw new Error(`Cancel Transfer`)
         })
       if (hash) {
-        return
-        await registerOrder({
+        const registerRequest: OrderRegisterRequest = {
           fromChain: fromChain.value.toLowerCase(),
           fromTokenName: currentCoin.value!.toLowerCase(),
           txid: hash,
@@ -468,11 +477,20 @@ async function confrimSwap() {
           fromAddress: rootStore.Web3WalletSdk.signer.address,
           toChain: curretnToChain.value.toLowerCase(),
           toTokenName: currentCoin.value!.toLowerCase(),
-          toAddress: '',
-          signature: '',
-        })
+          toAddress: 'mjDcF9PMGua7xS4SiMRTSmMxsBs1hvRQ2E',
+        }
+        const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
+
+        const sign = await rootStore.GetWeb3Wallet.signer.signMessage(message)
+        if (sign) {
+          registerRequest.signature = sign
+          console.log('registerRequest', registerRequest)
+          return
+          rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+            .then((order) => {})
+            .catch(() => {})
+        }
       }
-      console.log('hash', hash)
     } else if (fromChain.value === MappingChainName.MVC) {
       const tx = await userStore.showWallet
         .createBrfcChildNode(
@@ -500,20 +518,29 @@ async function confrimSwap() {
           swapLoading.value = false
           throw new Error(e.toString())
         })
+
       console.log('tx12312', tx)
-      if (tx) {
-        return
-        await registerOrder({
+
+      if (tx?.ft?.transfer?.txId) {
+        const registerRequest = GeneratorSignatrue({
           fromChain: fromChain.value.toLowerCase(),
           fromTokenName: currentCoin.value!.toLowerCase(),
-          txid: '',
+          txid: tx?.ft?.transfer?.txId,
           amount: new Decimal(sendInput.value).mul(10 ** mvcTokenDecimal.value).toString(),
           fromAddress: userStore.user!.address,
           toChain: curretnToChain.value.toLowerCase(),
           toTokenName: currentCoin.value!.toLowerCase(),
-          toAddress: '',
-          signature: '',
+          toAddress: '0x03Dc88eF1127053d8A2c68aacBC1634411E8d45c',
         })
+        console.log('registerRequest', registerRequest)
+        return
+        rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+          .then((order) => {})
+          .catch(() => {})
+        // await registerOrder()
+      } else {
+        swapLoading.value = false
+        return ElMessage.error('Build Transaction failed')
       }
     }
     swapSuccess.value = true

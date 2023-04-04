@@ -1035,6 +1035,13 @@ available-typed-arrays@^1.0.5:
   resolved "https://registry.npmmirror.com/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz#92f95616501069d07d10edb2fc37d3e1c65123b7"
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
+axios@^0.21.2:
+  version "0.21.4"
+  resolved "https://registry.npmmirror.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
+  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
+  dependencies:
+    follow-redirects "^1.14.0"
+
 axios@^0.27.2:
   version "0.27.2"
   resolved "https://registry.npmmirror.com/axios/-/axios-0.27.2.tgz#207658cc8621606e586c85db4b41a750e756d972"
@@ -2220,7 +2227,7 @@ find-yarn-workspace-root@^2.0.0:
   dependencies:
     micromatch "^4.0.2"
 
-follow-redirects@^1.14.9, follow-redirects@^1.15.0:
+follow-redirects@^1.14.0, follow-redirects@^1.14.9, follow-redirects@^1.15.0:
   version "1.15.2"
   resolved "https://registry.npmmirror.com/follow-redirects/-/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
   integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
@@ -3028,10 +3035,10 @@ merge2@^1.3.0:
   resolved "https://registry.npmmirror.com/merge2/-/merge2-1.4.1.tgz#4368892f885e907455a6fd7dc55c0c9d404990ae"
   integrity sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==
 
-meta-contract@^0.3.23:
-  version "0.3.23"
-  resolved "https://registry.npmmirror.com/meta-contract/-/meta-contract-0.3.23.tgz#aa977f029e4f4a50170ed6d49b91428c2819b229"
-  integrity sha512-SUGiWqtaaEsHL8IgZqYCIakNRGl5GB59KVgVc/3om7w69mRM65RqVXmfQKjt1M3lnP3P/zrIj5va+6sUq/zU7w==
+meta-contract@^0.3.25:
+  version "0.3.25"
+  resolved "https://registry.npmmirror.com/meta-contract/-/meta-contract-0.3.25.tgz#8ad97cb44cfa80c60675177ceeed8e95c30f3d09"
+  integrity sha512-gjkdqhScYFHNE+d2jWQAD31GUU6C4CWRASdLrFEXk+H11Dk3pL3NdHwUXJVxVWQeVcaVIz+/qw12jmX+CEUOvw==
   dependencies:
     mvc-scrypt "^0.1.2"
     node-fetch "2"
@@ -3203,6 +3210,14 @@ mvc-std-lib@^1.1.4:
     hash.js "^1.1.7"
     inherits "2.0.3"
     unorm "1.4.1"
+
+mvcbridge-sdk@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/mvcbridge-sdk/-/mvcbridge-sdk-1.0.2.tgz#72c99d3ce2e00870928115542f55883b1e29e171"
+  integrity sha512-oO8u0Qx79lcwX6t6yqnrgnF59bSUjFW0DeqQ8RF7Vw7LcvcBYJZpqBPRf03t+2xz+bgR1y6W0DvnFdDpJv8cAg==
+  dependencies:
+    axios "^0.21.2"
+    meta-contract "^0.3.25"
 
 nanoid@^3.3.4:
   version "3.3.4"

@@ -6,6 +6,9 @@ import { GetSpanceBalance } from '@/utils/util'
 import { ToCurrency, MvcUsdToken } from '@/enum'
 import { GetFtBalance } from '@/api/metasv'
 import { useUserStore } from '@/store/user'
+import { OrderApi } from 'mvcbridge-sdk/api'
+import { BASE_PATH } from 'mvcbridge-sdk/base'
+
 interface Web3Wallet {
   provider: any
   signer: any
@@ -49,6 +52,7 @@ interface RootState {
   exchangeRate: ExchangeRate[]
   // isGetedExchangeRate: boolean
   currentPrice: ToCurrency
+  orderApi: any
 }
 const UA = window.navigator.userAgent.toLowerCase()
 const MvcFtList = [
@@ -98,10 +102,14 @@ export const useRootStore = defineStore('root', {
         import.meta.env.MODE == 'gray' ? ['0x5', '0x13881', '0xaa36a7'] : ['0x1', '0x89'],
       updatePlanWhiteList: ['0x0c45B536C69AB0B8806a65C94BA8C8e6e71Ba7c'],
       currentPrice: 'USD',
+      orderApi: null,
     },
   getters: {
     GetWeb3Wallet: (state) => {
       return toRaw(state.Web3WalletSdk)
+    },
+    GetOrderApi: (state) => {
+      return toRaw(state.orderApi)
     },
     currentExchangeRate: (state) =>
       state.exchangeRate.find((item) => item.symbol === state.currentPrice),
@@ -110,6 +118,10 @@ export const useRootStore = defineStore('root', {
     InitWeb3Wallet(payload: any) {
       this.Web3WalletSdk = payload
     },
+    InitOrderApi() {
+      this.orderApi = new OrderApi(undefined, BASE_PATH)
+    },
+
     async GetWeb3AccountBalance() {
       const userStore = useUserStore()
       const mvcRequest = []

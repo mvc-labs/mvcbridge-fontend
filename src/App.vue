@@ -19,6 +19,7 @@ onMounted(async () => {
     if (!userStore.showWallet.isInitSdked) {
       await userStore.showWallet.initWallet()
     }
+    rootStore.InitOrderApi()
     if (diffTime()) {
       rootStore.getExchangeRate()
     }
