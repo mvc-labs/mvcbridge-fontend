@@ -3211,7 +3211,7 @@ mvc-std-lib@^1.1.4:
     inherits "2.0.3"
     unorm "1.4.1"
 
-mvcbridge-sdk@1.0.2:
+mvcbridge-sdk@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmmirror.com/mvcbridge-sdk/-/mvcbridge-sdk-1.0.2.tgz#72c99d3ce2e00870928115542f55883b1e29e171"
   integrity sha512-oO8u0Qx79lcwX6t6yqnrgnF59bSUjFW0DeqQ8RF7Vw7LcvcBYJZpqBPRf03t+2xz+bgR1y6W0DvnFdDpJv8cAg==

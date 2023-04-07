@@ -16,6 +16,12 @@ export enum CoinDecimal {
   USDC = 18,
 }
 
+export enum ChainTypeBalance {
+  ALL = 'ALL',
+  ETH = 'ETH',
+  MVC = 'MVC',
+}
+
 export enum MappingChainName {
   Ethereum = 'Ethereum',
   Polygon = 'Polygon',

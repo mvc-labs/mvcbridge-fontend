@@ -5,11 +5,11 @@
         <img :src="Logo" alt="" />
       </div>
       <div class="menu">
-        <div class="wallet" @click="historyDialog = true">
-          <el-icon><Timer /></el-icon>
+        <div class="wallet" @click="getHistoryList">
+          <img :src="HistoryIcon" alt="" />
         </div>
-        <div class="wallet" @click="checkWalletInfo">
-          <el-icon><Wallet /></el-icon>
+        <div class="wallet" v-if="userStore.isAuthorized" @click="checkWalletInfo">
+          <img :src="WalletIcon" alt="" />
         </div>
         <div v-if="!userStore.user" @click="ConnectWallet" class="login-btn">Connect Wallet</div>
         <div v-else class="logined-meun">
@@ -101,9 +101,7 @@
           <el-form-item label="Transfer Address" prop="address">
             <el-input
               :placeholder="
-                currentTransferType == MappingIcon.MVC
-                  ? 'Enter Transfer Address/MetaName'
-                  : 'Enter Transfer Address/ENS'
+                MetaNameOrEns ? 'Enter Transfer Address/MetaName' : 'Enter Transfer Address/ENS'
               "
               v-model="ruleForm.address"
             />
@@ -135,28 +133,91 @@
 
   <Dialog v-model="historyDialog">
     <template #title>
-      <div>Select a token</div>
+      <div>History</div>
     </template>
     <template #content>
-      <div v-if="!transationHistoryList.length" class="blankHistoryWrap">
+      <!-- <div v-if="transationHistoryList.length" class="blankHistoryWrap">
         <span>No transfers yet</span>
+      </div> -->
+      <div class="table_wrap">
+        <el-table
+          empty-text="No transfers yet"
+          v-loading="loadingHistory"
+          element-loading-text="Loading..."
+          :element-loading-spinner="svg"
+          element-loading-svg-view-box="-10, -10, 50, 50"
+          element-loading-background="rgba(122, 122, 122, 0.6)"
+          header-row-class-name="header-row"
+          :data="transationHistoryList"
+          height="300"
+          style="width: 100%; background-color: var(--themeBgFourColor) !important"
+          header-cell-class-name="header-cell"
+          :header-cell-style="{
+            background: '#232530',
+            color: '#fff',
+            padding: 0,
+            fontSize: '13px',
+          }"
+          :cell-style="{ background: '#232530', color: '#fff' }"
+        >
+          <el-table-column class-name="col-item" prop="Currency" label="Currency" width="100">
+            <template #default="scope">
+              <div class="tx-cell">
+                <IconItem :iconMap="scope!.row!.Currency"></IconItem>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column class-name="col-item" prop="Send" label="Send" width="100">
+            <template #default="scope">
+              <div class="tx-cell">
+                <IconItem :iconMap="scope.row.Send"></IconItem>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column class-name="col-item" prop="Receive" label="Receive" width="100">
+            <template #default="scope">
+              <div class="tx-cell">
+                <IconItem :iconMap="scope.row.Receive"></IconItem>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column class-name="col-item" prop="Amount" label="Amount" width="100">
+            <template #default="scope">
+              <div class="tx-cell">
+                <span>{{ scope.row.Amount }}&nbsp;</span>
+                <span>{{ scope.row.Currency }}</span>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column class-name="col-item" prop="Date" label="Date" />
+
+          <el-table-column class-name="col-item" prop="State" label="State">
+            <div class="tx-cell-img">
+              <el-icon :size="15" color="#fff"><Select /></el-icon>
+            </div>
+          </el-table-column>
+        </el-table>
       </div>
-      <div v-else></div>
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick, onMounted, toRaw, watch } from 'vue'
+import { ref, reactive, nextTick, onMounted, toRaw, watch, computed } from 'vue'
 import SwapItem from '@/components/Swap-Item/Swap-Item.vue'
+import IconItem from '@/components/Icon-item/Icon-item.vue'
 import mvc from '@/assets/images/mvc.svg?url'
 import twitter from '@/assets/images/twitter.svg?url'
 import reddit from '@/assets/images/reddit.svg?url'
 import instagram from '@/assets/images/instagram.svg?url'
 import discord from '@/assets/images/discord.svg?url'
-import { Wallet, ArrowLeftBold, Timer } from '@element-plus/icons-vue'
+import { ArrowLeftBold, Select } from '@element-plus/icons-vue'
 import Logo from '@/assets/images/logo_mvc.svg?url'
+import WalletIcon from '@/assets/images/Wallets-icon.svg?url'
+import HistoryIcon from '@/assets/images/History-icon.svg?url'
 import Drawer from '@/components/Drawer/Drawer.vue'
+
 import {
   MappingIcon,
   MappingChainName,
@@ -182,6 +243,7 @@ import {
   ensConvertAddress,
 } from '@/utils/util'
 import Decimal from 'decimal.js-light'
+import { dateTimeFormat } from '@/utils/filters'
 
 const contractList: string[] = [mvc, twitter, instagram, reddit, discord]
 const DrawerOperate = ref(false)
@@ -194,7 +256,30 @@ const userStore = useUserStore()
 const currentTransferType = ref()
 const currentCoinUit = ref(CoinUint.Space)
 const historyDialog = ref(false)
-const transationHistoryList = reactive([])
+const loadingHistory = ref(false)
+const MetaNameOrEns = computed(() => {
+  let mvc = [MappingIcon.MVC, MappingIcon.MUSDC, MappingIcon.MUSDT]
+  return mvc.includes(currentTransferType.value)
+})
+interface TransationItem {
+  Currency: string
+  Send: string
+  Receive: string
+  Amount: string
+  Date: string
+  State: string
+}
+const svg = `
+        <path class="path" d="
+          M 30 15
+          L 28 17
+          M 25.61 25.61
+          A 15 15, 0, 0, 1, 15 30
+          A 15 15, 0, 1, 1, 27.99 7.5
+          L 15 15
+        " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+      `
+const transationHistoryList: TransationItem[] = reactive([])
 onMounted(async () => {
   // const preMessage = '\u0019Ethereum Signed Message:\n'
   // const message = 'hello'
@@ -210,6 +295,15 @@ onMounted(async () => {
   // )
   // console.log('zxc2xczxcres', res)
   // const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
+  // nextTick(() => {
+  //   const node = document.querySelectorAll('.foot')[0]!
+  //   const io = new IntersectionObserver((entries) => {
+  //     entries.forEach((item) => {
+  //       console.log('node', item)
+  //     })
+  //   })
+  //   io.observe(node)
+  // })
 })
 
 watch(
@@ -291,6 +385,62 @@ const handleCommand = (command: string | number | object) => {
   if (command == 'logout') {
     userStore.logout()
   }
+}
+
+const list = reactive([
+  {
+    vaultId: '1111',
+    txid: 'asas',
+    fromAddress: 'asa2xzxczx',
+    fromAmount: '100',
+    fromChain: 'eth',
+    fromTokenName: 'usdt',
+  },
+  {
+    vaultId: '2222',
+    txid: 'zxzasasda',
+    fromAddress: 'mjs2zxzcxc',
+    fromAmount: '100',
+    fromChain: 'mvc',
+    fromTokenName: 'usdc',
+  },
+])
+
+function mappingFromChain(chain: string) {
+  switch (chain) {
+    case MappingChainName.ETH.toLocaleLowerCase():
+      return MappingIcon.ETH
+    case MappingChainName.MVC.toLocaleLowerCase():
+      return MappingIcon.MVC
+  }
+}
+
+function mappingFromToken(token: string) {
+  switch (token) {
+    case MappingIcon.USDT.toLocaleLowerCase():
+      return MappingIcon.USDT
+    case MappingIcon.USDC.toLocaleLowerCase():
+      return MappingIcon.USDC
+  }
+}
+
+function getHistoryList() {
+  historyDialog.value = true
+  loadingHistory.value = true
+  setTimeout(() => {
+    list.forEach((ele, id) => {
+      transationHistoryList.forEach((item, index) => {
+        if (id == index) {
+          item.Currency = mappingFromToken(ele.fromTokenName)!
+          item.Send = mappingFromChain(ele.fromChain)!
+          item.Receive = item.Send === MappingIcon.ETH ? MappingIcon.MVC : MappingIcon.ETH
+          item.Amount = ele.fromAmount
+          // item.Date=dateTimeFormat()
+        }
+      })
+    })
+    loadingHistory.value = false
+  }, 5000)
 }
 
 function selectCoinTransfer(coin: string) {

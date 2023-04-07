@@ -253,7 +253,7 @@ html.dark {
      background: var(--dialogBgColor) !important;
      border-radius: 12px !important;
      top: 10%;
-     max-width: 30% !important;
+     max-width: 33% !important;
      width: 50% !important;
      box-shadow: 0px 0px 6px 0px rgba(180, 192, 201, 0.52) !important;
     &.sm {
@@ -318,6 +318,8 @@ html.dark {
         
         color: var(--themeTextColor);
         padding: 10px 30px 30px 30px;
+       
+       
     }
 
     .el-dialog__headerbtn {
@@ -401,6 +403,12 @@ html.dark {
     }
 }
 
+.historyDialog {
+   .el-dialog{
+    width: 90vw !important;
+   }
+}
+
  .connectDialog{
      max-width: 35% !important;
      @media screen and (max-width:500px) {
@@ -413,7 +421,7 @@ html.dark {
 
 @media only screen and (max-width: 1200px) {
     .el-dialog{
-        width: 40% !important;
+        width: 50% !important;
         max-width: 50% !important;
     }
 }
@@ -422,9 +430,9 @@ html.dark {
    
     .el-dialog {
         --el-dialog-border-radius: 12px;
-        width: 65% !important;
+        width: 85% !important;
        
-        max-width: 65% !important;
+        max-width: 85% !important;
         .el-dialog__body {
             padding: 20px;
         }
@@ -781,4 +789,18 @@ html.dark {
 .el-popover {
     --el-popover-border-radius: var(--rounded) !important;
 }
+
+
+
+ .el-table__inner-wrapper{
+    &::before{
+    background-color: var(--themeBgFourColor) !important;
+    }
+  }
+
+  .el-table__empty-text{
+    font-size: 24px !important;
+  }
+
+  
 

@@ -42,6 +42,22 @@ enum FromOrToTokenName {
   usdc = 'usdc',
 }
 
+interface GetReceiveAddressType {
+  address: string
+  chain: string
+  tokenName: string
+}
+
+export const GetReceiveAddress = (params: {
+  fromChain: string
+  fromTokenName: string
+}): Promise<GetReceiveAddressType> => {
+  const { fromChain, fromTokenName } = params
+  return metasvBrige.get(
+    `/order/${fromChain.toLocaleLowerCase()}/${fromTokenName.toLocaleLowerCase()}/deposit/address`
+  )
+}
+
 export const registerOrder = (params: {
   fromChain: string
   fromTokenName: string
@@ -51,7 +67,7 @@ export const registerOrder = (params: {
   toChain: string
   toTokenName: string
   toAddress: string
-  signature: string
+  signature?: string
 }): Promise<{
   code: number
   data: OrderResult
@@ -68,5 +84,7 @@ export const waitOrderList = (params: {
   data: OrderWaitResult[]
 }> => {
   const { fromChain, fromTokenName, address } = params
-  return metasvBrige.get(`/order/${fromChain}/${fromTokenName}/${address}/waiting`)
+  return metasvBrige.get(
+    `/order/${fromChain.toLocaleLowerCase()}/${fromTokenName.toLocaleLowerCase()}/${address}/waiting`
+  )
 }

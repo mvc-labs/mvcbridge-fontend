@@ -177,6 +177,7 @@ import {
   NodeName,
   SdkPayType,
   CoinDecimal,
+  ChainTypeBalance,
 } from '@/enum'
 import IconItem from '@/components/Icon-item/Icon-item.vue'
 import ConvertIcon from '@/assets/images/icon_Convert.svg?url'
@@ -184,12 +185,13 @@ import Dialog from '@/components/Dialog/Dialog.vue'
 import { useUserStore } from '@/store/user'
 import { useRootStore } from '@/store/root'
 import { ElMessage } from 'element-plus'
-import { mappingChainName, GeneratorSignatrue } from '@/utils/util'
+import { mappingChainName, GeneratorSignatrue, checkAmount } from '@/utils/util'
 import Decimal from 'decimal.js-light'
 import { toQuantity } from 'ethers'
-import { registerOrder } from '@/api/api'
+
 import { OrderRegisterRequest } from 'mvcbridge-sdk/api'
 import { SignatureHelper } from 'mvcbridge-sdk/signature'
+import { GetReceiveAddress, registerOrder } from '@/api/api'
 const selectChainDialog = ref(false)
 const selectCoinDialog = ref(false)
 const transationDetailDialog = ref(false)
@@ -227,15 +229,27 @@ const currentContractOperate = computed(() => {
     if (currentAssert.value == MappingIcon.USDT) {
       return {
         contract: null,
+        codehash: rootStore.MvcFtList[0].codeHash,
+        genesis: rootStore.MvcFtList[0].genesis,
         decimal: CoinDecimal.USDT,
       }
     } else {
       return {
         contract: null,
+        codehash: rootStore.MvcFtList[1].codeHash,
+        genesis: rootStore.MvcFtList[1].genesis,
         decimal: CoinDecimal.USDC,
       }
     }
   }
+})
+
+const recevierInfo = reactive({
+  val: {
+    address: '',
+    chain: '',
+    tokenName: '',
+  },
 })
 
 const mvcTokenDecimal = computed(() => {
@@ -381,10 +395,16 @@ async function Swap() {
     estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
       .mul(import.meta.env.VITE_BRIGE_FEE)
       .toString()
+    recevierInfo.val = await GetReceiveAddress({
+      fromChain: fromChain.value!,
+      fromTokenName: currentAssert.value,
+    })
+
     if (currentFromChain.value === MappingChainName.Ethereum) {
+      console.log('sedddd', sendInput.value)
       params = {
         amount: sendInput.value,
-        address: `0x03Dc88eF1127053d8A2c68aacBC1634411E8d45c`,
+        address: recevierInfo.val.address,
       }
       estimatedTransferInfo.val.gasFee = await estimatedGasPrice(params)
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
@@ -394,7 +414,7 @@ async function Swap() {
     } else if (currentFromChain.value === MappingChainName.MVC) {
       params = {
         amount: new Decimal(sendInput.value).mul(10 ** mvcTokenDecimal.value).toString(),
-        address: `mqY77E4uLXUsqwhEYJiSbVyhzM9B1TazTR`,
+        address: recevierInfo.val.address,
       }
       estimatedTransferInfo.val.gasFee = await (await estimatedTransferFtFee(params)).gasFee
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
@@ -419,8 +439,8 @@ async function estimatedTransferFtFee(params: { amount: string; address: string 
               amount: params.amount,
             },
           ],
-          codehash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-          genesis: '744a02129eefc1f478e6aec5c3ab2e9147f0cf3c',
+          codehash: currentContractOperate.value.codehash,
+          genesis: currentContractOperate.value.genesis,
         }),
       },
       {
@@ -456,28 +476,43 @@ async function confrimSwap() {
   try {
     if (!userStore.user) return ElMessage.error(`User unLogin,Please check login status!`)
     swapLoading.value = true
+
     if (fromChain.value === MappingChainName.ETH) {
+      await rootStore.GetWeb3AccountBalance(ChainTypeBalance.ETH).catch(() => {
+        throw new Error(`GetBalance fail.`)
+      })
+      await checkAmount({
+        chain: ChainTypeBalance.ETH,
+        currency: estimatedTransferInfo.val.gasFee,
+        token: {
+          symbol: currentCoin.value!,
+          amount: sendInput.value,
+        },
+      }).catch((e) => {
+        throw new Error(e)
+      })
       const value = toQuantity(
         new Decimal(sendInput.value).mul(10 ** currentContractOperate.value.decimal).toString()
       )
-      const { hash } = await currentContractOperate.value.contract
-        .transfer(`0x03Dc88eF1127053d8A2c68aacBC1634411E8d45c`, value)
+      const tx = await currentContractOperate.value.contract
+        .transfer(`${recevierInfo.val.address}`, value)
         .catch((e: any) => {
           swapLoading.value = false
           throw new Error(`Cancel Transfer`)
         })
-      if (hash) {
+      if (tx) {
+        await tx.wait(3)
         const registerRequest: OrderRegisterRequest = {
           fromChain: fromChain.value.toLowerCase(),
           fromTokenName: currentCoin.value!.toLowerCase(),
-          txid: hash,
+          txid: tx.hash,
           amount: new Decimal(sendInput.value)
             .mul(10 ** currentContractOperate.value.decimal)
             .toString(),
           fromAddress: rootStore.Web3WalletSdk.signer.address,
           toChain: curretnToChain.value.toLowerCase(),
           toTokenName: currentCoin.value!.toLowerCase(),
-          toAddress: 'mjDcF9PMGua7xS4SiMRTSmMxsBs1hvRQ2E',
+          toAddress: userStore.user.address,
         }
         const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
 
@@ -485,13 +520,31 @@ async function confrimSwap() {
         if (sign) {
           registerRequest.signature = sign
           console.log('registerRequest', registerRequest)
-          return
+
           rootStore.GetOrderApi.orderRegisterPost(registerRequest)
-            .then((order) => {})
-            .catch(() => {})
+            .then((order: any) => {
+              console.log('order', order)
+            })
+            .catch((e: any) => {
+              throw new Error(e)
+            })
         }
       }
     } else if (fromChain.value === MappingChainName.MVC) {
+      await rootStore.GetWeb3AccountBalance(ChainTypeBalance.MVC).catch(() => {
+        throw new Error(`GetBalance fail.`)
+      })
+      await checkAmount({
+        chain: ChainTypeBalance.MVC,
+        currency: estimatedTransferInfo.val.gasFee,
+        token: {
+          symbol: currentCoin.value!,
+          amount: sendInput.value,
+        },
+      }).catch((e) => {
+        throw new Error(e)
+      })
+
       const tx = await userStore.showWallet
         .createBrfcChildNode(
           {
@@ -499,14 +552,14 @@ async function confrimSwap() {
             data: JSON.stringify({
               receivers: [
                 {
-                  address: `mjDcF9PMGua7xS4SiMRTSmMxsBs1hvRQ2E`,
+                  address: recevierInfo.val.address,
                   amount: new Decimal(sendInput.value)
                     .mul(10 ** currentContractOperate.value.decimal)
                     .toString(),
                 },
               ],
-              codehash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-              genesis: '744a02129eefc1f478e6aec5c3ab2e9147f0cf3c',
+              codehash: currentContractOperate.value.codehash,
+              genesis: currentContractOperate.value.genesis,
             }),
           },
           {
@@ -530,13 +583,17 @@ async function confrimSwap() {
           fromAddress: userStore.user!.address,
           toChain: curretnToChain.value.toLowerCase(),
           toTokenName: currentCoin.value!.toLowerCase(),
-          toAddress: '0x03Dc88eF1127053d8A2c68aacBC1634411E8d45c',
+          toAddress: rootStore.GetWeb3Wallet.signer.address,
         })
         console.log('registerRequest', registerRequest)
-        return
+
         rootStore.GetOrderApi.orderRegisterPost(registerRequest)
-          .then((order) => {})
-          .catch(() => {})
+          .then((order: any) => {
+            console.log('order', order)
+          })
+          .catch((e: any) => {
+            throw new Error(e)
+          })
         // await registerOrder()
       } else {
         swapLoading.value = false

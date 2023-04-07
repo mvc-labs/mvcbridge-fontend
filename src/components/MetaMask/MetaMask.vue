@@ -113,6 +113,7 @@ function sign() {
 
 async function MetaMaskConnect() {
   const { isUpdatePlan, loginedButBind, bindEvmChain } = rootStore.showLoginBindEvmAccount
+
   try {
     const connetSuccess = await sign()
     if (connetSuccess) {

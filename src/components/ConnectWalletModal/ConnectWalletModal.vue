@@ -22,7 +22,8 @@
             <!-- <div class="title">{{ item.title() }}</div> -->
             <div class="btn-list flex flex-v">
               <div
-                class="main-border flex flex-align-center"
+                class="flex flex-align-center main-border"
+                :class="[wallet.disable ? 'gray' : '']"
                 @click="wallet.fun()"
                 v-for="(wallet, walletIndex) in item.list"
                 :key="walletIndex"
@@ -80,6 +81,7 @@ import QRCodeModal from '@walletconnect/qrcode-modal'
 import { currentSupportChain } from '@/config'
 import IconMetaMask from '@/assets/images/MetaMask_Fox.svg.svg?url'
 import IconWallteConnect from '@/assets/images/login_logo_wallteconnect.png'
+import IconMetalet from '@/assets/images/MVC.png?url'
 import { ethers, sha256, toUtf8Bytes, toUtf8String, toQuantity } from 'ethers'
 import BindMetaIdVue from './BindMetaId.vue'
 import MetaMask from '@/components/MetaMask/MetaMask.vue'
@@ -127,6 +129,19 @@ const wallets = [
         },
         icon: IconWallteConnect,
         fun: connectWalletConnect,
+      },
+      {
+        name: () => {
+          return 'Metalet'
+        },
+        desc: () => {
+          return ``
+        },
+        disable: true,
+        icon: IconMetalet,
+        fun: () => {
+          ElMessage.warning(`Coming soon`)
+        },
       },
     ],
   },

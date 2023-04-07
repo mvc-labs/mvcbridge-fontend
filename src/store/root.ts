@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { toRaw } from 'vue'
 import { formatEther, formatUnits } from 'ethers'
 import { GetSpanceBalance } from '@/utils/util'
-import { ToCurrency, MvcUsdToken } from '@/enum'
+import { ToCurrency, MvcUsdToken, ChainTypeBalance } from '@/enum'
 import { GetFtBalance } from '@/api/metasv'
 import { useUserStore } from '@/store/user'
 import { OrderApi } from 'mvcbridge-sdk/api'
@@ -53,20 +53,13 @@ interface RootState {
   // isGetedExchangeRate: boolean
   currentPrice: ToCurrency
   orderApi: any
+  MvcFtList: Array<{
+    tokenName: string
+    codeHash: string
+    genesis: string
+  }>
 }
 const UA = window.navigator.userAgent.toLowerCase()
-const MvcFtList = [
-  {
-    tokenName: MvcUsdToken.M_USDT,
-    codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-    genesis: '83ee75633433f35c1a2345425752cb79582e1581',
-  },
-  {
-    tokenName: MvcUsdToken.M_USDT,
-    codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-    genesis: '744a02129eefc1f478e6aec5c3ab2e9147f0cf3c',
-  },
-]
 
 export const isApp = !!window.appMetaIdJsV2
 export const isAndroid = !!(UA && UA.indexOf('android') > 0)
@@ -103,6 +96,18 @@ export const useRootStore = defineStore('root', {
       updatePlanWhiteList: ['0x0c45B536C69AB0B8806a65C94BA8C8e6e71Ba7c'],
       currentPrice: 'USD',
       orderApi: null,
+      MvcFtList: [
+        {
+          tokenName: MvcUsdToken.M_USDT,
+          codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
+          genesis: '1739804f265e85826bdd1078f8c719a9e6f421d5',
+        },
+        {
+          tokenName: MvcUsdToken.M_USDT,
+          codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
+          genesis: '744a02129eefc1f478e6aec5c3ab2e9147f0cf3c',
+        },
+      ],
     },
   getters: {
     GetWeb3Wallet: (state) => {
@@ -122,48 +127,95 @@ export const useRootStore = defineStore('root', {
       this.orderApi = new OrderApi(undefined, BASE_PATH)
     },
 
-    async GetWeb3AccountBalance() {
+    async GetWeb3AccountBalance(payload: ChainTypeBalance = ChainTypeBalance.ALL) {
       const userStore = useUserStore()
       const mvcRequest = []
-      const ethCurrency = this.GetWeb3Wallet.provider.getBalance(this.GetWeb3Wallet.signer.address)
-      const mvcCurrency = GetSpanceBalance()
-      const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
-      const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
+      if (payload === ChainTypeBalance.ALL) {
+        const ethCurrency = this.GetWeb3Wallet.provider.getBalance(
+          this.GetWeb3Wallet.signer.address
+        )
+        const mvcCurrency = GetSpanceBalance()
+        const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
+        const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
 
-      for (let i of MvcFtList) {
-        const res = GetFtBalance({
-          address: userStore.user!.address,
-          codeHash: i.codeHash,
-          genesis: i.genesis,
-        })
-        mvcRequest.push(res)
+        for (let i of this.MvcFtList) {
+          const res = GetFtBalance({
+            address: userStore.user!.address,
+            codeHash: i.codeHash,
+            genesis: i.genesis,
+          })
+          mvcRequest.push(res)
+        }
+
+        const result: any = await Promise.allSettled([
+          ethCurrency,
+          mvcCurrency,
+          usdt,
+          usdc,
+          ...mvcRequest,
+        ])
+
+        this.Web3WalletTokenBalance.currency = new Decimal(formatEther(result[0].value))
+          .toNumber()
+          .toFixed(4)
+        this.mvcWalletTokenBalance.space = result[1].value?.toFixed(8) || '0'
+        this.Web3WalletTokenBalance.usdt = new Decimal(formatUnits(result[2].value, 6))
+          .toNumber()
+          .toFixed(4)
+        this.Web3WalletTokenBalance.usdc = new Decimal(formatUnits(result[3].value, 6))
+          .toNumber()
+          .toFixed(4)
+        this.mvcWalletTokenBalance.usdt =
+          new Decimal(result[4].value[0]?.confirmedString || '0')
+            .div(10 ** result[4].value[0]?.decimal || 0)
+            .toString() || '0'
+        this.mvcWalletTokenBalance.usdc =
+          new Decimal(result[5].value[0]?.confirmedString || '0')
+            .div(10 ** result[5].value[0]?.decimal || 0)
+            .toString() || '0'
+      } else if (payload === ChainTypeBalance.ETH) {
+        const ethCurrency = this.GetWeb3Wallet.provider.getBalance(
+          this.GetWeb3Wallet.signer.address
+        )
+        const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
+        const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
+        const result: any = await Promise.allSettled([ethCurrency, usdt, usdc])
+        console.log('result', result)
+        this.Web3WalletTokenBalance.currency = new Decimal(formatEther(result[0].value))
+          .toNumber()
+          .toFixed(4)
+        this.Web3WalletTokenBalance.usdt = new Decimal(formatUnits(result[1].value, 6))
+          .toNumber()
+          .toFixed(4)
+        this.Web3WalletTokenBalance.usdc = new Decimal(formatUnits(result[2].value, 6))
+          .toNumber()
+          .toFixed(4)
+      } else if (payload == ChainTypeBalance.MVC) {
+        const mvcCurrency = GetSpanceBalance()
+
+        for (let i of MvcFtList) {
+          const res = GetFtBalance({
+            address: userStore.user!.address,
+            codeHash: i.codeHash,
+            genesis: i.genesis,
+          })
+          mvcRequest.push(res)
+        }
+
+        const result: any = await Promise.allSettled([mvcCurrency, ...mvcRequest])
+
+        console.log('result', result)
+
+        this.mvcWalletTokenBalance.space = result[0].value.toFixed(8)
+
+        this.mvcWalletTokenBalance.usdt = new Decimal(result[1].value[0].confirmedString)
+          .div(10 ** result[1].value[0].decimal)
+          .toString()
+        this.mvcWalletTokenBalance.usdc = new Decimal(result[2].value[0].confirmedString)
+          .div(10 ** result[2].value[0].decimal)
+          .toString()
       }
 
-      const result: any = await Promise.allSettled([
-        ethCurrency,
-        mvcCurrency,
-        usdt,
-        usdc,
-        ...mvcRequest,
-      ])
-
-      console.log('result', result)
-      this.Web3WalletTokenBalance.currency = new Decimal(formatEther(result[0].value))
-        .toNumber()
-        .toFixed(4)
-      this.mvcWalletTokenBalance.space = result[1].value.toFixed(8)
-      this.Web3WalletTokenBalance.usdt = new Decimal(formatUnits(result[2].value, 6))
-        .toNumber()
-        .toFixed(4)
-      this.Web3WalletTokenBalance.usdc = new Decimal(formatUnits(result[3].value, 6))
-        .toNumber()
-        .toFixed(4)
-      this.mvcWalletTokenBalance.usdt = new Decimal(result[4].value[0].confirmedString)
-        .div(10 ** result[4].value[0].decimal)
-        .toString()
-      this.mvcWalletTokenBalance.usdc = new Decimal(result[5].value[0].confirmedString)
-        .div(10 ** result[5].value[0].decimal)
-        .toString()
       console.log(
         'this.Web3WalletTokenBalance',
         this.Web3WalletTokenBalance,

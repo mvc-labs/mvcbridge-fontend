@@ -2,7 +2,7 @@ import { ElLoading, LoadingParentElement, ElMessage } from 'element-plus'
 import { decode, encode } from 'js-base64'
 import { useUserStore } from '@/store/user'
 import { useRootStore } from '@/store/root'
-import { MappingIcon, CoinSymbol, ChainOrigin, MappingChainName } from '@/enum'
+import { MappingIcon, CoinSymbol, ChainOrigin, MappingChainName, ChainTypeBalance } from '@/enum'
 import { eth, bsc, polygon, sepolias } from '@/assets/contract/contract.json'
 import { ETH, BSC, POLYGON, SEPOLIA } from '@/assets/contract/abi.json'
 import Decimal from 'decimal.js-light'
@@ -350,4 +350,62 @@ export function GeneratorSignatrue(registerRequest: OrderRegisterRequest): Order
   )
   registerRequest.signature = signature
   return registerRequest
+}
+
+export function checkAmount(params: {
+  chain: string
+  currency: string
+  token: {
+    symbol: string
+    amount: string
+  }
+}) {
+  console.log('params', params)
+
+  return new Promise(async (resolve, reject): Promise<void> => {
+    const rootStore = useRootStore()
+
+    if (params.chain === ChainTypeBalance.ETH) {
+      if (params.token.symbol == CoinSymbol.USDT) {
+        if (+rootStore.Web3WalletTokenBalance.usdt >= new Decimal(params.token.amount).toNumber()) {
+          resolve(true)
+        } else {
+          reject(
+            `The transfer needs ${params.token.amount} ${params.token.symbol} but the balance is only ${rootStore.Web3WalletTokenBalance.usdt} `
+          )
+        }
+      } else if (params.token.symbol == CoinSymbol.USDC) {
+        if (+rootStore.Web3WalletTokenBalance.usdc >= new Decimal(params.token.amount).toNumber()) {
+          resolve(true)
+        } else {
+          reject(
+            `The transfer needs ${params.token.amount} ${params.token.symbol} but the balance is only ${rootStore.Web3WalletTokenBalance.usdc} `
+          )
+        }
+      }
+    } else if (params.chain === ChainTypeBalance.MVC) {
+      if (+rootStore.mvcWalletTokenBalance.space < new Decimal(params.currency).toNumber()) {
+        reject(
+          `The transfer needs ${params.currency} Space fees but the balance is only ${rootStore.mvcWalletTokenBalance.space} `
+        )
+      }
+      if (params.token.symbol == CoinSymbol.USDT) {
+        if (+rootStore.mvcWalletTokenBalance.usdt >= new Decimal(params.token.amount).toNumber()) {
+          resolve(true)
+        } else {
+          reject(
+            `The transfer needs ${params.token.amount} ${params.token.symbol} but the balance is only ${rootStore.mvcWalletTokenBalance.usdt} `
+          )
+        }
+      } else if (params.token.symbol == CoinSymbol.USDC) {
+        if (+rootStore.mvcWalletTokenBalance.usdc >= new Decimal(params.token.amount).toNumber()) {
+          resolve(true)
+        } else {
+          reject(
+            `The transfer needs ${params.token.amount} ${params.token.symbol} but the balance is only ${rootStore.mvcWalletTokenBalance.usdc} `
+          )
+        }
+      }
+    }
+  })
 }
