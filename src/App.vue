@@ -6,9 +6,16 @@ import { onMounted } from 'vue'
 import { useUserStore } from './store/user'
 import { SDK } from '@/utils/sdk'
 import { diffTime } from '@/utils/util'
+import { ConnectType } from '@/enum'
 onMounted(async () => {
   const rootStore = useRootStore()
   const userStore = useUserStore()
+  // if ((window as any).WallectConnect) {
+  //   debugger
+  //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.WalletConnect))
+  // } else {
+  //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.MetaMask))
+  // }
   if ((window as any).ethereum) {
     rootStore.InitWeb3Wallet(await new Web3SDK())
   }

@@ -29,15 +29,15 @@
             placeholder="0.0"
             :parser="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
           />
-          <div class="chain-select" @click="selectCoinDialog = true">
+          <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
               <IconItem :iconMap="currentCoin"></IconItem>
             </div>
-            <div class="right">
+            <!-- <div class="right">
               <el-icon :size="16">
                 <ArrowDownBold />
               </el-icon>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -66,15 +66,15 @@
         <div class="title">Receive (estimated) :</div>
         <div class="input-container">
           <el-input v-model="receiveInput" placeholder="0.0" />
-          <div class="chain-select" @click="selectCoinDialog = true">
+          <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
               <IconItem :iconMap="currentCoin"></IconItem>
             </div>
-            <div class="right">
+            <!-- <div class="right">
               <el-icon :size="16">
                 <ArrowDownBold />
               </el-icon>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -191,7 +191,9 @@ import { toQuantity } from 'ethers'
 
 import { OrderRegisterRequest } from 'mvcbridge-sdk/api'
 import { SignatureHelper } from 'mvcbridge-sdk/signature'
-import { GetReceiveAddress, registerOrder } from '@/api/api'
+import { GetReceiveAddress, registerOrder, waitOrderList } from '@/api/api'
+import { resolve } from 'dns'
+import { bool2Asm } from 'mvc-scrypt/dist'
 const selectChainDialog = ref(false)
 const selectCoinDialog = ref(false)
 const transationDetailDialog = ref(false)
@@ -313,7 +315,10 @@ const txInfo = reactive([
   },
   {
     title: `You‘re pay in gas fees`,
-    value: () => estimatedTransferInfo.val.gasFee,
+    value: () =>
+      currentFromChain.value === MappingChainName.MVC
+        ? estimatedTransferInfo.val.gasFeeToUsd
+        : estimatedTransferInfo.val.gasFee,
     decimal: () => currentCoin.value,
   },
   {
@@ -328,6 +333,7 @@ const estimatedTransferInfo = reactive({
     send: '',
     brigefee: '',
     gasFee: '',
+    gasFeeToUsd: '',
     time: '',
     minimumReceived: '',
   },
@@ -354,6 +360,7 @@ function resetEstimatedInfo() {
     send: '',
     brigefee: '',
     gasFee: '',
+    gasFeeToUsd: '',
     time: '',
     minimumReceived: '',
   }
@@ -413,13 +420,15 @@ async function Swap() {
         .toString()
     } else if (currentFromChain.value === MappingChainName.MVC) {
       params = {
-        amount: new Decimal(sendInput.value).mul(10 ** mvcTokenDecimal.value).toString(),
+        amount: new Decimal(sendInput.value).mul(10 ** 6).toString(),
         address: recevierInfo.val.address,
       }
-      estimatedTransferInfo.val.gasFee = await (await estimatedTransferFtFee(params)).gasFee
+      const estimatedInfo = await estimatedTransferFtFee(params)
+      estimatedTransferInfo.val.gasFee = estimatedInfo.gasFee
+      estimatedTransferInfo.val.gasFeeToUsd = estimatedInfo.gasFeeToUsd
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
         .sub(estimatedTransferInfo.val.brigefee)
-        .sub(estimatedTransferInfo.val.gasFee)
+        .sub(estimatedTransferInfo.val.gasFeeToUsd)
         .toString()
     }
   } else {
@@ -451,9 +460,18 @@ async function estimatedTransferFtFee(params: { amount: string; address: string 
 
     const mvcRate = rootStore.exchangeRate.find((item) => item.symbol === 'mvc')
     const { inputAmount, outputAmount } = res?.ft?.transfer?.transaction
+    if (!inputAmount || !outputAmount) {
+      throw new Error(
+        `The transaction fee estimate failed, which may lead to transaction losses, please re-initiate the transaction`
+      )
+    }
     return {
       transation: res,
       gasFee: new Decimal(inputAmount)
+        .sub(outputAmount)
+        .div(10 ** mvcTokenDecimal.value)
+        .toString(),
+      gasFeeToUsd: new Decimal(inputAmount)
         .sub(outputAmount)
         .div(10 ** mvcTokenDecimal.value)
         .mul(mvcRate!.price.USD)
@@ -461,13 +479,12 @@ async function estimatedTransferFtFee(params: { amount: string; address: string 
         .toFixed(6),
     }
   } catch (error: any) {
-    console.log('error', error.toString())
-    throw new Error(error.toString())
+    throw new Error(error?.toString())
   }
 }
 
 function triggleChain() {
-  let temp = currentFromChain.value
+  let temp = fromChain.value!
   currentFromChain.value = curretnToChain.value
   curretnToChain.value = temp
 }
@@ -520,7 +537,17 @@ async function confrimSwap() {
         if (sign) {
           registerRequest.signature = sign
           console.log('registerRequest', registerRequest)
+          const orderWaitRes = await retryOrderRequest(
+            {
+              fromChain: fromChain.value.toLowerCase(),
+              fromTokenName: currentCoin.value!.toLowerCase(),
+              address: rootStore.Web3WalletSdk.signer.address,
+              txHash: tx.hash,
+            },
+            3
+          )
 
+          if (!orderWaitRes) throw new Error(`deposit tx not found`)
           rootStore.GetOrderApi.orderRegisterPost(registerRequest)
             .then((order: any) => {
               console.log('order', order)
@@ -579,14 +606,25 @@ async function confrimSwap() {
           fromChain: fromChain.value.toLowerCase(),
           fromTokenName: currentCoin.value!.toLowerCase(),
           txid: tx?.ft?.transfer?.txId,
-          amount: new Decimal(sendInput.value).mul(10 ** mvcTokenDecimal.value).toString(),
+          amount: new Decimal(sendInput.value).mul(10 ** 6).toString(),
           fromAddress: userStore.user!.address,
           toChain: curretnToChain.value.toLowerCase(),
           toTokenName: currentCoin.value!.toLowerCase(),
           toAddress: rootStore.GetWeb3Wallet.signer.address,
         })
         console.log('registerRequest', registerRequest)
+        const orderWaitRes = await retryOrderRequest(
+          {
+            fromChain: fromChain.value.toLowerCase(),
+            fromTokenName: currentCoin.value!.toLowerCase(),
+            address: userStore.user!.address,
+            txHash: tx?.ft?.transfer?.txId,
+          },
+          3
+        )
+        console.log('orderWaitRes', orderWaitRes)
 
+        if (!orderWaitRes) throw new Error(`deposit tx not found`)
         rootStore.GetOrderApi.orderRegisterPost(registerRequest)
           .then((order: any) => {
             console.log('order', order)
@@ -594,7 +632,6 @@ async function confrimSwap() {
           .catch((e: any) => {
             throw new Error(e)
           })
-        // await registerOrder()
       } else {
         swapLoading.value = false
         return ElMessage.error('Build Transaction failed')
@@ -603,9 +640,65 @@ async function confrimSwap() {
     swapSuccess.value = true
     swapLoading.value = false
   } catch (error: any) {
-    ElMessage.error(error.toString())
+    ElMessage.error(error?.toString())
     swapLoading.value = false
   }
+}
+
+function orderRequest(params: {
+  fromChain: string
+  fromTokenName: string
+  address: string
+  txHash: string
+}) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const orderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+        params.fromChain,
+        params.fromTokenName,
+        params.address
+      )
+      const canSend = orderWaitRes.data.find((item: any) => {
+        return item.txid == params.txHash && item.state == 'WAITING_REQUEST'
+      })
+      if (canSend) {
+        resolve(true)
+      } else {
+        reject()
+      }
+    } catch (error) {
+      reject()
+    }
+  })
+}
+
+function retryOrderRequest(
+  params: {
+    fromChain: string
+    fromTokenName: string
+    address: string
+    txHash: string
+  },
+  retry: number
+) {
+  return new Promise(async (resolve, reject) => {
+    function retryFun(time: number) {
+      orderRequest(params)
+        .then((res) => {
+          return resolve(res)
+        })
+        .catch((err) => {
+          if (time > 0) {
+            setTimeout(() => {
+              retryFun(time--)
+            }, 10 * 1000)
+          } else {
+            reject()
+          }
+        })
+    }
+    retryFun(retry)
+  })
 }
 
 function confrimSuccess() {

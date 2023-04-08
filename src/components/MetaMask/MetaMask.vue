@@ -33,6 +33,7 @@ import { useUserStore } from '@/store/user'
 import Web3SDK from '@/utils/ethers'
 import { toQuantity } from 'ethers'
 import { ElMessage } from 'element-plus'
+import { TagType } from '@/enum'
 interface Props {
   modelValue: boolean
 }
@@ -117,7 +118,8 @@ async function MetaMaskConnect() {
   try {
     const connetSuccess = await sign()
     if (connetSuccess) {
-      const signHash = await rootStore.GetWeb3Wallet.sign()
+      const type = isUpdatePlan ? TagType.old : TagType.new
+      const signHash = await rootStore.GetWeb3Wallet.sign(type)
       if (signHash && !loginedButBind) {
         emit('success', {
           signAddressHash: signHash,

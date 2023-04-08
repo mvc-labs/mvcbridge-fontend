@@ -179,3 +179,8 @@ export enum MvcUsdToken {
   M_USDT = 'M-USDT',
   M_USDC = 'M-USDC',
 }
+
+export enum ConnectType {
+  MetaMask = 'MetaMask',
+  WalletConnect = 'WalletConnect',
+}

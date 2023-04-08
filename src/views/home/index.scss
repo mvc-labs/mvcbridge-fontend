@@ -359,6 +359,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
+            justify-content: center;
              word-break:break-all;
                 word-wrap:break-word;
             cursor: pointer;
@@ -392,7 +393,7 @@
            .header-cell{
             word-break:break-all;
             word-wrap:break-word;
-                          
+                      text-align: center;
                 
            }
             .el-table__cell{

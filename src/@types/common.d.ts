@@ -171,3 +171,15 @@ declare interface ExchangeRate {
   remark: string
   updateTime: number
 }
+
+declare interface OrderHistroyItem {
+  vaultId: string
+  txid: string
+  fromAddress: string
+  fromAmount: string
+  fromChain: string
+  state: string
+  targetAmount: string
+  targetVaultId: string
+  toAddress: string
+}

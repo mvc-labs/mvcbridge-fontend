@@ -1041,5 +1041,6 @@
     }
   },
   "wallethasBinding": "The wallet address has already been bound by other MetaID accounts and cannot be bound repeatedly",
-  "binding_now": "Binding..."
+  "binding_now": "Binding...",
+  "sign fail": "sign fail"
 }

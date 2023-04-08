@@ -5,7 +5,7 @@
         <img :src="Logo" alt="" />
       </div>
       <div class="menu">
-        <div class="wallet" @click="getHistoryList">
+        <div class="wallet" v-if="userStore.isAuthorized" @click="getHistoryList">
           <img :src="HistoryIcon" alt="" />
         </div>
         <div class="wallet" v-if="userStore.isAuthorized" @click="checkWalletInfo">
@@ -69,7 +69,9 @@
                 <span class="symbol" v-loading="coin.loading" element-loading-background="#232531"
                   >{{ coin.balance }} {{ coin.chainSymbol }}</span
                 >
-                <span class="priceRate">USD</span>
+                <span class="priceRate"
+                  >{{ $filters.rateToUsd(coin.balance, coin.chainSymbol) }}&nbsp;USD</span
+                >
               </div>
               <el-button :disabled="coin.loading" @click="selectCoinTransfer(coin.chainName)"
                 >Transfer</el-button
@@ -181,7 +183,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column class-name="col-item" prop="Amount" label="Amount" width="100">
+          <el-table-column class-name="col-item" prop="Amount" label="Amount" width="150">
             <template #default="scope">
               <div class="tx-cell">
                 <span>{{ scope.row.Amount }}&nbsp;</span>
@@ -193,9 +195,14 @@
           <el-table-column class-name="col-item" prop="Date" label="Date" />
 
           <el-table-column class-name="col-item" prop="State" label="State">
-            <div class="tx-cell-img">
-              <el-icon :size="15" color="#fff"><Select /></el-icon>
-            </div>
+            <template #default="scope">
+              <div class="tx-cell-img" v-if="scope.row.State === 'CONFIRMING'">
+                <el-icon :size="15" color="#fff"><Select /></el-icon>
+              </div>
+              <div class="tx-cell" v-else>
+                <span>{{ scope.row.State }}</span>
+              </div>
+            </template>
           </el-table-column>
         </el-table>
       </div>
@@ -244,6 +251,7 @@ import {
 } from '@/utils/util'
 import Decimal from 'decimal.js-light'
 import { dateTimeFormat } from '@/utils/filters'
+import { ca } from 'element-plus/es/locale'
 
 const contractList: string[] = [mvc, twitter, instagram, reddit, discord]
 const DrawerOperate = ref(false)
@@ -266,7 +274,7 @@ interface TransationItem {
   Send: string
   Receive: string
   Amount: string
-  Date: string
+  Date?: string
   State: string
 }
 const svg = `
@@ -387,24 +395,19 @@ const handleCommand = (command: string | number | object) => {
   }
 }
 
-const list = reactive([
-  {
-    vaultId: '1111',
-    txid: 'asas',
-    fromAddress: 'asa2xzxczx',
-    fromAmount: '100',
-    fromChain: 'eth',
-    fromTokenName: 'usdt',
-  },
-  {
-    vaultId: '2222',
-    txid: 'zxzasasda',
-    fromAddress: 'mjs2zxzcxc',
-    fromAmount: '100',
-    fromChain: 'mvc',
-    fromTokenName: 'usdc',
-  },
-])
+const GetDecimal = computed(() => {
+  switch (currentTransferType.value) {
+    case MappingIcon.Tether:
+    case MappingIcon.MUSDT:
+      return 6
+    case MappingIcon.MUSDC:
+      return 8
+    case MappingIcon.USD:
+      return 18
+  }
+})
+
+const list: Partial<OrderHistroyItem[]> = reactive([])
 
 function mappingFromChain(chain: string) {
   switch (chain) {
@@ -424,23 +427,50 @@ function mappingFromToken(token: string) {
   }
 }
 
-function getHistoryList() {
+async function AllHistoryList() {
+  const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+    MappingChainName.ETH.toLocaleLowerCase(),
+    MappingIcon.USDT.toLocaleLowerCase(),
+    rootStore.GetWeb3Wallet.signer.address
+  )
+  const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+    MappingChainName.MVC.toLocaleLowerCase(),
+    MappingIcon.USDT.toLocaleLowerCase(),
+    userStore.user?.address
+  )
+
+  list.push(...ethOrderWaitRes.data, ...mvcOrderWaitRes.data)
+  console.log('list', list)
+}
+
+async function getHistoryList() {
   historyDialog.value = true
   loadingHistory.value = true
-  setTimeout(() => {
-    list.forEach((ele, id) => {
-      transationHistoryList.forEach((item, index) => {
-        if (id == index) {
-          item.Currency = mappingFromToken(ele.fromTokenName)!
-          item.Send = mappingFromChain(ele.fromChain)!
-          item.Receive = item.Send === MappingIcon.ETH ? MappingIcon.MVC : MappingIcon.ETH
-          item.Amount = ele.fromAmount
-          // item.Date=dateTimeFormat()
+  try {
+    await AllHistoryList()
+    if (!list.length) {
+      loadingHistory.value = false
+    }
+    list.length &&
+      list.forEach((ele, id) => {
+        let item = {
+          Currency: mappingFromToken(ele!.vaultId.split('_')[1]),
+          Send: mappingFromChain(ele!.vaultId.split('_')[0]),
+          Receive:
+            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+              ? MappingIcon.MVC
+              : MappingIcon.ETH,
+          Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
+          State: ele?.state,
+          Date: '--',
         }
+        transationHistoryList.push(item)
       })
-    })
     loadingHistory.value = false
-  }, 5000)
+  } catch (error) {
+    loadingHistory.value = false
+    return ElMessage.error(`${(error as any).toString()}`)
+  }
 }
 
 function selectCoinTransfer(coin: string) {
@@ -524,7 +554,8 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           })
           await res.wait()
         } else {
-          const decimal = currentTransferType.value == MappingIcon.Tether ? 6 : 18
+          const decimal = GetDecimal.value!
+
           toAddress = await ensConvertAddress(ruleForm.address.trim()).catch((e) => {
             return ElMessage.error(e.toString())
           })
@@ -548,6 +579,7 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
     transferLoading.value = false
   }
 }
+
 const walletList: WalletInfo[] = reactive([
   {
     chain: mappingChainOrigin((window as any).ethereum.chainId),

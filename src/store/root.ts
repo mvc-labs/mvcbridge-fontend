@@ -48,7 +48,6 @@ interface RootState {
   isShowMetaMak: boolean
   chainWhiteList: Array<string>
   updatePlanWhiteList: string[]
-
   exchangeRate: ExchangeRate[]
   // isGetedExchangeRate: boolean
   currentPrice: ToCurrency
@@ -57,6 +56,7 @@ interface RootState {
     tokenName: string
     codeHash: string
     genesis: string
+    decimal: number
   }>
 }
 const UA = window.navigator.userAgent.toLowerCase()
@@ -101,11 +101,13 @@ export const useRootStore = defineStore('root', {
           tokenName: MvcUsdToken.M_USDT,
           codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
           genesis: '1739804f265e85826bdd1078f8c719a9e6f421d5',
+          decimal: 6,
         },
         {
-          tokenName: MvcUsdToken.M_USDT,
+          tokenName: MvcUsdToken.M_USDC,
           codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
           genesis: '744a02129eefc1f478e6aec5c3ab2e9147f0cf3c',
+          decimal: 8,
         },
       ],
     },
@@ -118,6 +120,9 @@ export const useRootStore = defineStore('root', {
     },
     currentExchangeRate: (state) =>
       state.exchangeRate.find((item) => item.symbol === state.currentPrice),
+    ethAndMvcExchangeRate: (state) => {
+      return state.exchangeRate.filter((item) => item.symbol == 'mvc' || 'eth')
+    },
   },
   actions: {
     InitWeb3Wallet(payload: any) {
@@ -193,7 +198,7 @@ export const useRootStore = defineStore('root', {
       } else if (payload == ChainTypeBalance.MVC) {
         const mvcCurrency = GetSpanceBalance()
 
-        for (let i of MvcFtList) {
+        for (let i of this.MvcFtList) {
           const res = GetFtBalance({
             address: userStore.user!.address,
             codeHash: i.codeHash,
@@ -208,12 +213,14 @@ export const useRootStore = defineStore('root', {
 
         this.mvcWalletTokenBalance.space = result[0].value.toFixed(8)
 
-        this.mvcWalletTokenBalance.usdt = new Decimal(result[1].value[0].confirmedString)
-          .div(10 ** result[1].value[0].decimal)
-          .toString()
-        this.mvcWalletTokenBalance.usdc = new Decimal(result[2].value[0].confirmedString)
-          .div(10 ** result[2].value[0].decimal)
-          .toString()
+        this.mvcWalletTokenBalance.usdt =
+          new Decimal(result[1].value[0]?.confirmedString || 0)
+            .div(10 ** result[1].value[0]?.decimal || 0)
+            .toString() || '0'
+        this.mvcWalletTokenBalance.usdc =
+          new Decimal(result[2].value[0]?.confirmedString || 0)
+            .div(10 ** result[2].value[0]?.decimal || 0)
+            .toString() || '0'
       }
 
       console.log(

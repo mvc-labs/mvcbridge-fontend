@@ -120,16 +120,16 @@ const wallets = [
           rootStore.$patch({ isShowLogin: false, isShowMetaMak: true })
         },
       },
-      {
-        name: () => {
-          return 'WallteConnect'
-        },
-        desc: () => {
-          return ``
-        },
-        icon: IconWallteConnect,
-        fun: connectWalletConnect,
-      },
+      // {
+      //   name: () => {
+      //     return 'WallteConnect'
+      //   },
+      //   desc: () => {
+      //     return ``
+      //   },
+      //   icon: IconWallteConnect,
+      //   fun: connectWalletConnect,
+      // },
       {
         name: () => {
           return 'Metalet'
@@ -412,7 +412,7 @@ async function connectWalletConnect(isUpdate: boolean = false) {
         })
       }
     } catch (error) {
-      console.log(i18n.t(`签名失败`))
+      console.log(i18n.t(`sign fail`))
     }
   }
 
