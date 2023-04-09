@@ -8,6 +8,7 @@
     "prod": "yarn vite --mode prod",
     "build": "vue-tsc && vite build --mode prod",
     "build:test": "vue-tsc && vite build --mode test",
+    "build:gray": "vue-tsc && vite build --mode gray",
     "preview": "vite preview"
   },
   "dependencies": {
