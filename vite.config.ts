@@ -18,6 +18,9 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 // https://vitejs.dev/config/
 const pathSrc = path.resolve(__dirname, 'src')
 export default ({ mode, command }) => {
+  const productionEnvs = ['mainnet']
+  const isProduction = productionEnvs.includes(mode) && command === 'build' ? true : false
+  // const isProduction = command === 'build'
   return defineConfig({
     plugins: [
       command === 'serve' &&
@@ -118,6 +121,20 @@ export default ({ mode, command }) => {
       //     rewrite: path => path.replace(/^\/metasv/, ''),
       //   },
       // },
+    },
+    build: {
+      target: isProduction ? 'es2015' : 'modules',
+      minify: isProduction,
+      sourcemap: isProduction ? false : 'inline',
+      rollupOptions: {
+        plugins: [nodePolyfills()],
+        output: {
+          sourcemap: isProduction ? false : 'inline',
+        },
+      },
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
     },
   })
 }
