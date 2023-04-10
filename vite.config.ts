@@ -7,7 +7,6 @@ import vueI18n from '@intlify/vite-plugin-vue-i18n'
 import svgLoader from 'vite-svg-loader'
 import VitePluginHtmlEnv from 'vite-plugin-html-env'
 import inject from '@rollup/plugin-inject'
-//@ts-ignore
 import { viteExternalsPlugin } from 'vite-plugin-externals'
 import nodePolyfills from 'rollup-plugin-polyfill-node'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -20,8 +19,8 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 const pathSrc = path.resolve(__dirname, 'src')
 export default ({ mode, command }) => {
   const productionEnvs = ['mainnet']
-  const isProduction = productionEnvs.includes(mode) && command === 'build' ? true : false
-  // const isProduction = command === 'build'
+  // const isProduction = productionEnvs.includes(mode) && command === 'build' ? true : false
+  const isProduction = command === 'build'
   return defineConfig({
     plugins: [
       command === 'serve' &&

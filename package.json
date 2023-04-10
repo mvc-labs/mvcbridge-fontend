@@ -37,7 +37,6 @@
     "ripemd128-js": "^1.0.2",
     "unplugin-icons": "^0.15.3",
     "uuid": "^9.0.0",
-    "vite-plugin-externals": "^0.6.2",
     "vue": "^3.2.45",
     "vue-i18n": "^9.2.2",
     "vue-router": "4"
@@ -59,6 +58,7 @@
     "unplugin-auto-import": "^0.15.1",
     "unplugin-vue-components": "^0.24.1",
     "vite": "^4.1.0",
+    "vite-plugin-externals": "^0.6.2",
     "vite-plugin-html-env": "^1.2.7",
     "vite-plugin-svg-icons": "^2.0.1",
     "vite-svg-loader": "^4.0.0",
