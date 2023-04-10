@@ -19,8 +19,8 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 const pathSrc = path.resolve(__dirname, 'src')
 export default ({ mode, command }) => {
   const productionEnvs = ['mainnet']
-  const isProduction = productionEnvs.includes(mode) && command === 'build' ? true : false
-  // const isProduction = command === 'build'
+  // const isProduction = productionEnvs.includes(mode) && command === 'build' ? true : false
+  const isProduction = command === 'build'
   return defineConfig({
     plugins: [
       command === 'serve' &&
@@ -93,7 +93,7 @@ export default ({ mode, command }) => {
         customDomId: '__svg__icons__dom__',
       }),
       viteExternalsPlugin({
-        'mvc-lib': 'mvc',
+        // 'mvc-lib': 'mvc',
         'mvc-lib/ecies': 'ECIES',
         'mvc-lib/mnemonic': 'Mnemonic',
         bip39: 'bip39',

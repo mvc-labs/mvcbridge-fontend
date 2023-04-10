@@ -425,7 +425,9 @@ async function Swap() {
         amount: new Decimal(sendInput.value).mul(10 ** 6).toString(),
         address: recevierInfo.val.address,
       }
+
       const estimatedInfo = await estimatedTransferFtFee(params)
+
       estimatedTransferInfo.val.gasFee = estimatedInfo.gasFee
       estimatedTransferInfo.val.gasFeeToUsd = estimatedInfo.gasFeeToUsd
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
@@ -573,7 +575,6 @@ async function confrimSwap() {
       }).catch((e) => {
         throw new Error(e)
       })
-
       const tx = await userStore.showWallet
         .createBrfcChildNode(
           {

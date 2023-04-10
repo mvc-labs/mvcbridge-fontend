@@ -347,10 +347,16 @@ export function ensConvertAddress(ens: string) {
 export function GeneratorSignatrue(registerRequest: OrderRegisterRequest): OrderRegisterRequest {
   const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
   const userStore = useUserStore()
-  const signature = SignatureHelper.signMessageBitcoin(
-    message,
-    userStore.showWallet!.wallet!.wallet!.deriveChild(0).deriveChild(0).privateKey.toString()
+  const privateKey = userStore
+    .showWallet!.wallet!.wallet!.deriveChild(0)
+    .deriveChild(0)
+    .privateKey.toString()
+  console.log(
+    'userStore.showWallet!.wallet!.wallet!.deriveChild(0).deriveChild(0).privateKey.toString(),',
+    userStore.showWallet!.wallet.wallet.privateKey
   )
+
+  const signature = SignatureHelper.signMessageBitcoin(message, privateKey)
   registerRequest.signature = signature
   return registerRequest
 }

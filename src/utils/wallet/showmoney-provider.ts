@@ -553,7 +553,7 @@ export default class ShowmoneyProvider {
           })
         }
       }
-      node!.isUsed = true
+      if (node) node!.isUsed = true
       resolve(node!)
     })
   }

@@ -30,9 +30,10 @@ onMounted(async () => {
       await userStore.showWallet.initWallet()
     }
     rootStore.InitOrderApi()
-    if (diffTime()) {
-      rootStore.getExchangeRate()
-    }
+    rootStore.getExchangeRate()
+    // if (diffTime()) {
+
+    // }
   }
 })
 </script>

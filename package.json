@@ -29,7 +29,7 @@
     "meta-contract": "^0.3.25",
     "mvc-lib": "^1.0.5",
     "mvc-std-lib": "^1.1.4",
-    "mvcbridge-sdk": "^1.0.2",
+    "mvcbridge-sdk": "1.0.5",
     "normalize.css": "^8.0.1",
     "pinia": "^2.0.33",
     "qs": "6.10.1",
