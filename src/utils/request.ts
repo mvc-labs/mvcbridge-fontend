@@ -1,5 +1,5 @@
 //@ts-ignore
-import * as Request from 'request-sdk'
+import * as httpRequest from 'request-sdk'
 export default class HttpRequest {
   request
   constructor(
@@ -12,7 +12,8 @@ export default class HttpRequest {
       timeoutErrorMessage?: string
     }
   ) {
-    this.request = new Request(baseUrl, {
+    // @ts-ignore
+    this.request = new httpRequest(baseUrl, {
       // @ts-ignore
       timeoutErrorMessage: `Request Timeout`,
       ...params,
