@@ -1,5 +1,5 @@
 //@ts-ignore
-import * as Request from 'request-sdk'
+import { HttpRequest as Request } from 'request-sdk'
 export default class HttpRequest {
   request
   constructor(
