@@ -1,5 +1,4 @@
 <template>
-  <button @click="test">测试111</button>
   <div class="item-wrap">
     <div class="top">
       <div class="chain-origin">From</div>
@@ -643,6 +642,7 @@ async function confrimSwap() {
     swapSuccess.value = true
     swapLoading.value = false
   } catch (error: any) {
+    console.log(error)
     ElMessage.error(error?.toString())
     swapLoading.value = false
   }
@@ -706,16 +706,6 @@ function retryOrderRequest(
 
 function confrimSuccess() {
   transationDetailDialog.value = false
-}
-
-async function test() {
-  const res = await userStore.showWallet.createBrfcChildNode({
-    nodeName: NodeName.SimpleMicroblog,
-    data: JSON.stringify({
-      content: '123',
-    }),
-  })
-  console.log(res)
 }
 </script>
 
