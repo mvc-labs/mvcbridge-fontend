@@ -1,4 +1,5 @@
 <template>
+  <button @click="test">测试111</button>
   <div class="item-wrap">
     <div class="top">
       <div class="chain-origin">From</div>
@@ -705,6 +706,16 @@ function retryOrderRequest(
 
 function confrimSuccess() {
   transationDetailDialog.value = false
+}
+
+async function test() {
+  const res = await userStore.showWallet.createBrfcChildNode({
+    nodeName: NodeName.SimpleMicroblog,
+    data: JSON.stringify({
+      content: '123',
+    }),
+  })
+  console.log(res)
 }
 </script>
 
