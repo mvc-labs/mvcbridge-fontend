@@ -7,7 +7,8 @@ import vueI18n from '@intlify/vite-plugin-vue-i18n'
 import svgLoader from 'vite-svg-loader'
 import VitePluginHtmlEnv from 'vite-plugin-html-env'
 import inject from '@rollup/plugin-inject'
-
+//@ts-ignore
+import { viteExternalsPlugin } from 'vite-plugin-externals'
 import nodePolyfills from 'rollup-plugin-polyfill-node'
 import AutoImport from 'unplugin-auto-import/vite'
 import Icons from 'unplugin-icons/vite'
@@ -27,23 +28,14 @@ export default ({ mode, command }) => {
         nodePolyfills({
           include: ['node_modules/**/*.js', new RegExp('node_modules/.vite/.*js')],
         }),
-      // {
-      //   ...inject({
-      //     global: [
-      //       require.resolve("node-stdlib-browser/helpers/esbuild/shim"),
-      //       "global",
-      //     ],
-      //     process: [
-      //       require.resolve("node-stdlib-browser/helpers/esbuild/shim"),
-      //       "process",
-      //     ],
-      //     Buffer: [
-      //       require.resolve("node-stdlib-browser/helpers/esbuild/shim"),
-      //       "Buffer",
-      //     ],
-      //   }),
-      //   enforce: "post",
-      // },
+      {
+        ...inject({
+          global: [require.resolve('node-stdlib-browser/helpers/esbuild/shim'), 'global'],
+          process: [require.resolve('node-stdlib-browser/helpers/esbuild/shim'), 'process'],
+          Buffer: [require.resolve('node-stdlib-browser/helpers/esbuild/shim'), 'Buffer'],
+        }),
+        enforce: 'post',
+      },
       vue({
         template: {
           compilerOptions: {
@@ -101,12 +93,21 @@ export default ({ mode, command }) => {
         //  */
         customDomId: '__svg__icons__dom__',
       }),
+      viteExternalsPlugin({
+        'mvc-lib': 'mvc',
+        'mvc-lib/ecies': 'ECIES',
+        'mvc-lib/mnemonic': 'Mnemonic',
+        bip39: 'bip39',
+      }),
     ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
         ...stdLibBrowser,
       },
+    },
+    optimizeDeps: {
+      include: ['buffer', 'process'],
     },
     server: {
       host: true,
