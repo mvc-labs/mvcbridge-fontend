@@ -8,7 +8,7 @@
     "prod": "yarn vite --mode prod",
     "build": "vite build --mode prod",
     "build:test": "vite build --mode test",
-    "build:gray": "vite build --mode gray",
+    "build:gray": "node --max_old_space_size=10336 ./node_modules/vite/bin/vite.js build --mode gray",
     "preview": "vite preview"
   },
   "dependencies": {
