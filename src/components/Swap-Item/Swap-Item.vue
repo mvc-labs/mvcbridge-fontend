@@ -272,6 +272,8 @@ const fromChain = computed(() => {
       return MappingChainName.Bsc
     case MappingChainName.MVC:
       return MappingChainName.MVC
+    default:
+      return MappingChainName.ETH
   }
 })
 

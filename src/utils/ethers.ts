@@ -1,6 +1,7 @@
 import { ethers, sha256, toUtf8Bytes, toUtf8String, Contract } from 'ethers'
 import { TagType, ConnectType } from '@/enum'
 import { chainTokenInfo } from '@/utils/util'
+import { ElMessage } from 'element-plus'
 // function classDecorator<T extends { new (...args: any[]): {} }>(constructor: T) {
 //   return class extends constructor {
 //     provider: Provider
@@ -15,9 +16,12 @@ interface tokenType {
 let USDT: tokenType
 let USDC: tokenType
 function getTokenInfo() {
-  const { usdc, usdt } = chainTokenInfo((window as any).ethereum.chainId)
-  USDT = usdt
-  USDC = usdc
+  const res = chainTokenInfo((window as any).ethereum.chainId)
+  if (!res) {
+  } else {
+    USDT = res.usdt
+    USDC = res.usdc
+  }
 }
 
 // @classDecorator

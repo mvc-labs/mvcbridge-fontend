@@ -216,16 +216,19 @@ export function chainTokenInfo(chainid: string) {
       },
     },
   }
-  switch (chainid) {
-    case '0x1':
-      return info.eth
-    case '0xaa36a7':
-      return info.sepolias
-    case '0x89':
-      return info.polygon
-    case '0x38':
-      return info.bsc
-  }
+  const rootStore = useRootStore()
+  if (rootStore.chainWhiteList.includes(chainid)) {
+    switch (chainid) {
+      case '0x1':
+        return info.eth
+      case '0xaa36a7':
+        return info.sepolias
+      case '0x89':
+        return info.polygon
+      case '0x38':
+        return info.bsc
+    }
+  } else return false
 }
 
 export function GetSpanceBalance() {

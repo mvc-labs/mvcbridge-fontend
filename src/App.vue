@@ -16,7 +16,10 @@ onMounted(async () => {
   // } else {
   //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.MetaMask))
   // }
-  if ((window as any).ethereum) {
+  if (
+    (window as any).ethereum &&
+    rootStore.chainWhiteList.includes((window as any).ethereum.chainId)
+  ) {
     rootStore.InitWeb3Wallet(await new Web3SDK())
   }
   if (userStore.isAuthorized) {

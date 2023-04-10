@@ -91,8 +91,7 @@ export const useRootStore = defineStore('root', {
         usdt: '0',
         usdc: '0',
       },
-      chainWhiteList:
-        import.meta.env.MODE == 'gray' ? ['0x5', '0x13881', '0xaa36a7'] : ['0x1', '0x89'],
+      chainWhiteList: import.meta.env.MODE == 'gray' ? ['0xaa36a7'] : ['0x1'],
       updatePlanWhiteList: ['0x0c45B536C69AB0B8806a65C94BA8C8e6e71Ba7c'],
       currentPrice: 'USD',
       orderApi: null,

@@ -115,7 +115,7 @@ export class HttpRequests implements Http {
 
   public async postFetch<R, P = ObjTypes<any>>(
     url: string,
-    params?: P,
+    params?: P | any,
     config?: ReqConfig
   ): Promise<R> {
     // const formData = new FormData()

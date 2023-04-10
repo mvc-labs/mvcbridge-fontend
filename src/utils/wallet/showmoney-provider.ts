@@ -109,6 +109,7 @@ export default class ShowmoneyProvider {
             reject({
               message: response.data.msg,
               data: response.data,
+              code: response.data.code,
             })
           } else {
             resolve(response.data)
@@ -125,7 +126,7 @@ export default class ShowmoneyProvider {
       const res = await Http.postFetch<any>(url, config.params, config.options)
       return res
     } catch (error) {
-      throw new Error('Network Error: ' + error.msg)
+      throw new Error('Network Error: ' + (error as any).msg)
     }
   }
 
@@ -137,7 +138,7 @@ export default class ShowmoneyProvider {
       const res = await Http.postFetch<any>(url, config.params, config.options)
       return res
     } catch (error) {
-      throw new Error('Network Error: ' + error.message)
+      throw new Error('Network Error: ' + (error as any).message)
     }
   }
 
@@ -173,10 +174,10 @@ export default class ShowmoneyProvider {
 
   private getMetasvSig(path: string): Promise<MetasvSigTypes> {
     return new Promise(async (resolve, reject) => {
-      const res = await this.metasvSignatureHttp
+      const res: any = await this.metasvSignatureHttp
         .post('/signature', { path })
         .catch((error) => reject(error))
-      if (res?.code === 0) {
+      if (res.code === 0) {
         resolve(res.data as MetasvSigTypes)
       }
     })
