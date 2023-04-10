@@ -1,7 +1,7 @@
 // @ts-ignore
 import mvc from 'mvc-lib'
 import { HttpRequests, ApiRequestTypes } from '@/utils/wallet/request2'
-import HttpRequest from 'request-sdk'
+import * as HttpRequest from 'request-sdk'
 import { BaseUtxo } from './hd-wallet'
 import axios, { AxiosInstance } from 'axios'
 import { UtxoItem } from '@/@types/sdk'
