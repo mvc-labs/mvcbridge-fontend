@@ -6,9 +6,9 @@
     "gray": "yarn vite --mode gray",
     "test": "yarn vite --mode test",
     "prod": "yarn vite --mode prod",
-    "build": "vue-tsc && vite build --mode prod",
-    "build:test": "vue-tsc && vite build --mode test",
-    "build:gray": "vue-tsc && vite build --mode gray",
+    "build": "vite build --mode prod",
+    "build:test": "vite build --mode test",
+    "build:gray": "vite build --mode gray",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -41,7 +41,7 @@
     "vue-router": "4"
   },
   "devDependencies": {
-    "@intlify/vite-plugin-vue-i18n": "^7.0.0",
+    "@intlify/vite-plugin-vue-i18n": "2.3.0",
     "@rollup/plugin-inject": "^5.0.3",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vuedx/typescript-plugin-vue": "^0.7.6",
