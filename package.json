@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@intlify/vite-plugin-vue-i18n": "2.3.0",
     "@element-plus/icons-vue": "^2.1.0",
     "@walletconnect/client": "^1.8.0",
     "@walletconnect/qrcode-modal": "^1.8.0",
@@ -61,8 +62,5 @@
     "vite-plugin-svg-icons": "^2.0.1",
     "vite-svg-loader": "^4.0.0",
     "vue-tsc": "^1.0.24"
-  },
-  "peerDependencies": {
-    "@intlify/vite-plugin-vue-i18n": "2.3.0"
   }
 }
