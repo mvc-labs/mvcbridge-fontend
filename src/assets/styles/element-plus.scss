@@ -98,6 +98,7 @@ html.dark {
         --el-button-active-border-color: var(--primary-border-color);
         --el-button-hover-border-color: var(--primary-border-color);
     }
+    
 
     &.is-disabled {
             background: var(--disableBgColor)!important;
@@ -389,6 +390,16 @@ html.dark {
 
 .el-message-box__errormsg {
     margin-top: 10px;
+    
+}
+.el-message-box{
+   background: var(--themeBgFourColor);
+ .el-message-box__title{
+    color: #fff !important;
+ }
+ .el-message-box__message{
+     color: #fff !important;
+ }
 }
 
 .txDialog{
