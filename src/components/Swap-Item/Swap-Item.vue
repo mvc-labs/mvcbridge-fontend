@@ -328,7 +328,10 @@ const txInfo = reactive([
   },
   {
     title: `Estimated Time of Arrival`,
-    value: () => new Decimal(estimatedTransferInfo.val.time).mul(12).div(60).toFixed(0),
+    value: () =>
+      currentFromChain.value === MappingChainName.MVC
+        ? new Decimal(estimatedTransferInfo.val.time).mul(10).toFixed(0)
+        : new Decimal(estimatedTransferInfo.val.time).mul(12).div(60).toFixed(0),
     decimal: () => 'minutes',
   },
 ])
