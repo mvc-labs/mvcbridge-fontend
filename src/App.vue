@@ -11,6 +11,8 @@ onMounted(async () => {
   const rootStore = useRootStore()
   const userStore = useUserStore()
   rootStore.getExchangeRate()
+  await rootStore.setReceiverAddress().catch((e) => console.log(e))
+
   // if ((window as any).WallectConnect) {
   //   debugger
   //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.WalletConnect))

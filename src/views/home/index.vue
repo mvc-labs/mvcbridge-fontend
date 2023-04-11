@@ -56,11 +56,21 @@
         <div class="assert-list" v-for="item in walletList">
           <div class="header">
             <span class="chain">{{ item.chain }}</span>
-            <span class="address">{{
-              item.chain == ChainOrigin.MVC
-                ? $filters.spiltAddress(userStore.user!.address!)
-                : $filters.spiltAddress(userStore.user!.evmAddress!)
-            }}</span>
+            <span
+              class="address"
+              @click="
+                copy(
+                  item.chain == ChainOrigin.MVC
+                    ? userStore.user!.address!
+                    : userStore.user!.evmAddress!
+                )
+              "
+              >{{
+                item.chain == ChainOrigin.MVC
+                  ? $filters.spiltAddress(userStore.user!.address!)
+                  : $filters.spiltAddress(userStore.user!.evmAddress!)
+              }}</span
+            >
           </div>
           <div class="list" v-for="coin in item.coinList">
             <IconItem :iconMap="coin.chainName"></IconItem>
@@ -135,7 +145,7 @@
 
   <Dialog v-model="historyDialog">
     <template #title>
-      <div>History</div>
+      <div>{{ $t('pengdingOrder') }}</div>
     </template>
     <template #content>
       <!-- <div v-if="transationHistoryList.length" class="blankHistoryWrap">
@@ -192,15 +202,16 @@
             </template>
           </el-table-column>
 
-          <el-table-column class-name="col-item" prop="Date" label="Date" />
+          <!-- <el-table-column class-name="col-item" prop="Date" label="Date" /> -->
 
-          <el-table-column class-name="col-item" prop="State" label="State">
+          <el-table-column class-name="col-item" prop="State" label="State" fixed="right">
             <template #default="scope">
-              <div class="tx-cell-img" v-if="scope.row.State === 'CONFIRMING'">
+              <div class="tx-cell-img" v-if="scope.row.State !== 'WAITING_REQUEST'">
                 <el-icon :size="15" color="#fff"><Select /></el-icon>
               </div>
               <div class="tx-cell" v-else>
-                <span>{{ scope.row.State }}</span>
+                <el-button @click="retryRequest(scope.row)">{{ $t('retry') }}</el-button>
+                <!-- <span>{{ scope.row.State }}</span> -->
               </div>
             </template>
           </el-table-column>
@@ -248,10 +259,12 @@ import {
   mappingChainOrigin,
   getAccountUserInfo,
   ensConvertAddress,
+  copy,
 } from '@/utils/util'
+import { RetryWaitRequest } from '@/utils/common'
 import Decimal from 'decimal.js-light'
 import { dateTimeFormat } from '@/utils/filters'
-import { ca } from 'element-plus/es/locale'
+import { useI18n } from 'vue-i18n'
 
 const contractList: string[] = [mvc, twitter, instagram, reddit, discord]
 const DrawerOperate = ref(false)
@@ -265,10 +278,12 @@ const currentTransferType = ref()
 const currentCoinUit = ref(CoinUint.Space)
 const historyDialog = ref(false)
 const loadingHistory = ref(false)
+const i18n = useI18n()
 const MetaNameOrEns = computed(() => {
   let mvc = [MappingIcon.MVC, MappingIcon.MUSDC, MappingIcon.MUSDT]
   return mvc.includes(currentTransferType.value)
 })
+const retryRequestLoading = ref(false)
 interface TransationItem {
   Currency: string
   Send: string
@@ -276,6 +291,12 @@ interface TransationItem {
   Amount: string
   Date?: string
   State: string
+  fromAddress: string
+  toAddress: string
+  fromChain: string
+  toChain: string
+  TX: string
+  fromAmount: string
 }
 const svg = `
         <path class="path" d="
@@ -428,22 +449,39 @@ function mappingFromToken(token: string) {
 }
 
 async function AllHistoryList() {
-  const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
-    MappingChainName.ETH.toLocaleLowerCase(),
-    MappingIcon.USDT.toLocaleLowerCase(),
-    rootStore.GetWeb3Wallet.signer.address
-  )
-  const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
-    MappingChainName.MVC.toLocaleLowerCase(),
-    MappingIcon.USDT.toLocaleLowerCase(),
-    userStore.user?.address
-  )
-
-  list.push(...ethOrderWaitRes.data, ...mvcOrderWaitRes.data)
-  console.log('list', list)
+  try {
+    const ethOrderWaitRes =
+      await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+        MappingChainName.ETH.toLocaleLowerCase(),
+        MappingIcon.USDT.toLocaleLowerCase(),
+        rootStore.GetWeb3Wallet.signer.address
+      )
+    const mvcOrderWaitRes =
+      await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+        MappingChainName.MVC.toLocaleLowerCase(),
+        MappingIcon.USDT.toLocaleLowerCase(),
+        userStore.user?.address
+      )
+    // let ethOrderList =
+    //   ethOrderWaitRes.data.length &&
+    //   ethOrderWaitRes.data.filter((item) => {
+    //     return item.state == 'WAITING_REQUEST'
+    //   })
+    // let mvcOrderList =
+    //   mvcOrderWaitRes.data.length &&
+    //   mvcOrderWaitRes.data.filter((item) => {
+    //     return item.state == 'WAITING_REQUEST'
+    //   })
+    list.push(...ethOrderWaitRes.data, ...mvcOrderWaitRes.data)
+    console.log('list', list)
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 async function getHistoryList() {
+  transationHistoryList.length = 0
+  list.length = 0
   historyDialog.value = true
   loadingHistory.value = true
   try {
@@ -463,6 +501,18 @@ async function getHistoryList() {
           Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
           State: ele?.state,
           Date: '--',
+          TX: ele.txid,
+          fromAmount: ele!.fromAmount,
+          fromAddress: ele.fromAddress,
+          toAddress:
+            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+              ? userStore.user.address
+              : rootStore.GetWeb3Wallet.signer.address,
+          fromChain: ele!.vaultId.split('_')[0],
+          toChain:
+            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+              ? MappingIcon.MVC.toLowerCase()
+              : MappingIcon.ETH.toLowerCase(),
         }
         transationHistoryList.push(item)
       })
@@ -470,6 +520,25 @@ async function getHistoryList() {
   } catch (error) {
     loadingHistory.value = false
     return ElMessage.error(`${(error as any).toString()}`)
+  }
+}
+
+async function retryRequest(params: TransationItem) {
+  console.log('params', params)
+
+  try {
+    loadingHistory.value = true
+    const res = await RetryWaitRequest(params)
+    if (res) {
+      loadingHistory.value = false
+      ElMessage.success(`${i18n.t(`Retry success`)}`)
+    } else {
+      loadingHistory.value = false
+      ElMessage.error(`request fail`)
+    }
+  } catch (error) {
+    loadingHistory.value = false
+    ElMessage.error(`request fail:${error}`)
   }
 }
 

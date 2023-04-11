@@ -8,6 +8,7 @@ import { GetFtBalance } from '@/api/metasv'
 import { useUserStore } from '@/store/user'
 import { OrderApi } from 'mvcbridge-sdk/api'
 import { BASE_PATH } from 'mvcbridge-sdk/base'
+import { GetReceiveAddress } from '@/api/api'
 
 interface Web3Wallet {
   provider: any
@@ -58,6 +59,10 @@ interface RootState {
     genesis: string
     decimal: number
   }>
+  receiverAddress: {
+    mvcAddress: string
+    ethAddress: string
+  }
 }
 const UA = window.navigator.userAgent.toLowerCase()
 
@@ -109,6 +114,10 @@ export const useRootStore = defineStore('root', {
           decimal: 8,
         },
       ],
+      receiverAddress: {
+        mvcAddress: '',
+        ethAddress: '',
+      },
     },
   getters: {
     GetWeb3Wallet: (state) => {
@@ -124,6 +133,22 @@ export const useRootStore = defineStore('root', {
     },
   },
   actions: {
+    async setReceiverAddress() {
+      try {
+        const ethAddress = await GetReceiveAddress({
+          fromChain: 'eth',
+          fromTokenName: 'usdt',
+        })
+        const mvcAddress = await GetReceiveAddress({
+          fromChain: 'mvc',
+          fromTokenName: 'usdt',
+        })
+        const recevierAddress = { mvcAddress: mvcAddress.address, ethAddress: ethAddress.address }
+        this.receiverAddress = recevierAddress
+      } catch (error) {
+        console.log(error)
+      }
+    },
     InitWeb3Wallet(payload: any) {
       this.Web3WalletSdk = payload
     },
@@ -171,10 +196,12 @@ export const useRootStore = defineStore('root', {
           .toFixed(4)
         this.mvcWalletTokenBalance.usdt =
           new Decimal(result[4].value[0]?.confirmedString || '0')
+            .add(result[4].value[0]?.unconfirmed || '0')
             .div(10 ** result[4].value[0]?.decimal || 0)
             .toString() || '0'
         this.mvcWalletTokenBalance.usdc =
           new Decimal(result[5].value[0]?.confirmedString || '0')
+            .add(result[5].value[0]?.unconfirmed || '0')
             .div(10 ** result[5].value[0]?.decimal || 0)
             .toString() || '0'
       } else if (payload === ChainTypeBalance.ETH) {
@@ -214,10 +241,12 @@ export const useRootStore = defineStore('root', {
 
         this.mvcWalletTokenBalance.usdt =
           new Decimal(result[1].value[0]?.confirmedString || 0)
+            .add(result[1].value[0]?.unconfirmed || '0')
             .div(10 ** result[1].value[0]?.decimal || 0)
             .toString() || '0'
         this.mvcWalletTokenBalance.usdc =
           new Decimal(result[2].value[0]?.confirmedString || 0)
+            .add(result[2].value[0]?.unconfirmed || '0')
             .div(10 ** result[2].value[0]?.decimal || 0)
             .toString() || '0'
       }

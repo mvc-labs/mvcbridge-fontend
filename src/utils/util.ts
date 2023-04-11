@@ -17,7 +17,7 @@ import { SignatureHelper } from 'mvcbridge-sdk/signature'
 // import * as bsv from '@sensible-contract/bsv'
 import bitcoin from 'bitcoinjs-lib'
 import bitcoinMessage from 'bitcoin-sign-message'
-
+import { toClipboard } from '@soerenmartius/vue3-clipboard'
 export function diffTime() {
   const lastTime = window.localStorage.getItem('lastedGetRateTime')
   if (!lastTime) {
@@ -432,6 +432,27 @@ export function checkAmount(params: {
           )
         }
       }
+    }
+  })
+}
+
+export function copy(
+  value: string | undefined,
+  option?: {
+    successText?: string
+    errorText?: string
+  }
+) {
+  return new Promise<void>((resolve, reject) => {
+    if (value) {
+      toClipboard(value)
+        .then(() => {
+          ElMessage.success(option?.successText || i18n.global.t('copysuccess'))
+          resolve()
+        })
+        .catch(() => {
+          ElMessage.success(option?.errorText || i18n.global.t('copyerror'))
+        })
     }
   })
 }

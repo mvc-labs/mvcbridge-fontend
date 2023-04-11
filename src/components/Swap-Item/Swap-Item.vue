@@ -195,11 +195,13 @@ import { OrderRegisterRequest } from 'mvcbridge-sdk/api'
 import { SignatureHelper } from 'mvcbridge-sdk/signature'
 import { GetReceiveAddress, registerOrder, waitOrderList } from '@/api/api'
 
+import { useI18n } from 'vue-i18n'
+
 const selectChainDialog = ref(false)
 const selectCoinDialog = ref(false)
 const transationDetailDialog = ref(false)
 const swapSuccess = ref(false)
-
+const i18n = useI18n()
 const sendInput = ref('')
 const receiveInput = computed(() => {
   return sendInput.value
@@ -431,7 +433,9 @@ async function Swap() {
         address: recevierInfo.val.address,
       }
 
-      const estimatedInfo = await estimatedTransferFtFee(params)
+      const estimatedInfo = await estimatedTransferFtFee(params).catch((e) => {
+        return ElMessage.error(`Estimated Fail:${e.toString()}`)
+      })
       estimatedTransferInfo.val.time = recevierInfo.val.confirmation
       estimatedTransferInfo.val.gasFee = estimatedInfo.gasFee
       estimatedTransferInfo.val.gasFeeToUsd = estimatedInfo.gasFeeToUsd
@@ -527,7 +531,7 @@ async function confrimSwap() {
           throw new Error(`Cancel Transfer`)
         })
       if (tx) {
-        await tx.wait(3)
+        // await tx.wait()
         const registerRequest: OrderRegisterRequest = {
           fromChain: fromChain.value.toLowerCase(),
           fromTokenName: currentCoin.value!.toLowerCase(),
@@ -546,17 +550,19 @@ async function confrimSwap() {
         if (sign) {
           registerRequest.signature = sign
           console.log('registerRequest', registerRequest)
-          const orderWaitRes = await retryOrderRequest(
+          await retryOrderRequest(
             {
               fromChain: fromChain.value.toLowerCase(),
               fromTokenName: currentCoin.value!.toLowerCase(),
               address: rootStore.Web3WalletSdk.signer.address,
               txHash: tx.hash,
             },
-            3
-          )
+            1
+          ).catch((e) => {
+            console.log(e)
+          })
 
-          if (!orderWaitRes) throw new Error(`deposit tx not found`)
+          // if (!orderWaitRes) throw new Error(`deposit tx not found`)
           rootStore.GetOrderApi.orderRegisterPost(registerRequest)
             .then((order: any) => {
               console.log('order', order)
@@ -622,18 +628,18 @@ async function confrimSwap() {
         })
 
         console.log('registerRequest', registerRequest)
-        const orderWaitRes = await retryOrderRequest(
+        await retryOrderRequest(
           {
             fromChain: fromChain.value.toLowerCase(),
             fromTokenName: currentCoin.value!.toLowerCase(),
             address: userStore.user!.address,
             txHash: tx?.ft?.transfer?.txId,
           },
-          3
-        )
-        console.log('orderWaitRes', orderWaitRes)
-
-        if (!orderWaitRes) throw new Error(`deposit tx not found`)
+          1
+        ).catch((e) => {
+          console.log(e)
+        })
+        // if (!orderWaitRes) throw new Error(`deposit tx not found`)
         rootStore.GetOrderApi.orderRegisterPost(registerRequest)
           .then((order: any) => {
             console.log('order', order)
@@ -700,8 +706,8 @@ function retryOrderRequest(
         .catch((err) => {
           if (time > 0) {
             setTimeout(() => {
-              retryFun(time--)
-            }, 10 * 1000)
+              retryFun(--time)
+            }, 3 * 1000)
           } else {
             reject()
           }
