@@ -434,6 +434,22 @@ const GetDecimal = computed(() => {
 
 const list: Partial<OrderHistroyItem[]> = reactive([])
 
+const currentContractOperate = computed(() => {
+  if (currentTransferType.value == MappingIcon.MUSDT) {
+    return {
+      contract: null,
+      codehash: rootStore.MvcFtList[0].codeHash,
+      genesis: rootStore.MvcFtList[0].genesis,
+    }
+  } else {
+    return {
+      contract: null,
+      codehash: rootStore.MvcFtList[1].codeHash,
+      genesis: rootStore.MvcFtList[1].genesis,
+    }
+  }
+})
+
 function mappingFromChain(chain: string) {
   switch (chain) {
     case MappingChainName.ETH.toLocaleLowerCase():
@@ -562,6 +578,42 @@ function checkWalletInfo() {
   }
 }
 
+function transferFt() {
+  return new Promise(async (resolve, reject) => {
+    const value = new Decimal(ruleForm.amount).mul(Math.pow(10, GetDecimal.value)).toString()
+
+    const res = await userStore.showWallet
+      .createBrfcChildNode(
+        {
+          nodeName: NodeName.FtTransfer,
+          data: JSON.stringify({
+            receivers: [
+              {
+                address: userInfo.val!.address,
+                amount: value,
+              },
+            ],
+            codehash: currentContractOperate.value.codehash,
+            genesis: currentContractOperate.value.genesis,
+          }),
+        },
+        {
+          payType: SdkPayType.SPACE,
+          isBroadcast: true,
+        }
+      )
+      .catch((error) => {
+        ElMessage.error(error.message)
+        throw new Error(error.toString())
+      })
+    if (res) {
+      resolve(res)
+    } else {
+      reject()
+    }
+  })
+}
+
 function transferSpace() {
   return new Promise(async (resolve, reject) => {
     const value =
@@ -599,6 +651,8 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   let toAddress
   try {
+    console.log('currentTransferType', currentTransferType.value)
+
     await formEl.validate(async (valid, fields) => {
       transferLoading.value = true
       if (valid) {
@@ -628,7 +682,10 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
             return ElMessage.error(`Transfer cancel!`)
           })
           await res.wait()
-        } else {
+        } else if (
+          currentTransferType.value == MappingIcon.Tether ||
+          currentTransferType.value == MappingIcon.USD
+        ) {
           const decimal = GetDecimal.value!
 
           toAddress = await ensConvertAddress(ruleForm.address.trim()).catch((e) => {
@@ -640,14 +697,28 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
             return ElMessage.error(`Transfer cancel!`)
           })
           await res.wait()
+        } else if (
+          currentTransferType.value == MappingIcon.MUSDT ||
+          currentTransferType.value == MappingIcon.MUSDC
+        ) {
+          const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
+            transferLoading.value = false
+            ElMessage.error(e.message)
+            throw new Error(e.message)
+          })
+          if (target) {
+            userInfo.val = target
+            await transferFt()
+          } else {
+            transferLoading.value = false
+          }
+        } else {
+          transferLoading.value = false
+          console.log('submit!')
         }
-        console.log('submit!', res)
         ElMessage.success(`Transfer success!`)
         transferLoading.value = false
         innerDrawer.value = false
-      } else {
-        transferLoading.value = false
-        console.log('submit!')
       }
     })
   } catch (error) {
