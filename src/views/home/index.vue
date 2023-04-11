@@ -728,11 +728,11 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
 
 const walletList: WalletInfo[] = reactive([
   {
-    chain: mappingChainOrigin((window as any).ethereum.chainId),
+    chain: mappingChainOrigin((window as any)?.ethereum?.chainId),
     coinList: [
       {
-        chainName: mappingChain((window as any).ethereum.chainId),
-        chainSymbol: mappingCoin((window as any).ethereum.chainId),
+        chainName: mappingChain((window as any)?.ethereum?.chainId),
+        chainSymbol: mappingCoin((window as any)?.ethereum?.chainId),
         loading: true,
         balance: '0',
       },

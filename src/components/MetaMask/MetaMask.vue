@@ -61,13 +61,13 @@ watch(
 )
 
 onMounted(() => {
-  ;(window as any).ethereum.on('accountsChanged', (account: string[]) => {
+  ;(window as any)?.ethereum?.on('accountsChanged', (account: string[]) => {
     userStore.logout()
     if (account.length > 0) {
       MetaMaskConnect()
     }
   })
-  // ;(window as any).ethereum.on('networkChanged', (networkIDstring: string[]) => {
+  // ;(window as any)?.ethereum?.on('networkChanged', (networkIDstring: string[]) => {
   //   console.log('toQuantity(11155111)', toQuantity(11155111), networkIDstring)
   //   const whiteChainList = [1, 5, 11155111]
   //   if (!whiteChainList.includes(+networkIDstring)) {
@@ -82,7 +82,7 @@ onMounted(() => {
   //         cancelButtonText: i18n.t('Cancel'),
   //       }
   //     ).then((res) => {
-  //       ;(window as any).ethereum
+  //       ;(window as any)?.ethereum?
   //         .request({
   //           method: 'wallet_switchEthereumChain',
   //           params: [
@@ -100,7 +100,7 @@ onMounted(() => {
   //         })
   //     })
 
-  //     // ;(window as any).ethereum.request({
+  //     // ;(window as any)?.ethereum?.request({
   //     //   method: 'wallet_switchEthereumChain',
   //     //   params: [
   //     //     {
@@ -144,7 +144,7 @@ async function MetaMaskConnect() {
   const { isUpdatePlan, loginedButBind, bindEvmChain } = rootStore.showLoginBindEvmAccount
 
   try {
-    if (rootStore.chainWhiteList.includes((window as any).ethereum.chainId)) {
+    if (rootStore.chainWhiteList.includes((window as any)?.ethereum?.chainId)) {
       const connetSuccess = await sign()
       if (connetSuccess) {
         const type = isUpdatePlan ? TagType.old : TagType.new
@@ -168,7 +168,7 @@ async function MetaMaskConnect() {
         }
       )
         .then(() => {
-          ;(window as any).ethereum
+          ;(window as any)?.ethereum
             .request({
               method: 'wallet_switchEthereumChain',
               params: [

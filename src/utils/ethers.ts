@@ -16,7 +16,7 @@ interface tokenType {
 let USDT: tokenType
 let USDC: tokenType
 function getTokenInfo() {
-  const res = chainTokenInfo((window as any).ethereum.chainId)
+  const res = chainTokenInfo((window as any)?.ethereum?.chainId)
   if (!res) {
   } else {
     USDT = res.usdt
@@ -41,7 +41,7 @@ export default class Web3SDK {
       usdc: any
     }>(async (resolve) => {
       getTokenInfo()
-      this.provider = new ethers.BrowserProvider((window as any).ethereum)
+      this.provider = new ethers.BrowserProvider((window as any)?.ethereum?)
 
       this.signer = await this.provider.getSigner()
       this.usdt = new Contract(USDT.contractAddress, JSON.stringify(USDT.abi), this.signer)

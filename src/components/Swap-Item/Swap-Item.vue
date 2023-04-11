@@ -261,7 +261,7 @@ const mvcTokenDecimal = computed(() => {
   return 8
 })
 
-const currentFromChain = ref(mappingChainName((window as any).ethereum.chainId))
+const currentFromChain = ref(mappingChainName((window as any)?.ethereum?.chainId))
 const curretnToChain = ref(MappingChainName.MVC)
 const currentAssert = ref(MappingIcon.USDT)
 
