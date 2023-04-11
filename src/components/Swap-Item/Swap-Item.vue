@@ -372,29 +372,34 @@ function resetEstimatedInfo() {
 }
 
 async function estimatedGasPrice(params: { amount: string; address: string }) {
-  const value = toQuantity(
-    new Decimal(params.amount).mul(10 ** currentContractOperate.value.decimal).toString()
-  )
-  const tx = {
-    from: rootStore.GetWeb3Wallet.signer.address,
-    to: params.address,
-    data: currentContractOperate.value.contract.interface.encodeFunctionData('transfer', [
-      params.address,
-      value,
-    ]),
-  }
+  try {
+    const value = toQuantity(
+      new Decimal(params.amount).mul(10 ** currentContractOperate.value.decimal).toString()
+    )
+    const tx = {
+      from: rootStore.GetWeb3Wallet.signer.address,
+      to: params.address,
+      data: currentContractOperate.value.contract.interface.encodeFunctionData('transfer', [
+        params.address,
+        value,
+      ]),
+    }
 
-  const res = await rootStore.GetWeb3Wallet.provider.estimateGas(tx)
+    const res = await rootStore.GetWeb3Wallet.provider.estimateGas(tx)
 
-  if (res) {
-    const eth_USD_Rate = rootStore.exchangeRate.find((item) => item.symbol === 'eth')
-    return new Decimal(res.toString())
-      .add(21000)
-      .div(10 ** 9)
-      .mul(eth_USD_Rate!.price.USD)
-      .toNumber()
-      .toFixed(6)
-  } else {
+    if (res) {
+      const eth_USD_Rate = rootStore.exchangeRate.find((item) => item.symbol === 'eth')
+      return new Decimal(res.toString())
+        .add(21000)
+        .div(10 ** 9)
+        .mul(eth_USD_Rate!.price.USD)
+        .toNumber()
+        .toFixed(6)
+    } else {
+      return '0'
+    }
+  } catch (error) {
+    console.log(error)
     return '0'
   }
 }
