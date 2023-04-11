@@ -29,6 +29,7 @@
             placeholder="0.0"
             :parser="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
           />
+
           <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
               <IconItem :iconMap="currentCoin"></IconItem>
@@ -40,6 +41,7 @@
             </div> -->
           </div>
         </div>
+        <div class="tips" v-if="amountMostThan">{{ $t('input amount is not less than 10') }}</div>
       </div>
     </div>
 
@@ -192,8 +194,7 @@ import { toQuantity } from 'ethers'
 import { OrderRegisterRequest } from 'mvcbridge-sdk/api'
 import { SignatureHelper } from 'mvcbridge-sdk/signature'
 import { GetReceiveAddress, registerOrder, waitOrderList } from '@/api/api'
-import { resolve } from 'dns'
-import { bool2Asm } from 'mvc-scrypt/dist'
+
 const selectChainDialog = ref(false)
 const selectCoinDialog = ref(false)
 const transationDetailDialog = ref(false)
@@ -203,8 +204,12 @@ const sendInput = ref('')
 const receiveInput = computed(() => {
   return sendInput.value
 })
+const amountMostThan = computed(() => {
+  return +sendInput.value < 10
+})
+
 const allowSwap = computed(() => {
-  if (sendInput.value && receiveInput.value) {
+  if (sendInput.value && receiveInput.value && !amountMostThan.value) {
     return false
   } else {
     return true
@@ -246,12 +251,8 @@ const currentContractOperate = computed(() => {
   }
 })
 
-const recevierInfo = reactive({
-  val: {
-    address: '',
-    chain: '',
-    tokenName: '',
-  },
+const recevierInfo: { val: Partial<GetReceiveAddressType> | null } = reactive({
+  val: {},
 })
 
 const mvcTokenDecimal = computed(() => {
@@ -325,7 +326,7 @@ const txInfo = reactive([
   },
   {
     title: `Estimated Time of Arrival`,
-    value: () => estimatedTransferInfo.val.time,
+    value: () => new Decimal(estimatedTransferInfo.val.time).mul(12).div(60).toFixed(0),
     decimal: () => 'minutes',
   },
 ])
@@ -336,7 +337,7 @@ const estimatedTransferInfo = reactive({
     brigefee: '',
     gasFee: '',
     gasFeeToUsd: '',
-    time: '',
+    time: 0,
     minimumReceived: '',
   },
 })
@@ -363,7 +364,7 @@ function resetEstimatedInfo() {
     brigefee: '',
     gasFee: '',
     gasFeeToUsd: '',
-    time: '',
+    time: 0,
     minimumReceived: '',
   }
 }
@@ -380,7 +381,9 @@ async function estimatedGasPrice(params: { amount: string; address: string }) {
       value,
     ]),
   }
+
   const res = await rootStore.GetWeb3Wallet.provider.estimateGas(tx)
+
   if (res) {
     const eth_USD_Rate = rootStore.exchangeRate.find((item) => item.symbol === 'eth')
     return new Decimal(res.toString())
@@ -395,6 +398,7 @@ async function estimatedGasPrice(params: { amount: string; address: string }) {
 }
 
 async function Swap() {
+  console.log('222222222222222', curretnToChain.value, fromChain.value)
   if (userStore.user) {
     let params
     transationDetailDialog.value = true
@@ -409,25 +413,26 @@ async function Swap() {
       fromTokenName: currentAssert.value,
     })
 
-    if (currentFromChain.value === MappingChainName.Ethereum) {
+    if (fromChain.value === MappingChainName.ETH) {
       console.log('sedddd', sendInput.value)
       params = {
         amount: sendInput.value,
         address: recevierInfo.val.address,
       }
+      estimatedTransferInfo.val.time = recevierInfo.val.confirmation
       estimatedTransferInfo.val.gasFee = await estimatedGasPrice(params)
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
         .sub(estimatedTransferInfo.val.brigefee)
         .sub(estimatedTransferInfo.val.gasFee)
         .toString()
-    } else if (currentFromChain.value === MappingChainName.MVC) {
+    } else if (fromChain.value === MappingChainName.MVC) {
       params = {
         amount: new Decimal(sendInput.value).mul(10 ** 6).toString(),
         address: recevierInfo.val.address,
       }
 
       const estimatedInfo = await estimatedTransferFtFee(params)
-
+      estimatedTransferInfo.val.time = recevierInfo.val.confirmation
       estimatedTransferInfo.val.gasFee = estimatedInfo.gasFee
       estimatedTransferInfo.val.gasFeeToUsd = estimatedInfo.gasFeeToUsd
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
@@ -615,6 +620,7 @@ async function confrimSwap() {
           toTokenName: currentCoin.value!.toLowerCase(),
           toAddress: rootStore.GetWeb3Wallet.signer.address,
         })
+
         console.log('registerRequest', registerRequest)
         const orderWaitRes = await retryOrderRequest(
           {

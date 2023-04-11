@@ -42,12 +42,6 @@ enum FromOrToTokenName {
   usdc = 'usdc',
 }
 
-interface GetReceiveAddressType {
-  address: string
-  chain: string
-  tokenName: string
-}
-
 export const GetReceiveAddress = (params: {
   fromChain: string
   fromTokenName: string

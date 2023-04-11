@@ -13,6 +13,11 @@ import dayjs from 'dayjs'
 import { resolveAddress, isAddress } from 'ethers'
 import { OrderApi, OrderRegisterRequest } from 'mvcbridge-sdk/api'
 import { SignatureHelper } from 'mvcbridge-sdk/signature'
+// // @ts-ignore
+// import * as bsv from '@sensible-contract/bsv'
+import bitcoin from 'bitcoinjs-lib'
+import bitcoinMessage from 'bitcoin-sign-message'
+
 export function diffTime() {
   const lastTime = window.localStorage.getItem('lastedGetRateTime')
   if (!lastTime) {
@@ -351,14 +356,26 @@ export function GeneratorSignatrue(registerRequest: OrderRegisterRequest): Order
     .showWallet!.wallet!.wallet!.deriveChild(0)
     .deriveChild(0)
     .privateKey.toString()
-  console.log(
-    'userStore.showWallet!.wallet!.wallet!.deriveChild(0).deriveChild(0).privateKey.toString(),',
-    userStore.showWallet!.wallet.wallet.privateKey
-  )
 
-  const signature = SignatureHelper.signMessageBitcoin(message, privateKey)
+  //SignatureHelper.signMessageBitcoin
+  const signature = signMessageBitCoin(message, privateKey)
   registerRequest.signature = signature
   return registerRequest
+}
+
+export function signMessageBitCoin(message: string, privateKeyWif: string) {
+  let keyPair
+  if (import.meta.env.MODE == 'prod') {
+    keyPair = bitcoin.ECPair.fromWIF(privateKeyWif, bitcoin.networks.bitcoin)
+  } else {
+    keyPair = bitcoin.ECPair.fromWIF(privateKeyWif, bitcoin.networks.testnet)
+  }
+  const privateKey = keyPair.privateKey
+  const signatrue = bitcoinMessage.sign(message, privateKey, keyPair.compressed)
+  return signatrue.toString('base64')
+  // const newMessage = new bsv.Message(message)
+  // const priviteKey = bsv.PrivateKey.fromWIF(privateKeyWif)
+  // return newMessage.sign(priviteKey)
 }
 
 export function checkAmount(params: {

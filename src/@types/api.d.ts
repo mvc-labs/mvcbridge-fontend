@@ -8,6 +8,15 @@ declare interface GetMeUtxosRes extends apiResponse {
   }
 }
 
+declare interface GetReceiveAddressType {
+  address: string
+  chain: string
+  tokenName: string
+  decimal?: number
+  confirmation: number
+  minAmount?: number
+}
+
 declare interface GetMyMEBalanceRes extends apiResponse {
   data: {
     count: number
