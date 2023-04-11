@@ -118,7 +118,21 @@ const wallets = [
         icon: IconMetaMask,
         fun: () => {
           if ((window as any)?.ethereum == null) {
-            return ElMessage.error(`MetaMask not installed; using read-only defaults`)
+            ElMessageBox.confirm(
+              i18n.t('Need to downloading an install Metamask'),
+              i18n.t('Metamask not exit'),
+              {
+                customClass: 'primary',
+                confirmButtonText: i18n.t('To DownLoad'),
+                cancelButtonText: i18n.t('Cancel'),
+              }
+            )
+              .then(() => {
+                window.open(`https://metamask.io/download/`, '_blank')
+              })
+              .catch(() => {
+                rootStore.$patch({ isShowLogin: false, isShowMetaMak: false })
+              })
           } else {
             rootStore.$patch({ isShowLogin: false, isShowMetaMak: true })
           }
