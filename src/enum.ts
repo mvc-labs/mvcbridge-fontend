@@ -7,8 +7,8 @@ export enum MappingIcon {
   MVC = 'MVC',
   Tether = 'Tether USD',
   USD = 'USD Coin',
-  MUSDT = 'MVC USD',
-  MUSDC = 'MVC USDC',
+  MUSDT = 'MUSD',
+  MUSDC = 'MUSDC',
 }
 
 export enum CoinDecimal {
@@ -48,6 +48,8 @@ export enum CoinSymbol {
   SPACE = 'SPACE',
   BSC = 'BNB',
   POLYGON = 'MATIC',
+  MUSD = 'MUSD',
+  MUSDC = 'MUSDC',
 }
 
 export enum ChainOrigin {

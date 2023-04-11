@@ -32,7 +32,7 @@
 
           <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
-              <IconItem :iconMap="currentCoin"></IconItem>
+              <IconItem :iconMap="SendAssert"></IconItem>
             </div>
             <!-- <div class="right">
               <el-icon :size="16">
@@ -70,7 +70,7 @@
           <el-input v-model="receiveInput" placeholder="0.0" />
           <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
-              <IconItem :iconMap="currentCoin"></IconItem>
+              <IconItem :iconMap="ReceiveAssert"></IconItem>
             </div>
             <!-- <div class="right">
               <el-icon :size="16">
@@ -264,6 +264,7 @@ const mvcTokenDecimal = computed(() => {
 const currentFromChain = ref(mappingChainName((window as any).ethereum.chainId))
 const curretnToChain = ref(MappingChainName.MVC)
 const currentAssert = ref(MappingIcon.USDT)
+
 const fromChain = computed(() => {
   switch (currentFromChain.value) {
     case MappingChainName.Ethereum:
@@ -277,6 +278,22 @@ const fromChain = computed(() => {
       return MappingChainName.MVC
     default:
       return MappingChainName.ETH
+  }
+})
+
+const SendAssert = computed(() => {
+  if (fromChain.value == MappingChainName.ETH) {
+    return MappingIcon.USDT
+  } else {
+    return MappingIcon.MUSDT
+  }
+})
+
+const ReceiveAssert = computed(() => {
+  if (fromChain.value == MappingChainName.ETH) {
+    return MappingIcon.MUSDT
+  } else {
+    return MappingIcon.USDT
   }
 })
 

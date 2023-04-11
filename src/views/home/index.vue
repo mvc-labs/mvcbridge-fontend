@@ -175,7 +175,11 @@
           <el-table-column class-name="col-item" prop="Currency" label="Currency" width="100">
             <template #default="scope">
               <div class="tx-cell">
-                <IconItem :iconMap="scope!.row!.Currency"></IconItem>
+                <IconItem
+                  :iconMap="
+                    scope.row.Send == MappingChainName.MVC ? MappingIcon.MUSDT : MappingIcon.USDT
+                  "
+                ></IconItem>
               </div>
             </template>
           </el-table-column>
@@ -684,13 +688,13 @@ const walletList: WalletInfo[] = reactive([
       },
       {
         chainName: MappingIcon.MUSDT,
-        chainSymbol: CoinSymbol.USDT,
+        chainSymbol: CoinSymbol.MUSD,
         loading: true,
         balance: '0',
       },
       {
         chainName: MappingIcon.MUSDC,
-        chainSymbol: CoinSymbol.USDC,
+        chainSymbol: CoinSymbol.MUSDC,
         loading: true,
         balance: '0',
       },
