@@ -117,7 +117,11 @@ const wallets = [
         },
         icon: IconMetaMask,
         fun: () => {
-          rootStore.$patch({ isShowLogin: false, isShowMetaMak: true })
+          if ((window as any)?.ethereum == null) {
+            return ElMessage.error(`MetaMask not installed; using read-only defaults`)
+          } else {
+            rootStore.$patch({ isShowLogin: false, isShowMetaMak: true })
+          }
         },
       },
       // {
