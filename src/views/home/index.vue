@@ -453,34 +453,36 @@ function mappingFromToken(token: string) {
 }
 
 async function AllHistoryList() {
-  try {
-    const ethOrderWaitRes =
-      await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
-        MappingChainName.ETH.toLocaleLowerCase(),
-        MappingIcon.USDT.toLocaleLowerCase(),
-        rootStore.GetWeb3Wallet.signer.address
-      )
-    const mvcOrderWaitRes =
-      await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
-        MappingChainName.MVC.toLocaleLowerCase(),
-        MappingIcon.USDT.toLocaleLowerCase(),
-        userStore.user?.address
-      )
-    // let ethOrderList =
-    //   ethOrderWaitRes.data.length &&
-    //   ethOrderWaitRes.data.filter((item) => {
-    //     return item.state == 'WAITING_REQUEST'
-    //   })
-    // let mvcOrderList =
-    //   mvcOrderWaitRes.data.length &&
-    //   mvcOrderWaitRes.data.filter((item) => {
-    //     return item.state == 'WAITING_REQUEST'
-    //   })
+  const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+    MappingChainName.ETH.toLocaleLowerCase(),
+    MappingIcon.USDT.toLocaleLowerCase(),
+    rootStore.GetWeb3Wallet.signer.address
+  ).catch((e) => console.log(e))
+  const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+    MappingChainName.MVC.toLocaleLowerCase(),
+    MappingIcon.USDT.toLocaleLowerCase(),
+    userStore.user?.address
+  ).catch((e) => console.log(e))
+  if (!ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
+    list.push(...mvcOrderWaitRes.data)
+  } else if (!mvcOrderWaitRes.data.length && ethOrderWaitRes.data.length) {
+    list.push(...ethOrderWaitRes.data)
+  } else if (ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
     list.push(...ethOrderWaitRes.data, ...mvcOrderWaitRes.data)
-    console.log('list', list)
-  } catch (error) {
-    console.log(error)
   }
+
+  console.log('list', list)
+
+  // let ethOrderList =
+  //   ethOrderWaitRes.data.length &&
+  //   ethOrderWaitRes.data.filter((item) => {
+  //     return item.state == 'WAITING_REQUEST'
+  //   })
+  // let mvcOrderList =
+  //   mvcOrderWaitRes.data.length &&
+  //   mvcOrderWaitRes.data.filter((item) => {
+  //     return item.state == 'WAITING_REQUEST'
+  //   })
 }
 
 async function getHistoryList() {
