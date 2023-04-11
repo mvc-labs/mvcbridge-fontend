@@ -41,7 +41,7 @@ export default class Web3SDK {
       usdc: any
     }>(async (resolve) => {
       getTokenInfo()
-      this.provider = new ethers.BrowserProvider((window as any)?.ethereum?)
+      this.provider = new ethers.BrowserProvider((window as any)?.ethereum)
 
       this.signer = await this.provider.getSigner()
       this.usdt = new Contract(USDT.contractAddress, JSON.stringify(USDT.abi), this.signer)
