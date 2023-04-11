@@ -10,6 +10,7 @@ import { ConnectType } from '@/enum'
 onMounted(async () => {
   const rootStore = useRootStore()
   const userStore = useUserStore()
+  rootStore.getExchangeRate()
   // if ((window as any).WallectConnect) {
   //   debugger
   //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.WalletConnect))
@@ -30,7 +31,7 @@ onMounted(async () => {
       await userStore.showWallet.initWallet()
     }
     rootStore.InitOrderApi()
-    rootStore.getExchangeRate()
+
     // if (diffTime()) {
 
     // }
