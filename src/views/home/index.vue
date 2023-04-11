@@ -4,7 +4,12 @@
       <div class="logo">
         <img :src="Logo" alt="" />
       </div>
+
       <div class="menu">
+        <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
+          <img :src="FaucetIcon" alt="" v-if="isHome" />
+          <el-icon :size="15" color="#fff" v-else><HomeFilled /></el-icon>
+        </div>
         <div class="wallet" v-if="userStore.isAuthorized" @click="getHistoryList">
           <img :src="HistoryIcon" alt="" />
         </div>
@@ -29,8 +34,24 @@
       </div>
     </header>
   </div>
-  <div class="swap-warp">
+  <div class="swap-warp" v-if="isHome">
     <div class="swap-container"><SwapItem></SwapItem></div>
+  </div>
+  <div class="faucet-wrap" v-else>
+    <div class="back">
+      <el-icon size="40" @click="isHome = true"><Back /></el-icon>
+      <span>{{ $t('back') }}</span>
+    </div>
+    <div class="btn-group">
+      <div class="btn-item">
+        <el-button @click="toSepoliaFauct">{{ $t('to faucet') }}</el-button>
+        <span>{{ $t('tip2') }}</span>
+      </div>
+      <div class="btn-item">
+        <el-button :loading="faucetLoading" @click="faucet">{{ $t('MUSDT Faucet') }}</el-button>
+        <span>{{ $t('tip3') }}</span>
+      </div>
+    </div>
   </div>
 
   <div class="foot">
@@ -234,10 +255,11 @@ import twitter from '@/assets/images/twitter.svg?url'
 import reddit from '@/assets/images/reddit.svg?url'
 import instagram from '@/assets/images/instagram.svg?url'
 import discord from '@/assets/images/discord.svg?url'
-import { ArrowLeftBold, Select } from '@element-plus/icons-vue'
+import { ArrowLeftBold, Select, HomeFilled, Back } from '@element-plus/icons-vue'
 import Logo from '@/assets/images/logo_mvc.svg?url'
 import WalletIcon from '@/assets/images/Wallets-icon.svg?url'
 import HistoryIcon from '@/assets/images/History-icon.svg?url'
+import FaucetIcon from '@/assets/images/Faucet.svg?url'
 import Drawer from '@/components/Drawer/Drawer.vue'
 
 import {
@@ -269,7 +291,8 @@ import { RetryWaitRequest } from '@/utils/common'
 import Decimal from 'decimal.js-light'
 import { dateTimeFormat } from '@/utils/filters'
 import { useI18n } from 'vue-i18n'
-
+import { router } from '@/router'
+const isHome = ref(true)
 const contractList: string[] = [mvc, twitter, instagram, reddit, discord]
 const DrawerOperate = ref(false)
 const innerDrawer = ref(false)
@@ -283,6 +306,7 @@ const currentCoinUit = ref(CoinUint.Space)
 const historyDialog = ref(false)
 const loadingHistory = ref(false)
 const i18n = useI18n()
+const faucetLoading = ref(false)
 const MetaNameOrEns = computed(() => {
   let mvc = [MappingIcon.MVC, MappingIcon.MUSDC, MappingIcon.MUSDT]
   return mvc.includes(currentTransferType.value)
@@ -413,6 +437,22 @@ const rules = reactive<FormRules>({
     },
   ],
 })
+
+function toSepoliaFauct() {
+  window.open(`https://sepoliafaucet.com`, '_blank')
+}
+
+async function faucet() {
+  faucetLoading.value = true
+  try {
+    const res = await rootStore.GetWeb3Wallet.faucet.requestToken()
+    console.log('resszxczx', res)
+    faucetLoading.value = false
+  } catch (error) {
+    faucetLoading.value = false
+    ElMessage.error(error.message)
+  }
+}
 
 const handleCommand = (command: string | number | object) => {
   if (command == 'logout') {

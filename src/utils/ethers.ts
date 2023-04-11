@@ -15,12 +15,14 @@ interface tokenType {
 
 let USDT: tokenType
 let USDC: tokenType
+let FAUCET: any
 function getTokenInfo() {
   const res = chainTokenInfo((window as any)?.ethereum?.chainId)
   if (!res) {
   } else {
     USDT = res.usdt
     USDC = res.usdc
+    FAUCET = res.faucet
   }
 }
 
@@ -31,7 +33,7 @@ export default class Web3SDK {
   contract: any[] = []
   usdt: any
   usdc: any
-
+  faucet: any
   constructor() {
     return new Promise<{
       provider: any
@@ -39,6 +41,7 @@ export default class Web3SDK {
       contract: any[]
       usdt: any
       usdc: any
+      faucet: any
     }>(async (resolve) => {
       getTokenInfo()
       this.provider = new ethers.BrowserProvider((window as any)?.ethereum)
@@ -46,7 +49,9 @@ export default class Web3SDK {
       this.signer = await this.provider.getSigner()
       this.usdt = new Contract(USDT.contractAddress, JSON.stringify(USDT.abi), this.signer)
       this.usdc = new Contract(USDC.contractAddress, JSON.stringify(USDC.abi), this.signer)
-      this.contract.push(this.usdt, this.usdc)
+      this.faucet = new Contract(FAUCET.contractAddress, JSON.stringify(FAUCET.abi), this.signer)
+      this.contract.push(this.usdt, this.usdc, this.faucet)
+      console.log('zxczxczxc1111', this.contract)
       resolve(this)
     })
   }

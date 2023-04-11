@@ -195,6 +195,10 @@ export function chainTokenInfo(chainid: string) {
         abi: SEPOLIA.USDC,
         decimal: 6,
       },
+      faucet: {
+        contractAddress: sepolias.faucet,
+        abi: SEPOLIA.FAUCET,
+      },
     },
     bsc: {
       usdt: {
