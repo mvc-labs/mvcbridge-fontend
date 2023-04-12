@@ -10,7 +10,7 @@
           <img :src="FaucetIcon" alt="" v-if="isHome" />
           <el-icon :size="15" color="#fff" v-else><HomeFilled /></el-icon>
         </div>
-        <div class="wallet" v-if="userStore.isAuthorized" @click="getHistoryList">
+        <div class="wallet" v-if="userStore.isAuthorized" @click="getPendingList">
           <img :src="HistoryIcon" alt="" />
         </div>
         <div class="wallet" v-if="userStore.isAuthorized" @click="checkWalletInfo">
@@ -172,6 +172,20 @@
         <span>No transfers yet</span>
       </div> -->
       <div class="table_wrap">
+        <div class="tableLayout">
+          <div
+            @click="getPendingList"
+            :class="['item', currentTableLayout == OrderType.Pending ? 'is-active' : '']"
+          >
+            {{ $t('Pending Request') }}
+          </div>
+          <div
+            @click="getHistoryList"
+            :class="['item', currentTableLayout == OrderType.Finalize ? 'is-active' : '']"
+          >
+            {{ $t('Finalize Request') }}
+          </div>
+        </div>
         <el-table
           empty-text="No transfers yet"
           v-loading="loadingHistory"
@@ -213,18 +227,33 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column class-name="col-item" prop="Date" label="Date" width="100">
-            <template #default="scope">
-              <div class="tx-cell">
-                <span>{{ scope.row.Date }}</span>
-              </div>
-            </template>
-          </el-table-column>
+
           <el-table-column class-name="col-item" prop="Amount" label="Amount" width="150">
             <template #default="scope">
               <div class="tx-cell">
                 <span>{{ scope.row.Amount }}&nbsp;</span>
                 <span>{{ scope.row.Currency }}</span>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column class-name="col-item" prop="Date" label="Date" width="100">
+            <template #default="scope">
+              <div class="tx-cell">
+                <span>{{ scope.row.Date ? $filters.dateTimeFormat(scope.row.Date) : '--' }}</span>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            class-name="col-item"
+            prop="Process"
+            label="Current/Need(Block)"
+            width="150"
+          >
+            <template #default="scope">
+              <div class="tx-cell">
+                <span>{{ scope.row.Process ? scope.row.Process : '-/-' }}</span>
               </div>
             </template>
           </el-table-column>
@@ -236,13 +265,12 @@
               <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
                 <el-icon :size="15" color="#fff"><Select /></el-icon>
               </div>
+              <div class="tx-cell" v-else-if="scope.row.State == 'WAITING_REQUEST'">
+                <el-button @click="retryRequest(scope.row)">{{ $t('retry') }}</el-button>
+              </div>
               <div class="tx-cell" v-else>
                 <span>{{ scope.row.State }}</span>
               </div>
-              <!-- <div class="tx-cell" v-else-if="">
-                <el-button @click="retryRequest(scope.row)">{{ $t('retry') }}</el-button>
-               
-              </div> -->
             </template>
           </el-table-column>
         </el-table>
@@ -297,6 +325,11 @@ import Decimal from 'decimal.js-light'
 import { dateTimeFormat } from '@/utils/filters'
 import { useI18n } from 'vue-i18n'
 import { router } from '@/router'
+enum OrderType {
+  Pending = 'Pending',
+  Finalize = 'Finalize',
+}
+
 const isHome = ref(true)
 const contractList: string[] = [mvc, twitter, instagram, reddit, discord]
 const DrawerOperate = ref(false)
@@ -311,6 +344,7 @@ const currentCoinUit = ref(CoinUint.Space)
 const historyDialog = ref(false)
 const loadingHistory = ref(false)
 const i18n = useI18n()
+const currentTableLayout = ref('')
 const faucetLoading = ref(false)
 const MetaNameOrEns = computed(() => {
   let mvc = [MappingIcon.MVC, MappingIcon.MUSDC, MappingIcon.MUSDT]
@@ -326,6 +360,7 @@ interface TransationItem {
   State: string
   NeedConfirm?: number
   CurrentConfirm?: number
+  Process?: string
   fromAddress: string
   toAddress: string
   fromChain: string
@@ -369,6 +404,15 @@ onMounted(async () => {
   //   io.observe(node)
   // })
 })
+
+watch(
+  () => historyDialog.value,
+  (val: boolean) => {
+    if (!val) {
+      currentTableLayout.value = null
+    }
+  }
+)
 
 watch(
   () => DrawerOperate.value,
@@ -516,18 +560,16 @@ function mappingFromToken(token: string) {
 }
 
 async function AllPendingList() {
-  const ethOrderWaitRes =
-    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
-      MappingChainName.ETH.toLocaleLowerCase(),
-      MappingIcon.USDT.toLocaleLowerCase(),
-      rootStore.GetWeb3Wallet.signer.address
-    ).catch((e) => console.log(e))
-  const mvcOrderWaitRes =
-    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
-      MappingChainName.MVC.toLocaleLowerCase(),
-      MappingIcon.USDT.toLocaleLowerCase(),
-      userStore.user?.address
-    ).catch((e) => console.log(e))
+  const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
+    MappingChainName.ETH.toLocaleLowerCase(),
+    MappingIcon.USDT.toLocaleLowerCase(),
+    rootStore.GetWeb3Wallet.signer.address
+  ).catch((e) => console.log(e))
+  const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
+    MappingChainName.MVC.toLocaleLowerCase(),
+    MappingIcon.USDT.toLocaleLowerCase(),
+    userStore.user?.address
+  ).catch((e) => console.log(e))
   if (!ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
     list.push(...mvcOrderWaitRes.data)
   } else if (!mvcOrderWaitRes.data.length && ethOrderWaitRes.data.length) {
@@ -580,6 +622,11 @@ async function AllHistoryList() {
          * 
          */
 async function getPendingList() {
+  if (currentTableLayout.value == OrderType.Pending) {
+    return
+  }
+  currentTableLayout.value = OrderType.Pending
+
   transationHistoryList.length = 0
   list.length = 0
   historyDialog.value = true
@@ -603,6 +650,7 @@ async function getPendingList() {
           Date: ele?.finalizedTimestamp,
           NeedConfirm: ele?.confirmationRequired,
           CurrentConfirm: ele?.currentConfirmation,
+          Process: `${ele?.currentConfirmation}/${ele?.confirmationRequired}`,
           TX: ele.txid,
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,
@@ -626,6 +674,10 @@ async function getPendingList() {
 }
 
 async function getHistoryList() {
+  if (currentTableLayout.value == OrderType.Finalize) {
+    return
+  }
+  currentTableLayout.value = OrderType.Finalize
   transationHistoryList.length = 0
   list.length = 0
   historyDialog.value = true

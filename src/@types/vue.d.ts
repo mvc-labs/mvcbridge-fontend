@@ -4,6 +4,7 @@ declare module '@vue/runtime-core' {
     $filters: {
       spiltAddress: (str: string | undefined) => string
       rateToUsd: (amount: string, coin: string) => string
+      dateTimeFormat: (timestamp: Date | number, format: string = 'YYYY-MM-DD HH:mm:ss') => string
     }
   }
 }

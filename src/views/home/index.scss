@@ -395,6 +395,35 @@
   height: 350px;
 }
 .table_wrap{
+  .tableLayout{
+    margin-bottom: 30px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    .item{
+      border: 2px solid #696d7e;
+      border-radius: 4px;
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      font-size: 18px;
+      font-weight: bold;
+
+    }
+    .is-active{
+     background: #fff;
+    opacity: .8;
+    color: var(--themeBgFiveColor);
+    }
+   
+  
+
+  }
  
   .col-item{
     border: none !important;

@@ -1054,5 +1054,7 @@
   "to faucet": "link to Sepolia Faucet",
   "MUSDT Faucet": "Give Me MUSD",
   "tip2": "(Sepolia ETH is required to use the asset bridge function)",
-  "tip3": "(Each address can only be claimed once within 24 hours)"
+  "tip3": "(Each address can only be claimed once within 24 hours)",
+  "Pending Request": "Pending Request",
+  "Finalize Request": "Finalize Request"
 }
