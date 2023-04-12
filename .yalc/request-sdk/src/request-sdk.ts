@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-export default class {
+class HttpRequest {
   request;
   constructor(
     baseUrl: string,
@@ -64,3 +64,5 @@ export default class {
     );
   }
 }
+
+export { HttpRequest };
