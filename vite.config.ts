@@ -135,6 +135,7 @@ export default ({ mode, command }) => {
       commonjsOptions: {
         transformMixedEsModules: true,
         include: /node_modules|libs/,
+        defaultIsModuleExports: false,
       },
     },
   })
