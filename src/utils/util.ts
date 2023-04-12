@@ -15,8 +15,7 @@ import { OrderApi, OrderRegisterRequest } from 'mvcbridge-sdk/api'
 import { SignatureHelper } from 'mvcbridge-sdk/signature'
 // // @ts-ignore
 // import * as bsv from '@sensible-contract/bsv'
-// import bitcoin from 'bitcoinjs-lib'
-// import bitcoinMessage from 'bitcoin-sign-message'
+
 import { toClipboard } from '@soerenmartius/vue3-clipboard'
 export function diffTime() {
   const lastTime = window.localStorage.getItem('lastedGetRateTime')
