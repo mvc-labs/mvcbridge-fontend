@@ -19,8 +19,8 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 const pathSrc = path.resolve(__dirname, 'src')
 export default ({ mode, command }) => {
   const productionEnvs = ['mainnet']
-  // const isProduction = productionEnvs.includes(mode) && command === 'build' ? true : false
-  const isProduction = command === 'build'
+  const isProduction = productionEnvs.includes(mode) && command === 'build' ? true : false
+  // const isProduction = command === 'build'
   return defineConfig({
     plugins: [
       command === 'serve' &&
@@ -123,7 +123,7 @@ export default ({ mode, command }) => {
       // },
     },
     build: {
-      target: isProduction ? 'es2015' : 'es2015',
+      target: isProduction ? 'esnext' : 'es2015',
       minify: isProduction,
       sourcemap: isProduction ? false : 'inline',
       rollupOptions: {
