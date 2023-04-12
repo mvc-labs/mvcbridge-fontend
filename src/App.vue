@@ -7,11 +7,12 @@ import { useUserStore } from './store/user'
 import { SDK } from '@/utils/sdk'
 import { diffTime } from '@/utils/util'
 import { ConnectType } from '@/enum'
+import { ElMessage } from 'element-plus'
 onMounted(async () => {
   const rootStore = useRootStore()
   const userStore = useUserStore()
   rootStore.getExchangeRate()
-  await rootStore.setReceiverAddress().catch((e) => console.log(e))
+  await rootStore.setReceiverAddress().catch((e) => ElMessage.error(e))
 
   // if ((window as any).WallectConnect) {
   //   debugger

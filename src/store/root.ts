@@ -59,9 +59,9 @@ interface RootState {
     genesis: string
     decimal: number
   }>
-  receiverAddress: {
-    mvcAddress: string
-    ethAddress: string
+  receiverInfo: {
+    mvc: Partial<GetReceiveAddressType> | null
+    eth: Partial<GetReceiveAddressType> | null
   }
 }
 const UA = window.navigator.userAgent.toLowerCase()
@@ -114,9 +114,9 @@ export const useRootStore = defineStore('root', {
           decimal: 8,
         },
       ],
-      receiverAddress: {
-        mvcAddress: '',
-        ethAddress: '',
+      receiverInfo: {
+        mvc: null,
+        eth: null,
       },
     },
   getters: {
@@ -143,10 +143,10 @@ export const useRootStore = defineStore('root', {
           chainName: 'mvc',
           tokenName: 'usdt',
         })
-        const recevierAddress = { mvcAddress: mvcAddress.address, ethAddress: ethAddress.address }
-        this.receiverAddress = recevierAddress
+
+        this.receiverInfo = { mvc: mvcAddress, eth: ethAddress }
       } catch (error) {
-        console.log(error)
+        throw new Error(error)
       }
     },
     InitWeb3Wallet(payload: any) {

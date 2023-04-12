@@ -565,7 +565,7 @@ async function AllPendingList() {
   const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
     MappingChainName.ETH.toLocaleLowerCase(),
     MappingIcon.USDT.toLocaleLowerCase(),
-    rootStore.GetWeb3Wallet.signer.address
+    rootStore.GetWeb3Wallet.signer.address.toLowerCase()
   ).catch((e) => console.log(e))
   const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
     MappingChainName.MVC.toLocaleLowerCase(),
@@ -588,7 +588,7 @@ async function AllHistoryList() {
     await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
       MappingChainName.ETH.toLocaleLowerCase(),
       MappingIcon.USDT.toLocaleLowerCase(),
-      rootStore.GetWeb3Wallet.signer.address
+      rootStore.GetWeb3Wallet.signer.address.toLowerCase()
     ).catch((e) => console.log(e))
   const mvcOrderWaitRes =
     await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
@@ -596,6 +596,9 @@ async function AllHistoryList() {
       MappingIcon.USDT.toLocaleLowerCase(),
       userStore.user?.address
     ).catch((e) => console.log(e))
+  // if (mvcOrderWaitRes?.data.length) {
+  //   list.push(...mvcOrderWaitRes.data)
+  // }
   if (!ethOrderWaitRes?.data.length && mvcOrderWaitRes?.data.length) {
     list.push(...mvcOrderWaitRes.data)
   } else if (!mvcOrderWaitRes?.data.length && ethOrderWaitRes?.data.length) {
