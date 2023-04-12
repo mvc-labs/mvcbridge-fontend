@@ -1,0 +1,5 @@
+{
+  "npmName": "mvcbridge-sdk",
+  "supportsES6": true,
+  "withNodeImports":true
+}

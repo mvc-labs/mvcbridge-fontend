@@ -1,0 +1,27 @@
+{
+  "name": "mvcbridge-sdk",
+  "version": "1.0.8",
+  "description": "OpenAPI client for mvcbridge-sdk",
+  "author": "OpenAPI-Generator Contributors",
+  "keywords": [
+    "axios",
+    "typescript",
+    "openapi-client",
+    "openapi-generator",
+    "mvcbridge-sdk"
+  ],
+  "license": "Unlicense",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --outDir dist/",
+    "prepublishOnly": "npm run build",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "axios": "^0.21.2",
+    "bitcoinjs-lib": "4.0.5",
+    "bitcoinjs-message": "^2.2.0"
+  },
+  "yalcSig": "d02cc5f610233903c53a6a906764d93a"
+}
