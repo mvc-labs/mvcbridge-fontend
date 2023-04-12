@@ -93,10 +93,10 @@ export default ({ mode, command }) => {
         customDomId: '__svg__icons__dom__',
       }),
       viteExternalsPlugin({
-        'mvc-lib': 'mvc',
-        'mvc-lib/ecies': 'ECIES',
-        'mvc-lib/mnemonic': 'Mnemonic',
-        bip39: 'bip39',
+        // 'mvc-lib': 'mvc',
+        // 'mvc-lib/ecies': 'ECIES',
+        // 'mvc-lib/mnemonic': 'Mnemonic',
+        // bip39: 'bip39',
       }),
     ],
     resolve: {

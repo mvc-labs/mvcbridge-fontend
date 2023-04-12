@@ -418,6 +418,8 @@ export function checkAmount(params: {
         }
       }
     } else if (params.chain === ChainTypeBalance.MVC) {
+      console.log('2asada', params.currency, +rootStore.mvcWalletTokenBalance.space)
+
       if (+rootStore.mvcWalletTokenBalance.space < new Decimal(params.currency).toNumber()) {
         reject(
           `The transfer needs ${params.currency} Space fees but the balance is only ${rootStore.mvcWalletTokenBalance.space} `

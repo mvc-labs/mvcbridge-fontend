@@ -309,8 +309,7 @@ export class SDK {
           if (!params.utxos!.length) {
             // 计算总价
             let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
-            totalAmount += 20000
-
+            totalAmount += 70000
             const useSatoshis = totalAmount
             // 当时用Me支付时，总价 space 要转换为 ME 值
             if (option.payType === SdkPayType.ME) {
@@ -1077,13 +1076,14 @@ export class SDK {
             if (params.nodeName === NodeName.FtTransfer) {
               const scriptPlayload = await this.getScriptPlayload(createCurrentNodeParams, chain)
               const ftManager = this.wallet!.getFtManager()
-              console.log('params.data', ftManager)
+
               const _params = {
                 ...JSON.parse(params.data!),
                 opreturnData: scriptPlayload,
                 noBroadcast: true,
                 utxos: [utxo],
                 senderWif: this.wallet!.wallet.deriveChild(0).deriveChild(0).privateKey.toString(),
+
                 changeAddress: lastChangeAddress,
               }
               const FTOperateFunName = {

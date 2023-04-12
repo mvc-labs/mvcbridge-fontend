@@ -465,6 +465,7 @@ async function Swap() {
           .toString(),
         address: rootStore.receiverInfo.mvc.address,
       }
+
       estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
         .mul(rootStore.receiverInfo.eth.withdrawBridgeFeeRate)
         .toString()
@@ -517,9 +518,15 @@ async function estimatedTransferFtFee(params: { amount: string; address: string 
 
     // const mvcRate = rootStore.exchangeRate.find((item) => item.symbol === 'mvc')
     const { inputAmount, outputAmount } = res?.ft?.transfer?.transaction
+    // const needFee = res?.ft?.transfer?.transaction?.getNeedFee()
 
+    // if (needFee) {
+    //   return {
+    //     minerFee: new Decimal(needFee).div(10 ** 8).toString(),
+    //   }
+    // }
     if (!inputAmount || !outputAmount) {
-      throw new Error('txInput not found,estimated miner fee fail')
+      throw new Error(`input is not found,estimated miner fee fail`)
     }
     return {
       minerFee: new Decimal(inputAmount)
@@ -564,7 +571,7 @@ async function confrimSwap() {
         new Decimal(sendInput.value).mul(10 ** currentContractOperate.value.decimal).toString()
       )
       const tx = await currentContractOperate.value.contract
-        .transfer(`${recevierInfo.val.address}`, value)
+        .transfer(`${rootStore.receiverInfo.eth.address}`, value)
         .catch((e: any) => {
           swapLoading.value = false
           throw new Error(`Cancel Transfer`)
@@ -625,6 +632,12 @@ async function confrimSwap() {
       }).catch((e) => {
         throw new Error(e)
       })
+      // console.log(
+      //   'rootStore.receiverInfo.mvc.address',
+      //   rootStore.receiverInfo.mvc.address,
+      //   new Decimal(sendInput.value).mul(10 ** currentContractOperate.value.decimal).toString()
+      // )
+
       const tx = await userStore.showWallet
         .createBrfcChildNode(
           {
@@ -632,7 +645,7 @@ async function confrimSwap() {
             data: JSON.stringify({
               receivers: [
                 {
-                  address: recevierInfo.val.address,
+                  address: rootStore.receiverInfo.mvc.address,
                   amount: new Decimal(sendInput.value)
                     .mul(10 ** currentContractOperate.value.decimal)
                     .toString(),
@@ -649,7 +662,7 @@ async function confrimSwap() {
         )
         .catch((e) => {
           swapLoading.value = false
-          throw new Error(e.toString())
+          throw new Error(e)
         })
 
       console.log('tx12312', tx)
