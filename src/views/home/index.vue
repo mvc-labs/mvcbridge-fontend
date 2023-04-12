@@ -165,7 +165,9 @@
   </Drawer>
   <Dialog hasCustomClass="historyDialog" v-model="historyDialog">
     <template #title>
-      <div>{{ $t('pengdingOrder') }}</div>
+      <div>
+        {{ currentTableLayout == OrderType.Pending ? $t('pengdingOrder') : $t('FinalizeOrder') }}
+      </div>
     </template>
     <template #content>
       <!-- <div v-if="transationHistoryList.length" class="blankHistoryWrap">

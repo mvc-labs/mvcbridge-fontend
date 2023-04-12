@@ -1047,7 +1047,7 @@
   "retry": "Retry",
   "Retry success": "Retry success",
   "estimated Fail": "estimated Fail",
-  "pengdingOrder": "Pending Order List",
+  "pengdingOrder": "Pending Request List",
   "To DownLoad": "Go DownLoad",
   "Metamask not exit": "Install Tips",
   "Need to downloading an install Metamask": "You need to download and install the MetaMask plugin to continue using this app",
@@ -1056,5 +1056,6 @@
   "tip2": "(Sepolia ETH is required to use the asset bridge function)",
   "tip3": "(Each address can only be claimed once within 24 hours)",
   "Pending Request": "Pending Request",
-  "Finalize Request": "Finalize Request"
+  "Finalize Request": "Finalize Request",
+  "FinalizeOrder": "Finalize Request List"
 }
