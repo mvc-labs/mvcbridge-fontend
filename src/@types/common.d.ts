@@ -182,4 +182,7 @@ declare interface OrderHistroyItem {
   targetAmount: string
   targetVaultId: string
   toAddress: string
+  finalizedTimestamp?: number
+  confirmationRequired?: number
+  currentConfirmation?: number
 }

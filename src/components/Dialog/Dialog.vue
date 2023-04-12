@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :class="props?.hasCustomClass ? props?.hasCustomClass : ''"
+    :custom-class="props?.hasCustomClass ? props?.hasCustomClass : ''"
     :append-to-body="true"
     :model-value="modelValue"
     @close="dialogClose()"

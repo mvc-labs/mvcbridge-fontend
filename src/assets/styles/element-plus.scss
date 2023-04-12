@@ -413,11 +413,7 @@ html.dark {
     }
 }
 
-.historyDialog {
-   .el-dialog{
-    width: 90vw !important;
-   }
-}
+
 
  .connectDialog{
      max-width: 35% !important;
@@ -429,11 +425,22 @@ html.dark {
      
 }
 
+.historyDialog {
+    max-width: 45vw !important;
+     width:45vw !important;
+  
+}
+
 @media only screen and (max-width: 1200px) {
     .el-dialog{
         width: 50% !important;
         max-width: 50% !important;
     }
+    .historyDialog {
+    max-width: 60vw !important;
+     width:60vw !important;
+  
+}
 }
 
 @media only screen and (max-width: 750px) {
@@ -447,7 +454,14 @@ html.dark {
             padding: 20px;
         }
     }
+       .historyDialog {
+    max-width: 90vw !important;
+     width:90vw !important;
+  
 }
+}
+
+
 
 .el-container {
     margin-top: 9PX !important;

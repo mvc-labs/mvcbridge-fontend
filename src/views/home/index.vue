@@ -163,7 +163,7 @@
       </div>
     </template>
   </Drawer>
-  <Dialog v-model="historyDialog">
+  <Dialog hasCustomClass="historyDialog" v-model="historyDialog">
     <template #title>
       <div>{{ $t('pengdingOrder') }}</div>
     </template>
@@ -213,6 +213,13 @@
               </div>
             </template>
           </el-table-column>
+          <el-table-column class-name="col-item" prop="Date" label="Date" width="100">
+            <template #default="scope">
+              <div class="tx-cell">
+                <span>{{ scope.row.Date }}</span>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column class-name="col-item" prop="Amount" label="Amount" width="150">
             <template #default="scope">
               <div class="tx-cell">
@@ -229,7 +236,7 @@
               <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
                 <el-icon :size="15" color="#fff"><Select /></el-icon>
               </div>
-              <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
+              <div class="tx-cell" v-else>
                 <span>{{ scope.row.State }}</span>
               </div>
               <!-- <div class="tx-cell" v-else-if="">
@@ -315,8 +322,10 @@ interface TransationItem {
   Send: string
   Receive: string
   Amount: string
-  Date?: string
+  Date?: Number
   State: string
+  NeedConfirm?: number
+  CurrentConfirm?: number
   fromAddress: string
   toAddress: string
   fromChain: string
@@ -506,6 +515,30 @@ function mappingFromToken(token: string) {
   }
 }
 
+async function AllPendingList() {
+  const ethOrderWaitRes =
+    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
+      MappingChainName.ETH.toLocaleLowerCase(),
+      MappingIcon.USDT.toLocaleLowerCase(),
+      rootStore.GetWeb3Wallet.signer.address
+    ).catch((e) => console.log(e))
+  const mvcOrderWaitRes =
+    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
+      MappingChainName.MVC.toLocaleLowerCase(),
+      MappingIcon.USDT.toLocaleLowerCase(),
+      userStore.user?.address
+    ).catch((e) => console.log(e))
+  if (!ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
+    list.push(...mvcOrderWaitRes.data)
+  } else if (!mvcOrderWaitRes.data.length && ethOrderWaitRes.data.length) {
+    list.push(...ethOrderWaitRes.data)
+  } else if (ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
+    list.push(...ethOrderWaitRes.data, ...mvcOrderWaitRes.data)
+  }
+
+  console.log('list', list)
+}
+
 async function AllHistoryList() {
   const ethOrderWaitRes =
     await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
@@ -528,17 +561,68 @@ async function AllHistoryList() {
   }
 
   console.log('list', list)
-
-  // let ethOrderList =
-  //   ethOrderWaitRes.data.length &&
-  //   ethOrderWaitRes.data.filter((item) => {
-  //     return item.state == 'WAITING_REQUEST'
-  //   })
-  // let mvcOrderList =
-  //   mvcOrderWaitRes.data.length &&
-  //   mvcOrderWaitRes.data.filter((item) => {
-  //     return item.state == 'WAITING_REQUEST'
-  //   })
+}
+/**
+         * Currency: string
+  Send: string
+  Receive: string
+  Amount: string
+  Date?: Number
+  State: string
+  NeedConfirm?: number
+  CurrentConfirm?: number
+  fromAddress: string
+  toAddress: string
+  fromChain: string
+  toChain: string
+  TX: string
+  fromAmount: string
+         * 
+         */
+async function getPendingList() {
+  transationHistoryList.length = 0
+  list.length = 0
+  historyDialog.value = true
+  loadingHistory.value = true
+  try {
+    await AllPendingList()
+    if (!list.length) {
+      loadingHistory.value = false
+    }
+    list.length &&
+      list.forEach((ele, id) => {
+        let item = {
+          Currency: mappingFromToken(ele!.vaultId.split('_')[1]),
+          Send: mappingFromChain(ele!.vaultId.split('_')[0]),
+          Receive:
+            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+              ? MappingIcon.MVC
+              : MappingIcon.ETH,
+          Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
+          State: ele?.state,
+          Date: ele?.finalizedTimestamp,
+          NeedConfirm: ele?.confirmationRequired,
+          CurrentConfirm: ele?.currentConfirmation,
+          TX: ele.txid,
+          fromAmount: ele!.fromAmount,
+          fromAddress: ele.fromAddress,
+          toAddress:
+            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+              ? userStore.user.address
+              : rootStore.GetWeb3Wallet.signer.address,
+          fromChain: ele!.vaultId.split('_')[0],
+          toChain:
+            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+              ? MappingIcon.MVC.toLowerCase()
+              : MappingIcon.ETH.toLowerCase(),
+        }
+        transationHistoryList.push(item)
+      })
+    loadingHistory.value = false
+  } catch (error) {
+    loadingHistory.value = false
+    return ElMessage.error(`${(error as any).toString()}`)
+  }
 }
 
 async function getHistoryList() {
@@ -562,7 +646,9 @@ async function getHistoryList() {
               : MappingIcon.ETH,
           Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
           State: ele?.state,
-          Date: '--',
+          Date: ele?.finalizedTimestamp,
+          NeedConfirm: ele?.confirmationRequired,
+          CurrentConfirm: ele?.currentConfirmation,
           TX: ele.txid,
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,

@@ -361,6 +361,7 @@ const estimatedTransferInfo = reactive({
     gasFee: '',
     minSendAmount: '',
     time: 0,
+    minerFee: '',
     minimumReceived: '',
   },
 })
@@ -382,6 +383,7 @@ function resetEstimatedInfo() {
     minSendAmount: '',
     gasFee: '',
     time: 0,
+    minerFee: '',
     minimumReceived: '',
   }
 }
@@ -468,10 +470,13 @@ async function Swap() {
         .sub(estimatedTransferInfo.val.brigefee)
         .sub(estimatedTransferInfo.val.gasFee)
         .toString()
-      await estimatedTransferFtFee(params).catch((e) => {
+      const estimatedRes: any = await estimatedTransferFtFee(params).catch((e) => {
         ConfrimSwapDisable.value = true
         return ElMessage.error(`${e}`)
       })
+      if (estimatedRes) {
+        estimatedTransferInfo.val.minerFee = estimatedRes!.minerFee!
+      }
       ConfrimSwapDisable.value = false
     }
   } else {
@@ -504,9 +509,14 @@ async function estimatedTransferFtFee(params: { amount: string; address: string 
     // const mvcRate = rootStore.exchangeRate.find((item) => item.symbol === 'mvc')
     const { inputAmount, outputAmount } = res?.ft?.transfer?.transaction
     if (!inputAmount || !outputAmount) {
-      throw new Error(`Insufficient balance.`)
+      throw new Error('txInput not found')
     }
-    return true
+    return {
+      minerFee: new Decimal(inputAmount)
+        .sub(outputAmount)
+        .div(10 ** 8)
+        .toString(),
+    }
   } catch (error: any) {
     throw new Error(error?.toString())
   }
@@ -597,7 +607,7 @@ async function confrimSwap() {
       })
       await checkAmount({
         chain: ChainTypeBalance.MVC,
-        currency: estimatedTransferInfo.val.gasFee,
+        currency: estimatedTransferInfo.val.minerFee,
         token: {
           symbol: currentCoin.value!,
           amount: sendInput.value,
