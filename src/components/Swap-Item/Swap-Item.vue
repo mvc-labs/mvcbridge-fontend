@@ -32,7 +32,7 @@
 
           <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
-              <IconItem :iconMap="currentAssert"></IconItem>
+              <IconItem :iconMap="currentCoin"></IconItem>
             </div>
             <!-- <div class="right">
               <el-icon :size="16">
@@ -74,7 +74,7 @@
           />
           <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
-              <IconItem :iconMap="currentAssert"></IconItem>
+              <IconItem :iconMap="currentCoin"></IconItem>
             </div>
             <!-- <div class="right">
               <el-icon :size="16">

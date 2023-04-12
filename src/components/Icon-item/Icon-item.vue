@@ -13,7 +13,7 @@ import BSC from '@/assets/images/BSC.png?url'
 import USDC from '@/assets/images/USDC.png?url'
 import USDT from '@/assets/images/USDT.png?url'
 import MVC from '@/assets/images/MVC.png?url'
-import MUSD from '@/assets/images/MUSD.png'
+
 import { MappingIcon, MappingChainName } from '@/enum'
 const IconList = reactive({
   ETH,
