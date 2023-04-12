@@ -1,6 +1,6 @@
 //@ts-ignore
 import Request from 'request-sdk'
-export default class HttpRequest {
+export default class {
   request
   constructor(
     baseUrl: string,

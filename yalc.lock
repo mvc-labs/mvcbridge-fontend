@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "request-sdk": {
-      "signature": "009d655470140f2b2c06a7590b4f0421",
+      "signature": "adbbe70aad5d49cc89e2cb8a298927b0",
       "file": true
     }
   }
