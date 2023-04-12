@@ -246,7 +246,7 @@
 import { ref, reactive, nextTick, onMounted, toRaw, watch, computed } from 'vue'
 import SwapItem from '@/components/Swap-Item/Swap-Item.vue'
 import IconItem from '@/components/Icon-item/Icon-item.vue'
-import mvc from '@/assets/images/mvc.svg?url'
+import mvc from '@/assets/images/icon_mvc.svg?url'
 import twitter from '@/assets/images/twitter.svg?url'
 import reddit from '@/assets/images/reddit.svg?url'
 import instagram from '@/assets/images/instagram.svg?url'
