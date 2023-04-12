@@ -572,11 +572,11 @@ async function AllPendingList() {
     MappingIcon.USDT.toLocaleLowerCase(),
     userStore.user?.address
   ).catch((e) => console.log(e))
-  if (!ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
+  if (!ethOrderWaitRes?.data.length && mvcOrderWaitRes?.data.length) {
     list.push(...mvcOrderWaitRes.data)
-  } else if (!mvcOrderWaitRes.data.length && ethOrderWaitRes.data.length) {
+  } else if (!mvcOrderWaitRes?.data.length && ethOrderWaitRes?.data.length) {
     list.push(...ethOrderWaitRes.data)
-  } else if (ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
+  } else if (ethOrderWaitRes?.data.length && mvcOrderWaitRes?.data.length) {
     list.push(...ethOrderWaitRes.data, ...mvcOrderWaitRes.data)
   }
 
@@ -596,11 +596,11 @@ async function AllHistoryList() {
       MappingIcon.USDT.toLocaleLowerCase(),
       userStore.user?.address
     ).catch((e) => console.log(e))
-  if (!ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
+  if (!ethOrderWaitRes?.data.length && mvcOrderWaitRes?.data.length) {
     list.push(...mvcOrderWaitRes.data)
-  } else if (!mvcOrderWaitRes.data.length && ethOrderWaitRes.data.length) {
+  } else if (!mvcOrderWaitRes?.data.length && ethOrderWaitRes?.data.length) {
     list.push(...ethOrderWaitRes.data)
-  } else if (ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
+  } else if (ethOrderWaitRes?.data.length && mvcOrderWaitRes?.data.length) {
     list.push(...ethOrderWaitRes.data, ...mvcOrderWaitRes.data)
   }
 
