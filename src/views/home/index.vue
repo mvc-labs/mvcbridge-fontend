@@ -565,7 +565,7 @@ async function AllPendingList() {
   const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
     MappingChainName.ETH.toLocaleLowerCase(),
     MappingIcon.USDT.toLocaleLowerCase(),
-    rootStore.GetWeb3Wallet.signer.address.toLowerCase()
+    rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
   ).catch((e) => console.log(e))
   const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
     MappingChainName.MVC.toLocaleLowerCase(),
@@ -588,7 +588,7 @@ async function AllHistoryList() {
     await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
       MappingChainName.ETH.toLocaleLowerCase(),
       MappingIcon.USDT.toLocaleLowerCase(),
-      rootStore.GetWeb3Wallet.signer.address.toLowerCase()
+      rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
     ).catch((e) => console.log(e))
   const mvcOrderWaitRes =
     await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
