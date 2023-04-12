@@ -123,7 +123,7 @@ export default ({ mode, command }) => {
       // },
     },
     build: {
-      target: isProduction ? 'esnext' : 'es2015',
+      target: isProduction ? 'es2015' : 'modules',
       minify: isProduction,
       sourcemap: isProduction ? false : 'inline',
       rollupOptions: {
