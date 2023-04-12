@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "es2015",
     "useDefineForClassFields": true,
-    "module": "ESNext",
+    "module": "es2015",
     "moduleResolution": "Node",
     "strict": false,
     "jsx": "preserve",
