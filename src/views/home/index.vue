@@ -163,7 +163,6 @@
       </div>
     </template>
   </Drawer>
-
   <Dialog v-model="historyDialog">
     <template #title>
       <div>{{ $t('pengdingOrder') }}</div>
@@ -227,13 +226,16 @@
 
           <el-table-column class-name="col-item" prop="State" label="State" fixed="right">
             <template #default="scope">
-              <div class="tx-cell-img" v-if="scope.row.State !== 'WAITING_REQUEST'">
+              <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
                 <el-icon :size="15" color="#fff"><Select /></el-icon>
               </div>
-              <div class="tx-cell" v-else>
-                <el-button @click="retryRequest(scope.row)">{{ $t('retry') }}</el-button>
-                <!-- <span>{{ scope.row.State }}</span> -->
+              <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
+                <span>{{ scope.row.State }}</span>
               </div>
+              <!-- <div class="tx-cell" v-else-if="">
+                <el-button @click="retryRequest(scope.row)">{{ $t('retry') }}</el-button>
+               
+              </div> -->
             </template>
           </el-table-column>
         </el-table>
@@ -505,16 +507,18 @@ function mappingFromToken(token: string) {
 }
 
 async function AllHistoryList() {
-  const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
-    MappingChainName.ETH.toLocaleLowerCase(),
-    MappingIcon.USDT.toLocaleLowerCase(),
-    rootStore.GetWeb3Wallet.signer.address
-  ).catch((e) => console.log(e))
-  const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
-    MappingChainName.MVC.toLocaleLowerCase(),
-    MappingIcon.USDT.toLocaleLowerCase(),
-    userStore.user?.address
-  ).catch((e) => console.log(e))
+  const ethOrderWaitRes =
+    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
+      MappingChainName.ETH.toLocaleLowerCase(),
+      MappingIcon.USDT.toLocaleLowerCase(),
+      rootStore.GetWeb3Wallet.signer.address
+    ).catch((e) => console.log(e))
+  const mvcOrderWaitRes =
+    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
+      MappingChainName.MVC.toLocaleLowerCase(),
+      MappingIcon.USDT.toLocaleLowerCase(),
+      userStore.user?.address
+    ).catch((e) => console.log(e))
   if (!ethOrderWaitRes.data.length && mvcOrderWaitRes.data.length) {
     list.push(...mvcOrderWaitRes.data)
   } else if (!mvcOrderWaitRes.data.length && ethOrderWaitRes.data.length) {

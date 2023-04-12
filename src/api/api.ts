@@ -42,13 +42,23 @@ enum FromOrToTokenName {
   usdc = 'usdc',
 }
 
+// export const GetReceiveAddress = (params: {
+//   fromChain: string
+//   fromTokenName: string
+// }): Promise<GetReceiveAddressType> => {
+//   const { fromChain, fromTokenName } = params
+//   return metasvBrige.get(
+//     `/order/${fromChain.toLocaleLowerCase()}/${fromTokenName.toLocaleLowerCase()}/deposit/address`
+//   )
+// }
+
 export const GetReceiveAddress = (params: {
-  fromChain: string
-  fromTokenName: string
+  chainName: string
+  tokenName: string
 }): Promise<GetReceiveAddressType> => {
-  const { fromChain, fromTokenName } = params
+  const { chainName, tokenName } = params
   return metasvBrige.get(
-    `/order/${fromChain.toLocaleLowerCase()}/${fromTokenName.toLocaleLowerCase()}/deposit/address`
+    `/vault/${chainName.toLocaleLowerCase()}/${tokenName.toLocaleLowerCase()}/info`
   )
 }
 

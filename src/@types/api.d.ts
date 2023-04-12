@@ -12,9 +12,11 @@ declare interface GetReceiveAddressType {
   address: string
   chain: string
   tokenName: string
-  decimal?: number
-  confirmation: number
-  minAmount?: number
+  depositMinAmount: number
+  decimal: number
+  depositConfirmation: number
+  withdrawGasFee: number
+  withdrawBridgeFeeRate: string
 }
 
 declare interface GetMyMEBalanceRes extends apiResponse {

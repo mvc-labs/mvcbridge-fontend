@@ -136,12 +136,12 @@ export const useRootStore = defineStore('root', {
     async setReceiverAddress() {
       try {
         const ethAddress = await GetReceiveAddress({
-          fromChain: 'eth',
-          fromTokenName: 'usdt',
+          chainName: 'eth',
+          tokenName: 'usdt',
         })
         const mvcAddress = await GetReceiveAddress({
-          fromChain: 'mvc',
-          fromTokenName: 'usdt',
+          chainName: 'mvc',
+          tokenName: 'usdt',
         })
         const recevierAddress = { mvcAddress: mvcAddress.address, ethAddress: ethAddress.address }
         this.receiverAddress = recevierAddress

@@ -341,10 +341,7 @@ const txInfo = reactive([
   },
   {
     title: `You‘re pay in gas fees`,
-    value: () =>
-      currentFromChain.value === MappingChainName.MVC
-        ? estimatedTransferInfo.val.gasFeeToUsd
-        : estimatedTransferInfo.val.gasFee,
+    value: () => estimatedTransferInfo.val.gasFee,
     decimal: () => currentCoin.value,
   },
   {
@@ -362,19 +359,13 @@ const estimatedTransferInfo = reactive({
     send: '',
     brigefee: '',
     gasFee: '',
-    gasFeeToUsd: '',
+    minSendAmount: '',
     time: 0,
     minimumReceived: '',
   },
 })
 
-const ConfrimSwapDisable = computed(() => {
-  if (estimatedTransferInfo.val.gasFee) {
-    return false
-  } else {
-    return true
-  }
-})
+const ConfrimSwapDisable = ref(true)
 
 const minimumReceived = reactive({
   val: {
@@ -388,44 +379,47 @@ function resetEstimatedInfo() {
   estimatedTransferInfo.val = {
     send: '',
     brigefee: '',
+    minSendAmount: '',
     gasFee: '',
-    gasFeeToUsd: '',
     time: 0,
     minimumReceived: '',
   }
 }
 
-async function estimatedGasPrice(params: { amount: string; address: string }) {
-  try {
-    const value = toQuantity(
-      new Decimal(params.amount).mul(10 ** currentContractOperate.value.decimal).toString()
-    )
-    const tx = {
-      from: rootStore.GetWeb3Wallet.signer.address,
-      to: params.address,
-      data: currentContractOperate.value.contract.interface.encodeFunctionData('transfer', [
-        params.address,
-        value,
-      ]),
-    }
+// async function estimatedGasPrice(params: { amount: string; address: string }) {
+//   try {
+//     const value = toQuantity(
+//       new Decimal(params.amount).mul(10 ** currentContractOperate.value.decimal).toString()
+//     )
+//     const tx = {
+//       from: rootStore.GetWeb3Wallet.signer.address,
+//       to: params.address,
+//       data: currentContractOperate.value.contract.interface.encodeFunctionData('transfer', [
+//         params.address,
+//         value,
+//       ]),
+//     }
 
-    const res = await rootStore.GetWeb3Wallet.provider.estimateGas(tx)
+//     const res = await rootStore.GetWeb3Wallet.provider.estimateGas(tx)
 
-    if (res) {
-      const eth_USD_Rate = rootStore.exchangeRate.find((item) => item.symbol === 'eth')
-      return new Decimal(res.toString())
-        .add(21000)
-        .div(10 ** 9)
-        .mul(eth_USD_Rate!.price.USD)
-        .toNumber()
-        .toFixed(6)
-    } else {
-      return '0'
-    }
-  } catch (error) {
-    console.log(error)
-    return '0'
-  }
+//     if (res) {
+//       const eth_USD_Rate = rootStore.exchangeRate.find((item) => item.symbol === 'eth')
+//       return new Decimal(res.toString())
+//         .add(21000)
+//         .div(10 ** 9)
+//         .mul(eth_USD_Rate!.price.USD)
+//         .toNumber()
+//         .toFixed(6)
+//     } else {
+//       return '0'
+//     }
+//   } catch (error) {
+//     console.log(error)
+//     return '0'
+//   }
+// }
+function estimatedGasPrice(params) {
+  return new Decimal(params.withdrawGasFee).div(10 ** params.decimal).toString()
 }
 
 async function Swap() {
@@ -436,13 +430,13 @@ async function Swap() {
     swapSuccess.value = false
 
     estimatedTransferInfo.val.send = sendInput.value
-    estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
-      .mul(import.meta.env.VITE_BRIGE_FEE)
-      .toString()
     recevierInfo.val = await GetReceiveAddress({
-      fromChain: fromChain.value!,
-      fromTokenName: currentAssert.value,
+      chainName: fromChain.value!,
+      tokenName: currentAssert.value,
     })
+    estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
+      .mul(recevierInfo.val.withdrawBridgeFeeRate)
+      .toString()
 
     if (fromChain.value === MappingChainName.ETH) {
       console.log('sedddd', sendInput.value)
@@ -450,28 +444,35 @@ async function Swap() {
         amount: sendInput.value,
         address: recevierInfo.val.address,
       }
-      estimatedTransferInfo.val.time = recevierInfo.val.confirmation
-      estimatedTransferInfo.val.gasFee = await estimatedGasPrice(params)
+      estimatedTransferInfo.val.minSendAmount = new Decimal(recevierInfo.val.depositMinAmount)
+        .div(10 ** recevierInfo.val.decimal)
+        .toString()
+      estimatedTransferInfo.val.time = recevierInfo.val.depositConfirmation
+      estimatedTransferInfo.val.gasFee = estimatedGasPrice(recevierInfo.val)
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
         .sub(estimatedTransferInfo.val.brigefee)
         .sub(estimatedTransferInfo.val.gasFee)
         .toString()
+      ConfrimSwapDisable.value = false
     } else if (fromChain.value === MappingChainName.MVC) {
       params = {
-        amount: new Decimal(sendInput.value).mul(10 ** 6).toString(),
+        amount: new Decimal(sendInput.value).mul(10 ** recevierInfo.val.decimal).toString(),
         address: recevierInfo.val.address,
       }
-
-      const estimatedInfo = await estimatedTransferFtFee(params).catch((e) => {
-        return ElMessage.error(`Estimated Fail:${e.toString()}`)
-      })
-      estimatedTransferInfo.val.time = recevierInfo.val.confirmation
-      estimatedTransferInfo.val.gasFee = estimatedInfo.gasFee
-      estimatedTransferInfo.val.gasFeeToUsd = estimatedInfo.gasFeeToUsd
+      estimatedTransferInfo.val.minSendAmount = new Decimal(recevierInfo.val.depositMinAmount)
+        .div(10 ** recevierInfo.val.decimal)
+        .toString()
+      estimatedTransferInfo.val.time = recevierInfo.val.depositConfirmation
+      estimatedTransferInfo.val.gasFee = estimatedGasPrice(recevierInfo.val)
       estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
         .sub(estimatedTransferInfo.val.brigefee)
-        .sub(estimatedTransferInfo.val.gasFeeToUsd)
+        .sub(estimatedTransferInfo.val.gasFee)
         .toString()
+      await estimatedTransferFtFee(params).catch((e) => {
+        ConfrimSwapDisable.value = true
+        return ElMessage.error(`${e}`)
+      })
+      ConfrimSwapDisable.value = false
     }
   } else {
     return ElMessage.error(`Please login first`)
@@ -500,26 +501,12 @@ async function estimatedTransferFtFee(params: { amount: string; address: string 
       }
     )
 
-    const mvcRate = rootStore.exchangeRate.find((item) => item.symbol === 'mvc')
+    // const mvcRate = rootStore.exchangeRate.find((item) => item.symbol === 'mvc')
     const { inputAmount, outputAmount } = res?.ft?.transfer?.transaction
     if (!inputAmount || !outputAmount) {
-      throw new Error(
-        `The transaction fee estimate failed, which may lead to transaction losses, please re-initiate the transaction`
-      )
+      throw new Error(`Insufficient balance.`)
     }
-    return {
-      transation: res,
-      gasFee: new Decimal(inputAmount)
-        .sub(outputAmount)
-        .div(10 ** mvcTokenDecimal.value)
-        .toString(),
-      gasFeeToUsd: new Decimal(inputAmount)
-        .sub(outputAmount)
-        .div(10 ** mvcTokenDecimal.value)
-        .mul(mvcRate!.price.USD)
-        .toNumber()
-        .toFixed(6),
-    }
+    return true
   } catch (error: any) {
     throw new Error(error?.toString())
   }
@@ -534,8 +521,11 @@ function triggleChain() {
 async function confrimSwap() {
   try {
     if (!userStore.user) return ElMessage.error(`User unLogin,Please check login status!`)
+    if (+sendInput.value < +estimatedTransferInfo.val.minSendAmount)
+      return ElMessage.error(
+        `The transaction amount needs to be at least ${estimatedTransferInfo.val.minSendAmount} USDT`
+      )
     swapLoading.value = true
-
     if (fromChain.value === MappingChainName.ETH) {
       await rootStore.GetWeb3AccountBalance(ChainTypeBalance.ETH).catch(() => {
         throw new Error(`GetBalance fail.`)
