@@ -27,12 +27,12 @@
           <el-input
             v-model="sendInput"
             placeholder="0.0"
-            :parser="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
+            :formatter="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
           />
 
           <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
-              <IconItem :iconMap="SendAssert"></IconItem>
+              <IconItem :iconMap="currentAssert"></IconItem>
             </div>
             <!-- <div class="right">
               <el-icon :size="16">
@@ -67,10 +67,14 @@
       <div class="input-inner-wrap">
         <div class="title">Receive (estimated) :</div>
         <div class="input-container">
-          <el-input v-model="receiveInput" placeholder="0.0" />
+          <el-input
+            :formatter="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
+            v-model="receiveInput"
+            placeholder="0.0"
+          />
           <div class="chain-select" @click="selectCoinDialog = false">
             <div class="left">
-              <IconItem :iconMap="ReceiveAssert"></IconItem>
+              <IconItem :iconMap="currentAssert"></IconItem>
             </div>
             <!-- <div class="right">
               <el-icon :size="16">

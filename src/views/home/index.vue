@@ -196,11 +196,7 @@
           <el-table-column class-name="col-item" prop="Currency" label="Currency" width="100">
             <template #default="scope">
               <div class="tx-cell">
-                <IconItem
-                  :iconMap="
-                    scope.row.Send == MappingChainName.MVC ? MappingIcon.MUSDT : MappingIcon.USDT
-                  "
-                ></IconItem>
+                <IconItem :iconMap="scope.row.Currency"></IconItem>
               </div>
             </template>
           </el-table-column>
@@ -590,7 +586,10 @@ async function retryRequest(params: TransationItem) {
 
   try {
     loadingHistory.value = true
-    const res = await RetryWaitRequest(params)
+    const res = await RetryWaitRequest(params).catch((e) => {
+      loadingHistory.value = false
+      ElMessage.error(`request fail:${e}`)
+    })
     if (res) {
       loadingHistory.value = false
       ElMessage.success(`${i18n.t(`Retry success`)}`)
@@ -801,7 +800,7 @@ const walletList: WalletInfo[] = reactive([
       },
       {
         chainName: MappingIcon.MUSDT,
-        chainSymbol: CoinSymbol.MUSD,
+        chainSymbol: CoinSymbol.MUSDT,
         loading: true,
         balance: '0',
       },

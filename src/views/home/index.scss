@@ -97,14 +97,18 @@
 
 .swap-warp{
     
-   
+    
     display: flex;
     align-items: center;
     justify-content: center;
     width: 90%;
-   
+    height: auto;
+     margin-top: 139px;
     .swap-container{
-       height: 95%;
+       height: 100%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
         background: var(--themeBgFourColor);
         border-radius: 12px;
         border: 1px solid #4D5260;
@@ -160,8 +164,7 @@
 }
 
 .foot {
-  position: absolute;
-  bottom: 0;
+  margin-top: 50px;
   padding: 26px 0;
   width: 100%;
   display: flex;
