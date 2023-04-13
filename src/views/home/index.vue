@@ -197,6 +197,7 @@
           element-loading-background="rgba(122, 122, 122, 0.6)"
           header-row-class-name="header-row"
           :data="transationHistoryList"
+          :default-sort="{ prop: 'Date', order: 'descending' }"
           height="300"
           style="width: 100%; background-color: var(--themeBgFourColor) !important"
           header-cell-class-name="header-cell"
@@ -239,7 +240,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column class-name="col-item" prop="Date" label="Date" width="100">
+          <el-table-column class-name="col-item" prop="Date" sortable label="Date" width="100">
             <template #default="scope">
               <div class="tx-cell">
                 <span>{{ scope.row.Date ? $filters.dateTimeFormat(scope.row.Date) : '--' }}</span>
