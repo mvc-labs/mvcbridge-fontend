@@ -12,6 +12,7 @@ onMounted(async () => {
   const rootStore = useRootStore()
   const userStore = useUserStore()
   rootStore.getExchangeRate()
+  rootStore.InitOrderApi()
   await rootStore.setReceiverAddress().catch((e) => ElMessage.error(e))
 
   // if ((window as any).WallectConnect) {
@@ -33,7 +34,6 @@ onMounted(async () => {
     if (!userStore.showWallet.isInitSdked) {
       await userStore.showWallet.initWallet()
     }
-    rootStore.InitOrderApi()
 
     // if (diffTime()) {
 

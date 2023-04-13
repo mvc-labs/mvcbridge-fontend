@@ -771,6 +771,7 @@ function retryOrderRequest(
 
 function confrimSuccess() {
   transationDetailDialog.value = false
+  sendInput.value = ''
 }
 </script>
 

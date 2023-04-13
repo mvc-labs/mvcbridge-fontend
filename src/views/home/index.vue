@@ -417,6 +417,16 @@ watch(
 )
 
 watch(
+  () => innerDrawer.value,
+  (val: boolean) => {
+    if (val) {
+      ruleForm.address = ''
+      ruleForm.amount = ''
+    }
+  }
+)
+
+watch(
   () => DrawerOperate.value,
   async (val: boolean) => {
     if (val) {
