@@ -27,7 +27,7 @@
           <el-input
             v-model="sendInput"
             placeholder="0.0"
-            :formatter="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
+            :formatter="(value:any) => value.replace(/[^\d^\.]+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
           />
 
           <div class="chain-select" @click="selectCoinDialog = false">
@@ -68,7 +68,7 @@
         <div class="title">Receive (estimated) :</div>
         <div class="input-container">
           <el-input
-            :formatter="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
+            :formatter="(value:any) => value.replace(/[^\d^\.]+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
             :value="receiveInput"
             placeholder="0.0"
           />
