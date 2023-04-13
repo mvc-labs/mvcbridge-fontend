@@ -69,7 +69,7 @@
         <div class="input-container">
           <el-input
             :formatter="(value:any) => value.replace(/^0\d{0,1}$/g,'').replace(/\D+/g,'').replace(/[0-9]{19}$/g,'').replace(/\$\s?|(,*)/g, '')"
-            v-model="receiveInput"
+            :value="receiveInput"
             placeholder="0.0"
           />
           <div class="chain-select" @click="selectCoinDialog = false">
@@ -206,9 +206,34 @@ const selectCoinDialog = ref(false)
 const transationDetailDialog = ref(false)
 const swapSuccess = ref(false)
 const i18n = useI18n()
-const sendInput = ref('')
+const sendInput = ref(null)
+
 const receiveInput = computed(() => {
-  return sendInput.value
+  if (!sendInput.value) {
+    return null
+  }
+  if (+sendInput.value < 10) {
+    return null
+  }
+  if (fromChain.value == MappingChainName.ETH) {
+    return new Decimal(sendInput.value)
+      .sub(new Decimal(sendInput.value).mul(rootStore.receiverInfo.mvc.withdrawBridgeFeeRate))
+      .sub(
+        new Decimal(rootStore.receiverInfo.mvc.withdrawGasFee).div(
+          10 ** rootStore.receiverInfo.mvc.decimal
+        )
+      )
+      .toString()
+  } else if (fromChain.value == MappingChainName.MVC) {
+    return new Decimal(sendInput.value)
+      .sub(new Decimal(sendInput.value).mul(rootStore.receiverInfo.eth.withdrawBridgeFeeRate))
+      .sub(
+        new Decimal(rootStore.receiverInfo.eth.withdrawGasFee).div(
+          10 ** rootStore.receiverInfo.eth.decimal
+        )
+      )
+      .toString()
+  }
 })
 const amountMostThan = computed(() => {
   return +sendInput.value < 10

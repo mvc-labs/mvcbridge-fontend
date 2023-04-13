@@ -115,8 +115,26 @@ export const useRootStore = defineStore('root', {
         },
       ],
       receiverInfo: {
-        mvc: null,
-        eth: null,
+        mvc: {
+          address: 'mnAVPfHyWuQ1JeRDAnXz3WTUJMckYwSTXv',
+          chain: 'mvc',
+          decimal: 6,
+          depositConfirmation: 30,
+          depositMinAmount: 10000000,
+          tokenName: 'usdt',
+          withdrawBridgeFeeRate: '0.005',
+          withdrawGasFee: 100000,
+        },
+        eth: {
+          address: '0x46b984dD9f5B04DD40E0A64Cad4C4D8821aef11c',
+          chain: 'eth',
+          decimal: 6,
+          depositConfirmation: 12,
+          depositMinAmount: 10000000,
+          tokenName: 'usdt',
+          withdrawBridgeFeeRate: '0.005',
+          withdrawGasFee: 5000000,
+        },
       },
     },
   getters: {
