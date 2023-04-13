@@ -3345,8 +3345,10 @@ mvc-std-lib@^1.1.4:
     inherits "2.0.3"
     unorm "1.4.1"
 
-"mvcbridge-sdk@file:.yalc/mvcbridge-sdk":
-  version "1.0.8"
+mvcbridge-sdk@1.0.9:
+  version "1.0.9"
+  resolved "https://registry.npmmirror.com/mvcbridge-sdk/-/mvcbridge-sdk-1.0.9.tgz#d4465e08b71a8be58bcfe7a0a240dd18826eb835"
+  integrity sha512-uo9JWTanlFaBJZl6fTd2o7kuj1su0rHqV41P3/5+NJv6eVThY8ujsRH1uiNi1JLucHQfWM8Hnrqh/1QCqxWYHw==
   dependencies:
     axios "^0.21.2"
     bitcoinjs-lib "4.0.5"

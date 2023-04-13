@@ -4,10 +4,6 @@
     "request-sdk": {
       "signature": "c5597f4519438725b091c37fa760b5e0",
       "file": true
-    },
-    "mvcbridge-sdk": {
-      "signature": "d02cc5f610233903c53a6a906764d93a",
-      "file": true
     }
   }
 }
