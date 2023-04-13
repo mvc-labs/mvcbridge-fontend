@@ -6,16 +6,23 @@
       </div>
 
       <div class="menu">
-        <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
-          <img :src="FaucetIcon" alt="" v-if="isHome" />
-          <el-icon :size="15" color="#fff" v-else><HomeFilled /></el-icon>
-        </div>
-        <div class="wallet" v-if="userStore.isAuthorized" @click="getPendingList">
-          <img :src="HistoryIcon" alt="" />
-        </div>
-        <div class="wallet" v-if="userStore.isAuthorized" @click="checkWalletInfo">
-          <img :src="WalletIcon" alt="" />
-        </div>
+        <el-tooltip class="box-item" effect="dark" content="Faucet" placement="bottom-end">
+          <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
+            <img :src="FaucetIcon" alt="" v-if="isHome" />
+            <el-icon :size="15" color="#fff" v-else><HomeFilled /></el-icon>
+          </div>
+        </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="Order" placement="bottom-end">
+          <div class="wallet" v-if="userStore.isAuthorized" @click="getPendingList">
+            <img :src="HistoryIcon" alt="" />
+          </div>
+        </el-tooltip>
+        <el-tooltip class="box-item" effect="dark" content="Wallet" placement="bottom-end">
+          <div class="wallet" v-if="userStore.isAuthorized" @click="checkWalletInfo">
+            <img :src="WalletIcon" alt="" />
+          </div>
+        </el-tooltip>
+
         <div v-if="!userStore.user" @click="ConnectWallet" class="login-btn">Connect Wallet</div>
         <div v-else class="logined-meun">
           <el-dropdown @command="handleCommand" trigger="click">
