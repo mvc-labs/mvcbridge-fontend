@@ -28,7 +28,7 @@ const IconList = reactive({
   ['Tether USD']: USDT,
   ['USD Coin']: USDC,
   ['BNB Chain']: BSC,
-  ['MUSDT']: USDT,
+  ['MUSD']: USDT,
   ['MUSDC']: USDC,
 })
 

@@ -208,7 +208,7 @@
           }"
           :cell-style="{ background: '#232530', color: '#fff' }"
         >
-          <el-table-column class-name="col-item" prop="Currency" label="Currency" width="100">
+          <el-table-column class-name="col-item" prop="Currency" label="Token" width="100">
             <template #default="scope">
               <div class="tx-cell">
                 <IconItem :iconMap="scope.row.Currency"></IconItem>
@@ -250,19 +250,19 @@
           <el-table-column
             class-name="col-item"
             prop="Process"
-            label="Current/Need(Block)"
+            label="Current/Necessary (Block)"
             width="150"
           >
             <template #default="scope">
               <div class="tx-cell">
-                <span>{{ scope.row.Process ? scope.row.Process : '-/-' }}</span>
+                <span>{{ scope.row.Process ? scope.row.Process : '--/--' }}</span>
               </div>
             </template>
           </el-table-column>
 
           <!-- <el-table-column class-name="col-item" prop="Date" label="Date" /> -->
 
-          <el-table-column class-name="col-item" prop="State" label="State" fixed="right">
+          <el-table-column class-name="col-item" prop="State" label="States" fixed="right">
             <template #default="scope">
               <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
                 <el-icon :size="15" color="#fff"><Select /></el-icon>
