@@ -1,5 +1,6 @@
 import HttpRequest from '@/utils/request'
-const aggregation = new HttpRequest(`${import.meta.env.VITE_BASEAPI}/aggregation`, {
+//${import.meta.env.VITE_BASEAPI}
+const aggregation = new HttpRequest(`${import.meta.env.VITE_HOST_API}/aggregation`, {
   header: {
     SiteConfigMetanetId: import.meta.env.VITE_SiteConfigMetanetId,
   },

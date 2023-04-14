@@ -74,8 +74,10 @@ const BSVMetaSvMirror = {
 }
 
 export default class ShowmoneyProvider {
-  public apiPrefix: string = import.meta.env.VITE_BASEAPI
-  public metaSvApi: string = import.meta.env.VITE_META_SV_API
+  // public apiPrefix: string = import.meta.env.VITE_BASEAPI
+  // public metaSvApi: string = import.meta.env.VITE_META_SV_API
+  public apiPrefix: string = import.meta.env.VITE_HOST_API
+  public metaSvApi: string = import.meta.env.VITE_HOST_API + '/metasv'
   public bsvMetaSvApi: string = import.meta.env.VITE_BSV_META_SV_API
   public metaSvHttp
   public metasvSignatureHttp
@@ -101,22 +103,27 @@ export default class ShowmoneyProvider {
     this.serviceHttp = new HttpRequest(this.apiPrefix + '/serviceapi').request
     // 初始化 metasv签名接口 http
     // this.metasvSignatureHttp = new HttpRequest(this.apiPrefix + '/metasv-signature', {
-    this.metasvSignatureHttp = new HttpRequest('https://api.showmoney.app/metasv-signature', {
-      responseHandel(response) {
-        return new Promise((resolve, reject) => {
-          if (response.data.code && response.data.code !== 0) {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            reject({
-              message: response.data.msg,
-              data: response.data,
-              code: response.data.code,
-            })
-          } else {
-            resolve(response.data)
-          }
-        })
-      },
-    }).request
+    //https://api.showmoney.app/metasv-signature
+
+    this.metasvSignatureHttp = new HttpRequest(
+      `${import.meta.env.VITE_HOST_API}/metasv-signature`,
+      {
+        responseHandel(response) {
+          return new Promise((resolve, reject) => {
+            if (response.data.code && response.data.code !== 0) {
+              // eslint-disable-next-line prefer-promise-reject-errors
+              reject({
+                message: response.data.msg,
+                data: response.data,
+                code: response.data.code,
+              })
+            } else {
+              resolve(response.data)
+            }
+          })
+        },
+      }
+    ).request
   }
 
   private async callMetaNameApi<T = any>(config: ApiRequestTypes): Promise<BaseApiResultTypes<T>> {
@@ -201,6 +208,7 @@ export default class ShowmoneyProvider {
         }
         const origin = chain === HdWalletChain.MVC ? this.metaSvApi : this.bsvMetaSvApi
         const url = `${origin}${path}`
+
         const Http = new HttpRequests()
         let res
         try {
@@ -360,8 +368,9 @@ export default class ShowmoneyProvider {
     xpub: string,
     chain: HdWalletChain = HdWalletChain.MVC
   ): Promise<UtxoItem[]> {
-    const res = await this.callMetasvApi(`/xpubLite/${xpub}/utxo`, {}, 'get', chain)
     const utxos: UtxoItem[] = []
+    const res = await this.callMetasvApi(`/xpubLite/${xpub}/utxo`, {}, 'get', chain)
+
     if (Array.isArray(res)) {
       res.forEach((item) => {
         item.script = mvc.Script.fromAddress(item.address).toHex()

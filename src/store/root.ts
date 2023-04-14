@@ -205,7 +205,7 @@ export const useRootStore = defineStore('root', {
         this.Web3WalletTokenBalance.currency = new Decimal(formatEther(result[0].value))
           .toNumber()
           .toFixed(4)
-        this.mvcWalletTokenBalance.space = result[1].value?.toFixed(8) || '0'
+        this.mvcWalletTokenBalance.space = Math.abs(result[1].value?.toFixed(8)) || '0'
         this.Web3WalletTokenBalance.usdt = new Decimal(formatUnits(result[2].value, 6))
           .toNumber()
           .toFixed(4)
@@ -213,15 +213,19 @@ export const useRootStore = defineStore('root', {
           .toNumber()
           .toFixed(4)
         this.mvcWalletTokenBalance.usdt =
-          new Decimal(result[4].value[0]?.confirmedString || '0')
-            .add(result[4].value[0]?.unconfirmed || '0')
-            .div(10 ** result[4].value[0]?.decimal || 0)
-            .toString() || '0'
+          Math.abs(
+            new Decimal(result[4].value[0]?.confirmedString || '0')
+              .add(result[4].value[0]?.unconfirmed || '0')
+              .div(10 ** result[4].value[0]?.decimal || 0)
+              .toNumber()
+          ) || '0'
         this.mvcWalletTokenBalance.usdc =
-          new Decimal(result[5].value[0]?.confirmedString || '0')
-            .add(result[5].value[0]?.unconfirmed || '0')
-            .div(10 ** result[5].value[0]?.decimal || 0)
-            .toString() || '0'
+          Math.abs(
+            new Decimal(result[5].value[0]?.confirmedString || '0')
+              .add(result[5].value[0]?.unconfirmed || '0')
+              .div(10 ** result[5].value[0]?.decimal || 0)
+              .toNumber()
+          ) || '0'
       } else if (payload === ChainTypeBalance.ETH) {
         const ethCurrency = this.GetWeb3Wallet.provider.getBalance(
           this.GetWeb3Wallet.signer.address
@@ -300,7 +304,7 @@ export const useRootStore = defineStore('root', {
 
 function fetchExchangeRate() {
   return new Promise((resolve) => {
-    fetch(`${import.meta.env.VITE_BASEAPI}/metaid-base/v1/exchange/rates`)
+    fetch(`${import.meta.env.VITE_HOST_API}/metaid-base/v1/exchange/rates`)
       .then((response) => {
         return response.json()
       })

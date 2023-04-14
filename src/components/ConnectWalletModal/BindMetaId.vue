@@ -148,11 +148,11 @@ const operates = reactive([
     icon: walletAddIcon,
     value: BindStatus.BindRegisterMetaId,
   },
-  {
-    name: i18n.t('Login.bindMetaId.bindHavedMetaId'),
-    icon: walletIcon,
-    value: BindStatus.BindHavedMetaId,
-  },
+  // {
+  //   name: i18n.t('Login.bindMetaId.bindHavedMetaId'),
+  //   icon: walletIcon,
+  //   value: BindStatus.BindHavedMetaId,
+  // },
 ])
 const form = reactive({
   name: '',
@@ -535,6 +535,7 @@ function createETHBindingBrfcNode(MetaidRes: BindMetaIdRes) {
       const hdWallet = new HdWallet(wallet)
       // 1. 先获取utxo
       let utxos = await hdWallet.provider.getUtxos(hdWallet.wallet.xpubkey.toString())
+
       if (!utxos.length) {
         const initUtxo = await hdWallet.provider
           .getInitAmount({

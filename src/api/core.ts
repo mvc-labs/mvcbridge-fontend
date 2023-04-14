@@ -1,7 +1,9 @@
 import HttpRequest from '@/utils/request'
 import { useUserStore } from '@/store/user'
 // @ts-ignore
-const Core = new HttpRequest(`${import.meta.env.VITE_BASEAPI}/showpaycore`, {
+//${import.meta.env.VITE_HOST_API}
+//${import.meta.env.VITE_BASEAPI}/showpaycore
+const Core = new HttpRequest(`${import.meta.env.VITE_HOST_API}/core`, {
   header: () => {
     const userStore = useUserStore()
     if (userStore.isAuthorized) {

@@ -113,6 +113,7 @@ export default ({ mode, command }) => {
       // port: 8080,
 
       https: false,
+      proxy: {},
       // open: true,
       // proxy: {
       //   '^/metasv/': {

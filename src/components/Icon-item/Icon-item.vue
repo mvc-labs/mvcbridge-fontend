@@ -28,8 +28,8 @@ const IconList = reactive({
   ['Tether USD']: USDT,
   ['USD Coin']: USDC,
   ['BNB Chain']: BSC,
-  ['MUSD']: USDT,
-  ['MUSDC']: USDC,
+  // ['MUSD']: USDT,
+  // ['MUSDC']: USDC,
 })
 
 interface Props {
