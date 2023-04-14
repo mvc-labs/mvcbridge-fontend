@@ -123,15 +123,13 @@ export default ({ mode, command }) => {
       //   },
       // },
     },
+    esbuild: {
+      drop: command === 'build' ? ['console', 'debugger'] : [],
+    },
     build: {
       target: isProduction ? 'es2015' : 'modules',
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-        },
-      },
+      minify: isProduction,
+
       sourcemap: isProduction ? false : 'inline',
       rollupOptions: {
         plugins: [nodePolyfills()],
