@@ -35,9 +35,12 @@
       </div>
     </header>
   </div>
-  <div class="swap-warp" v-if="isHome">
-    <div class="swap-container"><SwapItem></SwapItem></div>
+  <div class="swap" v-if="isHome">
+    <div class="swap-warp">
+      <div class="swap-container"><SwapItem></SwapItem></div>
+    </div>
   </div>
+
   <div class="faucet-wrap" v-else>
     <div class="back">
       <el-icon size="40" @click="isHome = true"><Back /></el-icon>
