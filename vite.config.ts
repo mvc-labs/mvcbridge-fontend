@@ -109,7 +109,7 @@ export default ({ mode, command }) => {
       include: ['buffer', 'process'],
     },
     server: {
-      host: true,
+      // host: true,
       // port: 8080,
 
       https: false,
