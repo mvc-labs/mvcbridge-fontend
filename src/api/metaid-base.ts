@@ -1,6 +1,7 @@
 import HttpRequest from '@/utils/request'
 import { useUserStore } from '@/store/user'
-const MetaIdBase = new HttpRequest(`${import.meta.env.VITE_BASEAPI}/metaid-base`, {
+//VITE_BASEAPI
+const MetaIdBase = new HttpRequest(`${import.meta.env.VITE_HOST_API}/metaid-base`, {
   header: () => {
     const userStore = useUserStore()
     if (userStore.isAuthorized) {

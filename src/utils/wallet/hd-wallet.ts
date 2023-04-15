@@ -731,6 +731,7 @@ export class HdWallet {
         }
 
         const chain = await this.provider.getTxChainInfo(parentTxId)
+
         const scriptPlayload = [
           'mvc',
           node.publicKey.toString(),
@@ -1134,6 +1135,7 @@ export class HdWallet {
       feeb: DEFAULTS.feeb,
       apiHost: import.meta.env.VITE_META_SV_API,
     })
+
     return ftManager
   }
 
