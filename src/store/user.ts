@@ -70,9 +70,10 @@ export const useUserStore = defineStore('user', {
       sdkPayment: localStorage.getItem(sdkPayConfirmPaymentKey) || SdkPayType.ME,
     },
   getters: {
-    isAuthorized: (state) => <boolean>!!(state.user && state.user.token),
+    // isAuthorized: (state) => <boolean>!!(state.user && state.user.token),
+    isAuthorized: (state) => <boolean>!!state.user,
     userName: (state) => {
-      if (state.user && state.user.token) {
+      if (state.user) {
         // @ts-ignore
         return state.user!.userType === 'email' || state.user!.registerType === 'email'
           ? state.user!.email!
@@ -81,13 +82,13 @@ export const useUserStore = defineStore('user', {
         return undefined
       }
     },
-    token: (state) => {
-      if (state.user && state.user.token) {
-        return state.user.token
-      } else {
-        return undefined
-      }
-    },
+    // token: (state) => {
+    //   if (state.user && state.user.token) {
+    //     return state.user.token
+    //   } else {
+    //     return undefined
+    //   }
+    // },
     showWallet: (state) => <SDK>(state.wallet ? toRaw(state.wallet) : state.wallet),
   },
   actions: {
@@ -118,13 +119,13 @@ export const useUserStore = defineStore('user', {
     },
     updateUserInfo(userInfo: SetUserInfo) {
       return new Promise<void>(async (resolve) => {
-        const { password, ...data } = userInfo
-
+        const { ...data } = userInfo
+        debugger
         // 兼容处理
         // @ts-ignore
-        if (!data.address && data.rootAddress) {
+        if (!data.address && data?.rootAddress) {
           // @ts-ignore
-          data.address = data.rootAddress
+          data.address = data?.rootAddress
         }
         // @ts-ignore
         if (!data.userType && data.registerType) {
@@ -137,7 +138,7 @@ export const useUserStore = defineStore('user', {
         localStorage.setItem(encode('user'), encode(JSON.stringify(data)))
 
         if (password) {
-          window.localStorage.setItem(encode('password'), encode(password))
+          window.localStorage.setItem(encode('password'), encode(data.password))
         }
 
         try {

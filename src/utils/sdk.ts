@@ -74,7 +74,7 @@ export class SDK {
   }
 
   initWallet() {
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<any>(async (resolve, reject) => {
       try {
         const account = getLocalAccount()
 
@@ -91,7 +91,7 @@ export class SDK {
 
         this.wallet = wallet
         this.isInitSdked = true
-        resolve()
+        resolve(this.wallet)
       } catch (error) {
         console.error(error)
         reject(new Error('生成钱包失败' + (error as any).message))

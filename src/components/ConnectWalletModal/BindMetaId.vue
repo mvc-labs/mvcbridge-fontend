@@ -113,11 +113,13 @@ import {
   HdWallet,
   hdWalletFromMnemonic,
   signature,
+  hdWalletFromAccount,
 } from '@/utils/wallet/hd-wallet'
 import { encode, decode } from 'js-base64'
 import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { openLoading } from '@/utils/util'
+import { openLoading, getLocalAccount } from '@/utils/util'
+
 import { ethBindingData } from '@/config'
 // @ts-ignore
 import { MD5 } from 'crypto-es/lib/md5.js'
@@ -126,6 +128,7 @@ import { SDK } from '@/utils/sdk'
 import { Right } from '@element-plus/icons-vue'
 import walletIcon from '@/assets/images/wallet.svg?url'
 import walletAddIcon from '@/assets/images/wallet_add.svg?url'
+import { Wallet } from 'ethers'
 interface Props {
   modelValue: boolean
   thirdPartyWallet: {
@@ -275,29 +278,26 @@ function submitForm() {
 function loginSuccess(params: BindMetaIdRes) {
   return new Promise<void>(async (resolve, reject) => {
     try {
-      const metaIdInfo = await GetUserInfo(params.userInfo.metaId)
-
+      // const metaIdInfo = await GetUserInfo(params.userInfo.metaId)
+      debugger
       if (!params.userInfo.evmAddress) {
-        params.userInfo.evmAddress = params.userInfo.ethAddress
+        params.userInfo.evmAddress = (window as any).ethereum?.selectedAddress
       }
-
-      //更新用户信息前先升级账户,store签名不等于当前登录账户签名时需要升级
-      if (
-        rootStore.updatePlanRes?.signHash &&
-        MD5(rootStore.updatePlanRes!.signHash).toString() != decode(params.password)
-      ) {
-        const updateSuccess = await updatePlan(params.userInfo, params.password)
-
-        if (updateSuccess) {
-          params.userInfo.enCryptedMnemonic = updateSuccess.evmEnMnemonic
-          // params.userInfo.evmEnMnemonic = updateSuccess.evmEnMnemonic
-          params.password = updateSuccess.newPw
-          ElMessage.success(`${i18n.t('updateSuccess')}`)
-        }
+      console.log('userStoreuserStore', userStore.wallet)
+      debugger
+      const wallet = await userStore.showWallet.initWallet()
+      debugger
+      if (!params.userInfo.rootAddress) {
+        params.userInfo.rootAddress = wallet
       }
-
       userStore.updateUserInfo({
-        ...metaIdInfo.data,
+        // ...metaIdInfo.data,
+        ...params.userInfo,
+        password: params.password,
+        loginType: 'MetaMask',
+      })
+      userStore.updateUserInfo({
+        // ...metaIdInfo.data,
         ...params.userInfo,
         password: params.password,
         loginType: 'MetaMask',
@@ -306,8 +306,6 @@ function loginSuccess(params: BindMetaIdRes) {
       userStore.$patch({
         wallet: new SDK(import.meta.env.VITE_NET_WORK),
       })
-
-      await userStore.showWallet.initWallet()
 
       formRef?.value?.resetFields()
       if (status.value === BindStatus.BindHavedMetaId) {
@@ -328,6 +326,63 @@ function loginSuccess(params: BindMetaIdRes) {
     }
   })
 }
+
+// function loginSuccess(params: BindMetaIdRes) {
+//   return new Promise<void>(async (resolve, reject) => {
+//     try {
+//       const metaIdInfo = await GetUserInfo(params.userInfo.metaId)
+
+//       if (!params.userInfo.evmAddress) {
+//         params.userInfo.evmAddress = params.userInfo.ethAddress
+//       }
+
+//       //更新用户信息前先升级账户,store签名不等于当前登录账户签名时需要升级
+//       if (
+//         rootStore.updatePlanRes?.signHash &&
+//         MD5(rootStore.updatePlanRes!.signHash).toString() != decode(params.password)
+//       ) {
+//         const updateSuccess = await updatePlan(params.userInfo, params.password)
+
+//         if (updateSuccess) {
+//           params.userInfo.enCryptedMnemonic = updateSuccess.evmEnMnemonic
+//           // params.userInfo.evmEnMnemonic = updateSuccess.evmEnMnemonic
+//           params.password = updateSuccess.newPw
+//           ElMessage.success(`${i18n.t('updateSuccess')}`)
+//         }
+//       }
+
+//       userStore.updateUserInfo({
+//         ...metaIdInfo.data,
+//         ...params.userInfo,
+//         password: params.password,
+//         loginType: 'MetaMask',
+//       })
+
+//       userStore.$patch({
+//         wallet: new SDK(import.meta.env.VITE_NET_WORK),
+//       })
+
+//       await userStore.showWallet.initWallet()
+
+//       formRef?.value?.resetFields()
+//       if (status.value === BindStatus.BindHavedMetaId) {
+//         status.value = BindStatus.BindSuccess
+//       } else {
+//         emit('update:modelValue', false)
+//         if (status.value === BindStatus.BindRegisterMetaId) {
+//           emit('register')
+//           status.value = 0
+//         }
+//       }
+//       loading.value = false
+//       resolve()
+//     } catch (error) {
+//       loading.value = false
+//       emit('update:modelValue', false)
+//       reject(error)
+//     }
+//   })
+// }
 
 async function updatePlan(params: MetaMaskLoginUserInfo, pw: string) {
   const Mnemonic = decryptMnemonic(params.enCryptedMnemonic, pw)
@@ -368,7 +423,6 @@ function createMetaidAccount() {
         import.meta.env.VITE_NET_WORK,
         import.meta.env.VITE_WALLET_PATH
       )
-
       const HdWalletInstance = new HdWallet(hdWallet)
 
       const account: any = {
@@ -628,47 +682,76 @@ function createETHBindingBrfcNode(MetaidRes: BindMetaIdRes) {
 }
 
 function loginByMnemonic(mnemonic: string, password: string, isInitMnemonic = false, path: number) {
-  return new Promise<BindMetaIdRes>(async (resolve, reject) => {
+  return new Promise<Partial<BindMetaIdRes>>(async (resolve, reject) => {
     try {
-      const decodeMnemonic = decryptMnemonic(mnemonic, password)
+      debugger
+      const decodeMnemonic = mnemonic //decryptMnemonic(mnemonic, password)
+      //  const hdWallet = await hdWalletFromMnemonic(
+      //   decodeMnemonic,
+      //   'new',
+      //   import.meta.env.VITE_NET_WORK,
+      //   import.meta.env.VITE_WALLET_PATH
+      // )
+      //  const localAccount = getLocalAccount()
 
-      const word = await GetRandomWord()
+      // const walletObj = await hdWalletFromAccount(
+      //     {
+      //       ...localAccount.userInfo,
+      //       password: localAccount.password,
+      //     },
+      //     import.meta.env.VITE_NET_WORK,
+      //     localAccount.userInfo.path
+      //   )
+      // const HdWalletInstance = new HdWallet(walletObj)
+      resolve({
+        userInfo: {
+          enCryptedMnemonic: encryptMnemonic(
+            decodeMnemonic,
+            MD5(props.thirdPartyWallet.signAddressHash).toString()
+          ),
+          userType: 'email',
+        },
+        // Wallet:HdWalletInstance,
+        // wallet: hdWallet,
+        password: password,
+      })
+      // const word = await GetRandomWord()
 
-      if (word.code == 0) {
-        const hdWallet = await hdWalletFromMnemonic(
-          decodeMnemonic,
-          'new',
-          import.meta.env.VITE_NET_WORK,
-          path
-        )
+      // if (word.code == 0) {
+      //   const hdWallet = await hdWalletFromMnemonic(
+      //     decodeMnemonic,
+      //     'new',
+      //     import.meta.env.VITE_NET_WORK,
+      //     path
+      //   )
 
-        const sign = signature(
-          word.data.word,
-          hdWallet.deriveChild(0).deriveChild(0).privateKey.toString()
-        )
+      //   const sign = signature(
+      //     word.data.word,
+      //     hdWallet.deriveChild(0).deriveChild(0).privateKey.toString()
+      //   )
 
-        const loginInfo = await MnemoicLogin({
-          xpub: hdWallet.xpubkey.toString(),
-          sign,
-          word: word.data.word,
-          type: 1,
-        })
-        if (loginInfo.code == 0) {
-          resolve({
-            userInfo: Object.assign(loginInfo.data, {
-              enCryptedMnemonic: isInitMnemonic
-                ? encryptMnemonic(
-                    decodeMnemonic,
-                    MD5(props.thirdPartyWallet.signAddressHash).toString()
-                  )
-                : mnemonic,
-              userType: loginInfo.data.register || loginInfo.data.registerType,
-            }),
-            wallet: hdWallet,
-            password: password,
-          })
-        }
-      }
+      //   const loginInfo = await MnemoicLogin({
+      //     xpub: hdWallet.xpubkey.toString(),
+      //     sign,
+      //     word: word.data.word,
+      //     type: 1,
+      //   })
+      //   if (loginInfo.code == 0) {
+      //     resolve({
+      //       userInfo: Object.assign(loginInfo.data, {
+      //         enCryptedMnemonic: isInitMnemonic
+      //           ? encryptMnemonic(
+      //               decodeMnemonic,
+      //               MD5(props.thirdPartyWallet.signAddressHash).toString()
+      //             )
+      //           : mnemonic,
+      //         userType: loginInfo.data.register || loginInfo.data.registerType,
+      //       }),
+      //       wallet: hdWallet,
+      //       password: password,
+      //     })
+      //   }
+      // }
     } catch (error) {
       reject(error)
     }

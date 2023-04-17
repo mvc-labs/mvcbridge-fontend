@@ -85,6 +85,7 @@ import IconMetalet from '@/assets/images/MVC.png?url'
 import { ethers, sha256, toUtf8Bytes, toUtf8String, toQuantity } from 'ethers'
 import BindMetaIdVue from './BindMetaId.vue'
 import MetaMask from '@/components/MetaMask/MetaMask.vue'
+import { createMnemonic } from '@/utils/wallet/hd-wallet'
 const enum ConnectWalletStatus {
   Watting,
   WallteConnect,
@@ -172,143 +173,163 @@ async function onThreePartLinkSuccess(params: {
 }) {
   //检查hash是否已绑定
 
-  const getMnemonicRes = await LoginByEthAddress({
-    evmAddress: params.address,
-    chainId: (window as any)?.ethereum?.chainId,
-  }).catch((error) => {
-    if (error.code === -1) {
-      // 还没绑定
-      thirdPartyWallet.signAddressHash = params.signAddressHash
-      thirdPartyWallet.address = params.address.toLocaleLowerCase()
-      thirdPartyWallet.chainId = (window as any)?.ethereum?.chainId
-      BindMetaIdRef.value.status = BindStatus.ChooseType
-      rootStore.$patch({ isShowMetaMak: false })
-      isShowBindModal.value = true
-    } else {
-      throw new Error(error.message)
-    }
-  })
+  // const getMnemonicRes = await LoginByEthAddress({
+  //   evmAddress: params.address,
+  //   chainId: (window as any)?.ethereum?.chainId,
+  // }).catch((error) => {
+  //   if (error.code === -1) {
+  //     // 还没绑定
+  //     thirdPartyWallet.signAddressHash = params.signAddressHash
+  //     thirdPartyWallet.address = params.address.toLocaleLowerCase()
+  //     thirdPartyWallet.chainId = (window as any)?.ethereum?.chainId
+  //     BindMetaIdRef.value.status = BindStatus.ChooseType
+  //     rootStore.$patch({ isShowMetaMak: false })
+  //     isShowBindModal.value = true
+  //   } else {
+  //     throw new Error(error.message)
+  //   }
+  // })
 
+  const mnemonic = await createMnemonic(params.signAddressHash)
+  debugger
   let res: BindMetaIdRes
-  if (getMnemonicRes?.code === 0) {
-    //这里需要再判断一下用户注册来源，如果是metamask注册的用户要拿metaid来解
-
-    if (
-      getMnemonicRes?.data?.metaId &&
-      getMnemonicRes?.data?.registerSource === RegisterSource.metamask
-    ) {
-      //这里需要再判断一下用户注册来源，如果是metamask注册的用户要拿metaid来解
-
-      try {
-        res = await BindMetaIdRef.value.loginByMnemonic(
-          getMnemonicRes.data.evmEnMnemonic,
-          MD5(params.signAddressHash).toString(),
-          false,
-          getMnemonicRes.data.path
-        )
-
-        if (res) {
-          await BindMetaIdRef.value.loginSuccess(res)
-          rootStore.$patch({ isShowMetaMak: false })
-          rootStore.$patch({ isShowLogin: false })
-        }
-      } catch (error) {
-        if (getMnemonicRes?.data?.registerTime < +Date.now()) {
-          ElMessageBox.confirm(`${i18n.t('allowUpdate')}`, `${i18n.t('updateRemind')}`, {
-            customClass: 'primary',
-            confirmButtonText: `${i18n.t('confirmUpdate')}`,
-            cancelButtonText: i18n.t('Cancel'),
-          }).then(() => {
-            //把准备要升级的hash保存起来
-            rootStore.updateAccountPlan({
-              registerTime: getMnemonicRes?.data?.registerTime,
-              signHash: params.signAddressHash,
-            })
-            if (params.walletOrigin == WalletOrigin.WalletConnect) {
-              connectWalletConnect(true)
-            } else {
-              rootStore.updateShowLoginBindEvmAccount({
-                isUpdatePlan: true,
-                loginedButBind: false,
-                bindEvmChain: '',
-              })
-              MetaMaskRef.value.MetaMaskConnect()
-            }
-            rootStore.$patch({ isShowMetaMak: false })
-          })
-        } else {
-          rootStore.$patch({ isShowMetaMak: false })
-          return ElMessage.error(`${i18n.t('walletError')}`)
-        }
-      }
-
-      // return  emit('update:modelValue', false)
-    } else if (
-      getMnemonicRes.data.evmEnMnemonic &&
-      getMnemonicRes?.data?.registerSource == RegisterSource.showmoney
-    ) {
-      // 有密码直接登录， 没有密码就要用户输入
-      const password = localStorage.getItem(encode('password'))
-      if (password) {
-        res = await BindMetaIdRef.value.loginByMnemonic(
-          getMnemonicRes.data.menmonic,
-          decode(password),
-          false,
-          getMnemonicRes.data.path
-        )
-
-        if (res) {
-          await BindMetaIdRef.value.loginSuccess(res)
-          rootStore.$patch({ isShowLogin: false })
-        }
-      } else {
-        try {
-          res = await BindMetaIdRef.value.loginByMnemonic(
-            getMnemonicRes.data.evmEnMnemonic,
-            MD5(params.signAddressHash).toString(),
-            false,
-            getMnemonicRes.data.path
-          )
-          if (res) {
-            await BindMetaIdRef.value.loginSuccess(res)
-            rootStore.$patch({ isShowMetaMak: false })
-            rootStore.$patch({ isShowLogin: false })
-          }
-        } catch (error) {
-          if (getMnemonicRes?.data?.registerTime < +Date.now()) {
-            ElMessageBox.confirm(`${i18n.t('allowUpdate')}`, `${i18n.t('updateRemind')}`, {
-              customClass: 'primary',
-              confirmButtonText: `${i18n.t('confirmUpdate')}`,
-              cancelButtonText: i18n.t('Cancel'),
-            }).then(() => {
-              //把准备要升级的hash保存起来
-              rootStore.updateAccountPlan({
-                registerTime: getMnemonicRes?.data?.registerTime,
-                signHash: params.signAddressHash,
-              })
-              if (params.walletOrigin == WalletOrigin.WalletConnect) {
-                connectWalletConnect(true)
-              } else {
-                MetaMaskRef.value.MetaMaskConnect(true)
-              }
-
-              rootStore.$patch({ isShowMetaMak: false })
-            })
-          } else {
-            rootStore.$patch({ isShowMetaMak: false })
-            return ElMessage.error(`${i18n.t('walletError')}`)
-          }
-        }
-      }
-    } else if (
-      !getMnemonicRes?.data.metaId &&
-      getMnemonicRes?.data?.registerSource === RegisterSource.metamask
-    ) {
+  try {
+    res = await BindMetaIdRef.value.loginByMnemonic(
+      mnemonic,
+      MD5(params.signAddressHash).toString(),
+      false,
+      import.meta.env.VITE_WALLET_PATH
+    )
+    debugger
+    if (res) {
+      await BindMetaIdRef.value.loginSuccess(res)
       rootStore.$patch({ isShowMetaMak: false })
-      // 修复有问题的账号 待完善
-      return ElMessage.error(`${i18n.t('MetaidIsNull')}`)
+      rootStore.$patch({ isShowLogin: false })
     }
+  } catch (error) {
+    rootStore.$patch({ isShowMetaMak: false })
+    return ElMessage.error(`${i18n.t('walletError')}`)
   }
+
+  // if (getMnemonicRes?.code === 0) {
+  //   //这里需要再判断一下用户注册来源，如果是metamask注册的用户要拿metaid来解
+
+  //   if (
+  //     getMnemonicRes?.data?.metaId &&
+  //     getMnemonicRes?.data?.registerSource === RegisterSource.metamask
+  //   ) {
+  //     //这里需要再判断一下用户注册来源，如果是metamask注册的用户要拿metaid来解
+
+  //     try {
+  //       res = await BindMetaIdRef.value.loginByMnemonic(
+  //         getMnemonicRes.data.evmEnMnemonic,
+  //         MD5(params.signAddressHash).toString(),
+  //         false,
+  //         getMnemonicRes.data.path
+  //       )
+
+  //       if (res) {
+  //         await BindMetaIdRef.value.loginSuccess(res)
+  //         rootStore.$patch({ isShowMetaMak: false })
+  //         rootStore.$patch({ isShowLogin: false })
+  //       }
+  //     } catch (error) {
+  //       if (getMnemonicRes?.data?.registerTime < +Date.now()) {
+  //         ElMessageBox.confirm(`${i18n.t('allowUpdate')}`, `${i18n.t('updateRemind')}`, {
+  //           customClass: 'primary',
+  //           confirmButtonText: `${i18n.t('confirmUpdate')}`,
+  //           cancelButtonText: i18n.t('Cancel'),
+  //         }).then(() => {
+  //           //把准备要升级的hash保存起来
+  //           rootStore.updateAccountPlan({
+  //             registerTime: getMnemonicRes?.data?.registerTime,
+  //             signHash: params.signAddressHash,
+  //           })
+  //           if (params.walletOrigin == WalletOrigin.WalletConnect) {
+  //             connectWalletConnect(true)
+  //           } else {
+  //             rootStore.updateShowLoginBindEvmAccount({
+  //               isUpdatePlan: true,
+  //               loginedButBind: false,
+  //               bindEvmChain: '',
+  //             })
+  //             MetaMaskRef.value.MetaMaskConnect()
+  //           }
+  //           rootStore.$patch({ isShowMetaMak: false })
+  //         })
+  //       } else {
+  //         rootStore.$patch({ isShowMetaMak: false })
+  //         return ElMessage.error(`${i18n.t('walletError')}`)
+  //       }
+  //     }
+
+  //     // return  emit('update:modelValue', false)
+  //   } else if (
+  //     getMnemonicRes.data.evmEnMnemonic &&
+  //     getMnemonicRes?.data?.registerSource == RegisterSource.showmoney
+  //   ) {
+  //     // 有密码直接登录， 没有密码就要用户输入
+  //     const password = localStorage.getItem(encode('password'))
+  //     if (password) {
+  //       res = await BindMetaIdRef.value.loginByMnemonic(
+  //         getMnemonicRes.data.menmonic,
+  //         decode(password),
+  //         false,
+  //         getMnemonicRes.data.path
+  //       )
+
+  //       if (res) {
+  //         await BindMetaIdRef.value.loginSuccess(res)
+  //         rootStore.$patch({ isShowLogin: false })
+  //       }
+  //     } else {
+  //       try {
+  //         res = await BindMetaIdRef.value.loginByMnemonic(
+  //           getMnemonicRes.data.evmEnMnemonic,
+  //           MD5(params.signAddressHash).toString(),
+  //           false,
+  //           getMnemonicRes.data.path
+  //         )
+  //         if (res) {
+  //           await BindMetaIdRef.value.loginSuccess(res)
+  //           rootStore.$patch({ isShowMetaMak: false })
+  //           rootStore.$patch({ isShowLogin: false })
+  //         }
+  //       } catch (error) {
+  //         if (getMnemonicRes?.data?.registerTime < +Date.now()) {
+  //           ElMessageBox.confirm(`${i18n.t('allowUpdate')}`, `${i18n.t('updateRemind')}`, {
+  //             customClass: 'primary',
+  //             confirmButtonText: `${i18n.t('confirmUpdate')}`,
+  //             cancelButtonText: i18n.t('Cancel'),
+  //           }).then(() => {
+  //             //把准备要升级的hash保存起来
+  //             rootStore.updateAccountPlan({
+  //               registerTime: getMnemonicRes?.data?.registerTime,
+  //               signHash: params.signAddressHash,
+  //             })
+  //             if (params.walletOrigin == WalletOrigin.WalletConnect) {
+  //               connectWalletConnect(true)
+  //             } else {
+  //               MetaMaskRef.value.MetaMaskConnect(true)
+  //             }
+
+  //             rootStore.$patch({ isShowMetaMak: false })
+  //           })
+  //         } else {
+  //           rootStore.$patch({ isShowMetaMak: false })
+  //           return ElMessage.error(`${i18n.t('walletError')}`)
+  //         }
+  //       }
+  //     }
+  //   } else if (
+  //     !getMnemonicRes?.data.metaId &&
+  //     getMnemonicRes?.data?.registerSource === RegisterSource.metamask
+  //   ) {
+  //     rootStore.$patch({ isShowMetaMak: false })
+  //     // 修复有问题的账号 待完善
+  //     return ElMessage.error(`${i18n.t('MetaidIsNull')}`)
+  //   }
+  // }
 }
 
 async function connectWalletConnect(isUpdate: boolean = false) {
