@@ -450,78 +450,82 @@ function estimatedGasPrice(params) {
 }
 
 async function Swap() {
-  if (userStore.user) {
-    let params
-    transationDetailDialog.value = true
-    swapSuccess.value = false
-    ConfrimSwapDisable.value = true
-    estimatedTransferInfo.val.send = sendInput.value
-    await rootStore.setReceiverAddress()
-    // recevierInfo.val = await GetReceiveAddress({
-    //   chainName: fromChain.value!,
-    //   tokenName: currentAssert.value,
-    // })
+  try {
+    if (userStore.user) {
+      let params
+      transationDetailDialog.value = true
+      swapSuccess.value = false
+      ConfrimSwapDisable.value = true
+      estimatedTransferInfo.val.send = sendInput.value
+      await rootStore.setReceiverAddress()
+      // recevierInfo.val = await GetReceiveAddress({
+      //   chainName: fromChain.value!,
+      //   tokenName: currentAssert.value,
+      // })
 
-    if (fromChain.value === MappingChainName.ETH) {
-      console.log('sedddd', sendInput.value)
-      // params = {
-      //   amount: sendInput.value,
-      //   address: recevierInfo.val.address,
-      // }
-      estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
-        .mul(rootStore.receiverInfo.mvc.withdrawBridgeFeeRate)
-        .toString()
-      estimatedTransferInfo.val.minSendAmount = new Decimal(
-        rootStore.receiverInfo.eth.depositMinAmount
-      )
-        .div(10 ** rootStore.receiverInfo.eth.decimal)
-        .toString()
-      estimatedTransferInfo.val.time = rootStore.receiverInfo.eth.depositConfirmation
-      estimatedTransferInfo.val.gasFee = estimatedGasPrice(rootStore.receiverInfo.mvc)
-      estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
-        .sub(estimatedTransferInfo.val.brigefee)
-        .sub(estimatedTransferInfo.val.gasFee)
-        .toString()
-      ConfrimSwapDisable.value = false
-    } else if (fromChain.value === MappingChainName.MVC) {
-      params = {
-        amount: new Decimal(sendInput.value)
-          .mul(10 ** rootStore.receiverInfo.mvc.decimal)
-          .toString(),
-        address: rootStore.receiverInfo.mvc.address,
-      }
+      if (fromChain.value === MappingChainName.ETH) {
+        console.log('sedddd', sendInput.value)
+        // params = {
+        //   amount: sendInput.value,
+        //   address: recevierInfo.val.address,
+        // }
+        estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
+          .mul(rootStore.receiverInfo.mvc.withdrawBridgeFeeRate)
+          .toString()
+        estimatedTransferInfo.val.minSendAmount = new Decimal(
+          rootStore.receiverInfo.eth.depositMinAmount
+        )
+          .div(10 ** rootStore.receiverInfo.eth.decimal)
+          .toString()
+        estimatedTransferInfo.val.time = rootStore.receiverInfo.eth.depositConfirmation
+        estimatedTransferInfo.val.gasFee = estimatedGasPrice(rootStore.receiverInfo.mvc)
+        estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
+          .sub(estimatedTransferInfo.val.brigefee)
+          .sub(estimatedTransferInfo.val.gasFee)
+          .toString()
+        ConfrimSwapDisable.value = false
+      } else if (fromChain.value === MappingChainName.MVC) {
+        params = {
+          amount: new Decimal(sendInput.value)
+            .mul(10 ** rootStore.receiverInfo.mvc.decimal)
+            .toString(),
+          address: rootStore.receiverInfo.mvc.address,
+        }
 
-      estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
-        .mul(rootStore.receiverInfo.eth.withdrawBridgeFeeRate)
-        .toString()
-      estimatedTransferInfo.val.minSendAmount = new Decimal(
-        rootStore.receiverInfo.mvc.depositMinAmount
-      )
-        .div(10 ** rootStore.receiverInfo.mvc.decimal)
-        .toString()
-      estimatedTransferInfo.val.time = rootStore.receiverInfo.mvc.depositConfirmation
-      estimatedTransferInfo.val.gasFee = estimatedGasPrice(rootStore.receiverInfo.eth)
-      estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
-        .sub(estimatedTransferInfo.val.brigefee)
-        .sub(estimatedTransferInfo.val.gasFee)
-        .toString()
-      const estimatedRes: any = await estimatedTransferFtFee(params).catch((e) => {
-        ConfrimSwapDisable.value = true
-        return ElMessage.error(`${e}`)
-      })
-      if (estimatedRes) {
-        estimatedTransferInfo.val.minerFee = estimatedRes!.minerFee!
+        estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
+          .mul(rootStore.receiverInfo.eth.withdrawBridgeFeeRate)
+          .toString()
+        estimatedTransferInfo.val.minSendAmount = new Decimal(
+          rootStore.receiverInfo.mvc.depositMinAmount
+        )
+          .div(10 ** rootStore.receiverInfo.mvc.decimal)
+          .toString()
+        estimatedTransferInfo.val.time = rootStore.receiverInfo.mvc.depositConfirmation
+        estimatedTransferInfo.val.gasFee = estimatedGasPrice(rootStore.receiverInfo.eth)
+        estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
+          .sub(estimatedTransferInfo.val.brigefee)
+          .sub(estimatedTransferInfo.val.gasFee)
+          .toString()
+        const estimatedRes: any = await estimatedTransferFtFee(params)
+        if (estimatedRes) {
+          estimatedTransferInfo.val.minerFee = estimatedRes!.minerFee!
+        } else {
+          return (ConfrimSwapDisable.value = true)
+        }
+        ConfrimSwapDisable.value = false
       }
-      ConfrimSwapDisable.value = false
+    } else {
+      return ElMessage.error(`Please login first`)
     }
-  } else {
-    return ElMessage.error(`Please login first`)
+  } catch (error) {
+    ConfrimSwapDisable.value = true
+    return ElMessage.error(error.toString())
   }
 }
 
 async function estimatedTransferFtFee(params: { amount: string; address: string }) {
   try {
-    const res = await userStore.showWallet.createBrfcChildNode(
+    const res = await userStore.showWallet.TransferFt(
       {
         nodeName: NodeName.FtTransfer,
         data: JSON.stringify({
@@ -560,7 +564,7 @@ async function estimatedTransferFtFee(params: { amount: string; address: string 
         .toString(),
     }
   } catch (error: any) {
-    throw new Error(error?.toString())
+    throw new Error(error.toString())
   }
 }
 
@@ -664,7 +668,7 @@ async function confrimSwap() {
       // )
 
       const tx = await userStore.showWallet
-        .createBrfcChildNode(
+        .TransferFt(
           {
             nodeName: NodeName.FtTransfer,
             data: JSON.stringify({
@@ -690,7 +694,7 @@ async function confrimSwap() {
           throw new Error(e)
         })
 
-      console.log('tx12312', tx)
+      console.log('tx12312', userStore.user)
 
       if (tx?.ft?.transfer?.txId) {
         const registerRequest = GeneratorSignatrue({

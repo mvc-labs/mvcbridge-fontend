@@ -279,23 +279,21 @@ function loginSuccess(params: BindMetaIdRes) {
   return new Promise<void>(async (resolve, reject) => {
     try {
       // const metaIdInfo = await GetUserInfo(params.userInfo.metaId)
-      debugger
+
       if (!params.userInfo.evmAddress) {
         params.userInfo.evmAddress = (window as any).ethereum?.selectedAddress
       }
-      console.log('userStoreuserStore', userStore.wallet)
-      debugger
-      const wallet = await userStore.showWallet.initWallet()
-      debugger
+
       if (!params.userInfo.rootAddress) {
-        params.userInfo.rootAddress = wallet
+        params.userInfo.rootAddress = params.wallet
+          .deriveChild(0)
+          .deriveChild(0)
+          .privateKey.toAddress()
+          .toString()
       }
-      userStore.updateUserInfo({
-        // ...metaIdInfo.data,
-        ...params.userInfo,
-        password: params.password,
-        loginType: 'MetaMask',
-      })
+
+      console.log('params.userInfo', params)
+
       userStore.updateUserInfo({
         // ...metaIdInfo.data,
         ...params.userInfo,
@@ -306,6 +304,10 @@ function loginSuccess(params: BindMetaIdRes) {
       userStore.$patch({
         wallet: new SDK(import.meta.env.VITE_NET_WORK),
       })
+
+      console.log('userStoreuserStore', userStore.wallet)
+
+      await userStore.showWallet.initWallet()
 
       formRef?.value?.resetFields()
       if (status.value === BindStatus.BindHavedMetaId) {
@@ -429,6 +431,7 @@ function createMetaidAccount() {
         name: `${import.meta.env.VITE_DefaultName}`,
       }
       const address = hdWallet.deriveChild(0).deriveChild(0).privateKey.toAddress().toString()
+
       //
       const pubKey = hdWallet.deriveChild(0).deriveChild(0).publicKey.toString()
 
@@ -684,14 +687,14 @@ function createETHBindingBrfcNode(MetaidRes: BindMetaIdRes) {
 function loginByMnemonic(mnemonic: string, password: string, isInitMnemonic = false, path: number) {
   return new Promise<Partial<BindMetaIdRes>>(async (resolve, reject) => {
     try {
-      debugger
       const decodeMnemonic = mnemonic //decryptMnemonic(mnemonic, password)
-      //  const hdWallet = await hdWalletFromMnemonic(
-      //   decodeMnemonic,
-      //   'new',
-      //   import.meta.env.VITE_NET_WORK,
-      //   import.meta.env.VITE_WALLET_PATH
-      // )
+      const hdWallet = await hdWalletFromMnemonic(
+        decodeMnemonic,
+        'new',
+        import.meta.env.VITE_NET_WORK,
+        import.meta.env.VITE_WALLET_PATH
+      )
+
       //  const localAccount = getLocalAccount()
 
       // const walletObj = await hdWalletFromAccount(
@@ -705,14 +708,11 @@ function loginByMnemonic(mnemonic: string, password: string, isInitMnemonic = fa
       // const HdWalletInstance = new HdWallet(walletObj)
       resolve({
         userInfo: {
-          enCryptedMnemonic: encryptMnemonic(
-            decodeMnemonic,
-            MD5(props.thirdPartyWallet.signAddressHash).toString()
-          ),
+          enCryptedMnemonic: encryptMnemonic(decodeMnemonic, password),
           userType: 'email',
         },
         // Wallet:HdWalletInstance,
-        // wallet: hdWallet,
+        wallet: hdWallet,
         password: password,
       })
       // const word = await GetRandomWord()

@@ -74,7 +74,7 @@ export class SDK {
   }
 
   initWallet() {
-    return new Promise<any>(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       try {
         const account = getLocalAccount()
 
@@ -91,7 +91,7 @@ export class SDK {
 
         this.wallet = wallet
         this.isInitSdked = true
-        resolve(this.wallet)
+        resolve()
       } catch (error) {
         console.error(error)
         reject(new Error('生成钱包失败' + (error as any).message))
@@ -227,6 +227,143 @@ export class SDK {
           const res = await this.wallet?.sigMessage(msg, path)
           if (res) {
             resolve(res)
+          }
+        }
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
+  TransferFt(
+    params: createBrfcChildNodeParams,
+    option?: {
+      isBroadcast?: boolean
+      payType?: SdkPayType
+    }
+  ) {
+    return new Promise<NodeTransactions | null>(async (resolve, reject) => {
+      const userStore = useUserStore()
+      const initOption = {
+        isBroadcast: true,
+        payType: userStore.sdkPayment,
+        useQueue: false,
+        subscribeId: '',
+      }
+      option = {
+        ...initOption,
+        ...option,
+      }
+      try {
+        // App 端
+        if (this.appMetaIdJs) {
+          await this.checkAppHasMethod('createBrfcChildNode')
+          const functionName = `createBrfcChildNode${this.randomString()}`
+          const callback: (res: string) => void = (res: any) => {
+            this.callback(res, { resolve, reject })
+          }
+          // @ts-ignore
+          window[functionName] = callback
+          if (params.loading) delete params.loading
+          if (params.attachments!.length > 0) {
+            for (let i = 0; i < params.attachments!.length; i++) {
+              // @ts-ignore
+              params.attachments[i].data = params.attachments[i].hex
+            }
+          }
+          this.appMetaIdJs.createBrfcChildNode(
+            userStore.user?.token,
+            JSON.stringify(params),
+            functionName
+          )
+        } else {
+          // 构建没有utxo 的所有 transaction
+          let transactions = await this.createFtTransferTransactions(params)
+
+          let payToRes: CreateNodeBaseRes | undefined = undefined
+          if (!params.utxos?.length) {
+            // 计算总价
+            let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
+            totalAmount += 70000
+            const useSatoshis = totalAmount
+
+            //  获取余额
+            // const balance = await this.getBalance(option.payType!)
+            // 等待 确认支付
+            // const result = await this.awitSdkPayconfirm(
+            //   option.payType!,
+            //   totalAmount,
+            //   balance!,
+            //   option.checkOnly
+            // )
+            if (true) {
+              // 确认支付
+              // 打钱地址
+              let receive = {
+                address: this.wallet.rootAddress,
+                addressType: 0,
+                addressIndex: 0,
+              }
+
+              //this.getNodeTransactionsFirstReceive(transactions, params)
+
+              // 获取上链时的utxo
+              const getUtxoRes = await this.getAmountUxto({
+                sdkPayType: option.payType!,
+                amount: useSatoshis,
+                receive,
+              })
+
+              const currentUtxo = getUtxoRes.utxo
+              if (getUtxoRes.payToRes) {
+                payToRes = getUtxoRes.payToRes
+              }
+
+              // 使用utxo 组装 新的transactions
+              transactions = await this.setUtxoForTransferFtTransactions(
+                transactions,
+                currentUtxo!,
+                params,
+                // 支付方式为Me时， 最后的找回地址是官方的地址， 不是就找回用户地址
+                option.payType === SdkPayType.ME
+                  ? import.meta.env.VITE_CHANGE_ADDRESS
+                  : this.wallet!.rootAddress
+              )
+
+              // 广播
+              if (option.isBroadcast) {
+                // 广播 打钱操作
+                if (payToRes && payToRes.transaction) {
+                  await this.wallet?.provider.broadcast(payToRes.transaction.toString())
+                }
+                // 广播 transactions 所有交易
+                await this.broadcastNodeTransactions(transactions)
+              }
+
+              resolve({
+                payToAddress: payToRes,
+                ...transactions,
+              })
+            } else {
+              resolve(null)
+            }
+          } else {
+            // 默认有 UTXO 不弹窗
+
+            // 广播
+            if (option.isBroadcast) {
+              // 广播 打钱操作
+              // if (payToRes && payToRes?.transaction) {
+              //   await this.wallet?.provider.broadcast(payToRes.transaction.toString())
+              // }
+              // 广播 transactions 所有交易
+              await this.broadcastNodeTransactions(transactions)
+            }
+
+            resolve({
+              payToAddress: payToRes,
+              ...transactions,
+            })
           }
         }
       } catch (error) {
@@ -659,6 +796,79 @@ export class SDK {
     })
   }
 
+  private createFtTransferTransactions(params: createBrfcChildNodeParams) {
+    return new Promise<NodeTransactions>(async (resolve, reject) => {
+      try {
+        let transactions: NodeTransactions = {}
+
+        if (!transactions.ft) transactions.ft = {}
+
+        let _params: any = {
+          utxoMaxCount: 3,
+          senderWif: this.wallet!.wallet.deriveChild(0).deriveChild(0).privateKey.toString(),
+        }
+        _params = {
+          ..._params,
+          ...JSON.parse(params.data!),
+        }
+
+        const ftManager = this.wallet!.getFtManager()
+        const FTMergeUtxo = {
+          [NodeName.FtTransfer]: 'merge',
+        }
+        const FtUtxos = {
+          [NodeName.FtTransfer]: 'getFtUtxos',
+        }
+        const ftAccount = await ftManager[FtUtxos[NodeName.FtTransfer]](
+          _params.codehash,
+          _params.genesis,
+          this.wallet!.wallet.deriveChild(0).deriveChild(0).privateKey.toAddress().toString()
+        )
+
+        if (ftAccount.length > 30) {
+          let mergeParams = {
+            codehash: _params.codehash,
+            genesis: _params.genesis,
+            ownerWif: this.wallet!.wallet.deriveChild(0).deriveChild(0).privateKey.toString(),
+            noBroadcast: true,
+            changeAddress: this.wallet.rootAddress,
+          }
+          const mergeRes = await ftManager[FTMergeUtxo[NodeName.FtTransfer]](mergeParams)
+
+          if (mergeRes) {
+            await this.wallet?.provider.broadcast(mergeRes.routeCheckTxHex.toString())
+            // @ts-ignore
+            await this.wallet?.provider.broadcast(mergeRes.txHex.toString())
+          }
+        }
+
+        const FTGetFeeFunctionName = {
+          [NodeName.FtTransfer]: 'getTransferEstimateFee',
+        }
+
+        // @ts-ignore
+        const feeNumber = await ftManager[FTGetFeeFunctionName[NodeName.FtTransfer]](_params)
+        // @ts-ignore
+
+        const res = {
+          txId: '',
+          transaction: {
+            getNeedFee: () => {
+              return feeNumber
+            },
+          },
+          scriptPlayload: [],
+        }
+
+        // @ts-ignore
+        transactions.ft![this.transactionsFTKey[NodeName.FtTransfer]] = res
+        resolve(transactions)
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
   private createBrfcChildNodeTransactions(params: createBrfcChildNodeParams) {
     return new Promise<NodeTransactions>(async (resolve, reject) => {
       try {
@@ -897,6 +1107,49 @@ export class SDK {
         })
       if (res) {
         resolve(res.scriptPlayload!)
+      }
+    })
+  }
+
+  private setUtxoForTransferFtTransactions(
+    transactions: NodeTransactions,
+    utxo: UtxoItem,
+    params: createBrfcChildNodeParams,
+    lastChangeAddress: string
+  ) {
+    return new Promise<NodeTransactions>(async (resolve, reject) => {
+      try {
+        const ftManager = this.wallet!.getFtManager()
+
+        const _params = {
+          ...JSON.parse(params.data!),
+          opreturnData: '',
+          noBroadcast: true,
+          utxos: [utxo],
+          senderWif: this.wallet!.wallet.deriveChild(0).deriveChild(0).privateKey.toString(),
+          changeAddress: lastChangeAddress,
+        }
+        const FTOperateFunName = {
+          ...this.transactionsFTKey,
+        }
+        // @ts-ignore
+        const res = await ftManager![FTOperateFunName[params.nodeName]](_params).catch((e: any) => {
+          console.log('e', e.toString())
+        })
+
+        if (res && typeof res !== 'number') {
+          if (params.nodeName === NodeName.FtTransfer) {
+            // @ts-ignore
+            transactions.ft!.transfer!.checkTransaction = res.routeCheckTx
+            transactions.ft!.transfer!.checkTxId = res.routeCheckTx.id
+            transactions.ft!.transfer!.transaction = res.tx
+            transactions.ft!.transfer!.txId = res.tx.id
+          }
+        }
+
+        resolve(transactions)
+      } catch (error) {
+        reject(error)
       }
     })
   }
@@ -1350,7 +1603,7 @@ export class SDK {
   getAmountUxto(params: {
     sdkPayType: SdkPayType
     amount: number
-    nodeName: NodeName
+    nodeName?: NodeName
     receive: {
       address: string
       addressType: number
@@ -1371,6 +1624,7 @@ export class SDK {
             this.wallet.wallet.xpubkey.toString(),
             chain
           )
+
           const useUtxos = []
           if (allUtxos && allUtxos?.length > 0) {
             // 总价加个 最小金额  给转账费用

@@ -88,6 +88,8 @@ export function checkUserLogin() {
 export function getLocalAccount() {
   const localPassword = window.localStorage.getItem(encode('password'))
   const localUserInfo = window.localStorage.getItem(encode('user'))
+  console.log('localPassword', localPassword, localUserInfo)
+
   if (!localPassword || !localUserInfo) {
     throw new Error('用户登录失败')
   }
@@ -262,12 +264,14 @@ export function getAccountUserInfo(account: string) {
     try {
       let metaId: string = ''
       let address: string = ''
-      const userStore = useUserStore()
+      // const userStore = useUserStore()
       if (email.test(account)) {
-        const res = await userStore.showWallet.wallet?.provider.getPayMailAddress(account)
-        if (res) {
-          address = res
-        }
+        reject(`email is not allow`)
+        return
+        // const res = await userStore.showWallet.wallet?.provider.getPayMailAddress(account)
+        // if (res) {
+        //   address = res
+        // }
       }
 
       let isAddress: any = false
@@ -282,12 +286,12 @@ export function getAccountUserInfo(account: string) {
         isAddress = false
       }
 
-      if (account.length === 64 && !email.test(account) && !isAddress) {
+      if (account.length === 64 && !isAddress) {
         // MetaId
         metaId = account
       }
 
-      if (account.length !== 64 && !email.test(account) && !isAddress) {
+      if (account.length !== 64 && !isAddress) {
         const res = await GetMetaNameInfo(account.replace('.metaid', ''))
         if (res.code === 0) {
           if (

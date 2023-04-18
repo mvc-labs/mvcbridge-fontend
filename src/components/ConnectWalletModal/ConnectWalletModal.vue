@@ -191,7 +191,7 @@ async function onThreePartLinkSuccess(params: {
   // })
 
   const mnemonic = await createMnemonic(params.signAddressHash)
-  debugger
+
   let res: BindMetaIdRes
   try {
     res = await BindMetaIdRef.value.loginByMnemonic(
@@ -200,7 +200,7 @@ async function onThreePartLinkSuccess(params: {
       false,
       import.meta.env.VITE_WALLET_PATH
     )
-    debugger
+
     if (res) {
       await BindMetaIdRef.value.loginSuccess(res)
       rootStore.$patch({ isShowMetaMak: false })

@@ -119,8 +119,10 @@ export const useUserStore = defineStore('user', {
     },
     updateUserInfo(userInfo: SetUserInfo) {
       return new Promise<void>(async (resolve) => {
+        console.log('userInfo', userInfo)
+
         const { ...data } = userInfo
-        debugger
+
         // 兼容处理
         // @ts-ignore
         if (!data.address && data?.rootAddress) {
@@ -132,13 +134,16 @@ export const useUserStore = defineStore('user', {
           // @ts-ignore
           data.userType = data.registerType
         }
+        if (!data?.path) {
+          data.path = import.meta.env.VITE_WALLET_PATH
+        }
         // localStorage.setItem('user', JSON.stringify(data))
         // window.localStorage.setItem('password', password)
 
         localStorage.setItem(encode('user'), encode(JSON.stringify(data)))
 
-        if (password) {
-          window.localStorage.setItem(encode('password'), encode(data.password))
+        if (userInfo.password) {
+          window.localStorage.setItem(encode('password'), encode(userInfo.password))
         }
 
         try {

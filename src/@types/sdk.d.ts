@@ -8,7 +8,7 @@ export interface AppMsg {
 }
 
 export interface createBrfcChildNodeParams {
-  nodeName: NodeName
+  nodeName?: NodeName
   autoRename?: boolean
   appId?: string[]
   encrypt?: IsEncrypt

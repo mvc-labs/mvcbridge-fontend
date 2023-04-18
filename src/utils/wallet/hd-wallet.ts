@@ -201,30 +201,31 @@ export const hdWalletFromAccount = async (
   network: Network = Network.mainnet,
   path?: string | number
 ): Promise<any> => {
-  const loginName = account.userType === 'phone' ? account.phone : account.email
+  // const loginName = account.userType === 'phone' ? account.phone : account.email
   const password = account.password
 
   // console.log('account', account)
-  if (!loginName || !password) {
+  if (!password) {
     throw new Error('参数错误')
   }
   let mnemonic: string
   if (account.enCryptedMnemonic) {
     mnemonic = decryptMnemonic(account.enCryptedMnemonic, password)
-  } else {
-    // 根据用户名、密码和 pk2 生成助记词
-    const ppBuffer = Buffer.from([loginName, password].join('/'))
-    const ppHex = mvc.crypto.Hash.sha256(ppBuffer).toString('hex')
-    let hex: string | Buffer
-    if (account.tag === 'old') {
-      hex = Buffer.from(ppHex + account.pk2)
-      hex = mvc.crypto.Hash.sha256sha256(hex).toString('hex')
-    } else {
-      hex = Buffer.from((ppHex + account.pk2).toLowerCase(), 'hex').toString('hex')
-      hex = Ripemd128(hex).toString()
-    }
-    mnemonic = bip39.entropyToMnemonic(hex, englishWords)
   }
+  // else {
+  //   // 根据用户名、密码和 pk2 生成助记词
+  //   const ppBuffer = Buffer.from([loginName, password].join('/'))
+  //   const ppHex = mvc.crypto.Hash.sha256(ppBuffer).toString('hex')
+  //   let hex: string | Buffer
+  //   if (account.tag === 'old') {
+  //     hex = Buffer.from(ppHex + account.pk2)
+  //     hex = mvc.crypto.Hash.sha256sha256(hex).toString('hex')
+  //   } else {
+  //     hex = Buffer.from((ppHex + account.pk2).toLowerCase(), 'hex').toString('hex')
+  //     hex = Ripemd128(hex).toString()
+  //   }
+  //   mnemonic = bip39.entropyToMnemonic(hex, englishWords)
+  // }
   // const mnemonic = new Mnemonic(Buffer.from(hex)).toString()
   const wallet = await hdWalletFromMnemonic(mnemonic, account.tag, network, path)
 

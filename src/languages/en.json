@@ -1057,5 +1057,7 @@
   "tip3": "(Each address can only be claimed once within 24 hours)",
   "Pending Request": "Pending Request",
   "Finalize Request": "Finalize Request",
-  "FinalizeOrder": "Finalize Request List"
+  "FinalizeOrder": "Finalize Request List",
+  "to mvcfaucet": "link to SPACE-Testnet Faucet",
+  "tip4": "(SPACE-test is required to use the asset bridge function)"
 }

@@ -48,6 +48,10 @@
     </div>
     <div class="btn-group">
       <div class="btn-item">
+        <el-button @click="toSpaceFaucet">{{ $t('to mvcfaucet') }}</el-button>
+        <span>{{ $t('tip4') }}</span>
+      </div>
+      <div class="btn-item">
         <el-button @click="toSepoliaFauct">{{ $t('to faucet') }}</el-button>
         <span>{{ $t('tip2') }}</span>
       </div>
@@ -510,6 +514,10 @@ function toSepoliaFauct() {
   window.open(`https://sepoliafaucet.com`, '_blank')
 }
 
+function toSpaceFaucet() {
+  window.open(`https://witnessonchain.com/faucet/tspace`, '_blank')
+}
+
 async function faucet() {
   faucetLoading.value = true
   try {
@@ -784,7 +792,7 @@ function transferFt() {
     const value = new Decimal(ruleForm.amount).mul(Math.pow(10, GetDecimal.value)).toString()
 
     const res = await userStore.showWallet
-      .createBrfcChildNode(
+      .TransferFt(
         {
           nodeName: NodeName.FtTransfer,
           data: JSON.stringify({
@@ -822,24 +830,36 @@ function transferSpace() {
         ? new Decimal(ruleForm.amount).mul(Math.pow(10, 8)).toNumber()
         : new Decimal(ruleForm.amount).toNumber()
     const res = await userStore.showWallet
-      .createBrfcChildNode(
+      .sendMoney([
         {
-          nodeName: NodeName.SendMoney,
-          payTo: [
-            {
-              amount: value,
-              address: userInfo.val!.address,
-            },
-          ],
+          amount: value,
+          address: userInfo.val!.address,
         },
-        {
-          payType: SdkPayType.SPACE,
-        }
-      )
+      ])
       .catch((error) => {
         ElMessage.error(error.message)
         throw new Error(error.toString())
       })
+
+    // const res = await userStore.showWallet
+    //   .createBrfcChildNode(
+    //     {
+    //       nodeName: NodeName.SendMoney,
+    //       payTo: [
+    //         {
+    //           amount: value,
+    //           address: userInfo.val!.address,
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       payType: SdkPayType.SPACE,
+    //     }
+    //   )
+    //   .catch((error) => {
+    //     ElMessage.error(error.message)
+    //     throw new Error(error.toString())
+    //   })
     if (res) {
       resolve(res)
     } else {
@@ -861,7 +881,7 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
         if (currentTransferType.value == MappingIcon.MVC) {
           const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
             transferLoading.value = false
-            ElMessage.error(e.message)
+            ElMessage.error(e.toString())
             throw new Error(e.message)
           })
           if (target) {
