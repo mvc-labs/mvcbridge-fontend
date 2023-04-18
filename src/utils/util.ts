@@ -306,14 +306,14 @@ export function getAccountUserInfo(account: string) {
         }
       }
 
-      if (address) {
-        const res = await GetMetaIdByAddress(address).catch(() => {
-          metaId = ''
-        })
-        if (res?.code === 0) {
-          metaId = res.data
-        }
-      }
+      // if (address) {
+      //   const res = await GetMetaIdByAddress(address).catch(() => {
+      //     metaId = ''
+      //   })
+      //   if (res?.code === 0) {
+      //     metaId = res.data
+      //   }
+      // }
 
       if (metaId === '') {
         resolve({
