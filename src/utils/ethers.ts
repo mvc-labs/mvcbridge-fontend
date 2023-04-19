@@ -2,6 +2,7 @@ import { ethers, sha256, toUtf8Bytes, toUtf8String, Contract } from 'ethers'
 import { TagType, ConnectType } from '@/enum'
 import { chainTokenInfo } from '@/utils/util'
 import { ElMessage } from 'element-plus'
+
 // function classDecorator<T extends { new (...args: any[]): {} }>(constructor: T) {
 //   return class extends constructor {
 //     provider: Provider
@@ -47,6 +48,7 @@ export default class Web3SDK {
       this.provider = new ethers.BrowserProvider((window as any)?.ethereum)
 
       this.signer = await this.provider.getSigner()
+
       this.usdt = new Contract(USDT.contractAddress, JSON.stringify(USDT.abi), this.signer)
       this.usdc = new Contract(USDC.contractAddress, JSON.stringify(USDC.abi), this.signer)
       this.faucet = new Contract(FAUCET.contractAddress, JSON.stringify(FAUCET.abi), this.signer)

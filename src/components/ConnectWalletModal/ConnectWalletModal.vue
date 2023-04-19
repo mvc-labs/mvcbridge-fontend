@@ -86,6 +86,8 @@ import { ethers, sha256, toUtf8Bytes, toUtf8String, toQuantity } from 'ethers'
 import BindMetaIdVue from './BindMetaId.vue'
 import MetaMask from '@/components/MetaMask/MetaMask.vue'
 import { createMnemonic } from '@/utils/wallet/hd-wallet'
+import Web3SDK from '@/utils/ethers'
+
 const enum ConnectWalletStatus {
   Watting,
   WallteConnect,
@@ -205,6 +207,7 @@ async function onThreePartLinkSuccess(params: {
       await BindMetaIdRef.value.loginSuccess(res)
       rootStore.$patch({ isShowMetaMak: false })
       rootStore.$patch({ isShowLogin: false })
+      await rootStore.GetWeb3AccountBalance()
     }
   } catch (error) {
     rootStore.$patch({ isShowMetaMak: false })
@@ -359,7 +362,9 @@ async function connectWalletConnect(isUpdate: boolean = false) {
   })
   ;(window as any).WallectConnect = connector
   const { accounts, chainId } = await connector.connect()
+
   window.localStorage.setItem('walletConnect', 'true')
+
   let res, address, message
   const hexChainId = `0x${chainId.toString(16)}`
 
@@ -413,6 +418,7 @@ async function connectWalletConnect(isUpdate: boolean = false) {
   } else {
     try {
       //toQuantity
+      rootStore.InitWeb3Wallet(await new Web3SDK())
       address = accounts[0].toLocaleLowerCase()
       message = `${toQuantity(toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase()))))}`
 
