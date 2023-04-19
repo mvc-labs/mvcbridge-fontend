@@ -251,10 +251,14 @@ const amountMostThan = computed(() => {
 })
 
 const allowInputBalance = computed(() => {
-  if (fromChain.value == MappingChainName.ETH) {
-    return parseFloat(rootStore.Web3WalletTokenBalance.usdt)
-  } else if (fromChain.value == MappingChainName.MVC) {
-    return parseFloat(rootStore.mvcWalletTokenBalance.usdt)
+  if (userStore.isAuthorized) {
+    if (fromChain.value == MappingChainName.ETH) {
+      return parseFloat(rootStore.Web3WalletTokenBalance.usdt)
+    } else if (fromChain.value == MappingChainName.MVC) {
+      return parseFloat(rootStore.mvcWalletTokenBalance.usdt)
+    }
+  } else {
+    return 0
   }
 })
 

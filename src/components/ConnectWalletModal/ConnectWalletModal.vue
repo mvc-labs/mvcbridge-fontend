@@ -348,7 +348,6 @@ async function connectWalletConnect(isUpdate: boolean = false) {
     if (error) {
       throw error
     }
-    const { accounts, chainId } = payload.params[0]
   })
 
   connector.on('disconnect', (error, payload) => {
@@ -360,6 +359,7 @@ async function connectWalletConnect(isUpdate: boolean = false) {
   })
   ;(window as any).WallectConnect = connector
   const { accounts, chainId } = await connector.connect()
+  window.localStorage.setItem('walletConnect', 'true')
   let res, address, message
   const hexChainId = `0x${chainId.toString(16)}`
 
@@ -387,23 +387,12 @@ async function connectWalletConnect(isUpdate: boolean = false) {
             ],
           })
           .then(async () => {
-            address = isUpdate ? accounts[0] : accounts[0].toLocaleLowerCase()
-            message = isUpdate
-              ? import.meta.env.MODE == 'gray'
-                ? `0x${sha256(toUtf8Bytes(accounts[0])).split('0x')[1]}`
-                : `${sha256(toUtf8Bytes(accounts[0])).slice(2, -1)}`
-              : `${toQuantity(toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase()))))}`
-            if (rootStore.updatePlanWhiteList.includes(accounts[0])) {
-              address = isUpdate ? accounts[0] : accounts[0].toLocaleLowerCase()
-              message = isUpdate
-                ? `${sha256(toUtf8Bytes(accounts[0])).slice(2, -1)}`
-                : `${toQuantity(toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase()))))}`
-            }
+            address = accounts[0].toLocaleLowerCase()
+            message = `${toQuantity(
+              toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase())))
+            )}`
 
-            res = await connector.signPersonalMessage([
-              isUpdate ? message : address,
-              isUpdate ? address : message,
-            ])
+            res = await connector.signPersonalMessage([address, message])
 
             if (res) {
               rootStore.$patch({ isShowLogin: false })
@@ -424,23 +413,10 @@ async function connectWalletConnect(isUpdate: boolean = false) {
   } else {
     try {
       //toQuantity
-      address = isUpdate ? accounts[0] : accounts[0].toLocaleLowerCase()
-      message = isUpdate
-        ? import.meta.env.MODE == 'gray'
-          ? `0x${sha256(toUtf8Bytes(accounts[0])).split('0x')[1]}`
-          : `${sha256(toUtf8Bytes(accounts[0])).slice(2, -1)}`
-        : `${toQuantity(toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase()))))}`
-      if (rootStore.updatePlanWhiteList.includes(accounts[0])) {
-        address = isUpdate ? accounts[0] : accounts[0].toLocaleLowerCase()
-        message = isUpdate
-          ? `${sha256(toUtf8Bytes(accounts[0])).slice(2, -1)}`
-          : `${toQuantity(toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase()))))}`
-      }
+      address = accounts[0].toLocaleLowerCase()
+      message = `${toQuantity(toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase()))))}`
 
-      res = await connector.signPersonalMessage([
-        isUpdate ? message : address,
-        isUpdate ? address : message,
-      ])
+      res = await connector.signPersonalMessage([address, message])
 
       if (res) {
         rootStore.$patch({ isShowLogin: false })

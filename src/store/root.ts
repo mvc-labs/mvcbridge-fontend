@@ -26,6 +26,7 @@ interface AccountChainInfo {
 
 interface RootState {
   Web3WalletSdk: Web3Wallet | any
+  isWalletConnect: boolean
   showLoginBindEvmAccount: {
     isUpdatePlan: boolean
     loginedButBind: boolean
@@ -76,6 +77,7 @@ export const useRootStore = defineStore('root', {
     <RootState>{
       Web3WalletSdk: {},
       isShowLogin: false,
+      isWalletConnect: window.localStorage.getItem('walletConnect') || false,
       showLoginBindEvmAccount: {
         isUpdatePlan: false,
         loginedButBind: false,

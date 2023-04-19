@@ -13,6 +13,7 @@ onMounted(async () => {
   const userStore = useUserStore()
   rootStore.getExchangeRate()
   rootStore.InitOrderApi()
+  console.log('!rootStore.isWalletConnect', rootStore.isWalletConnect)
   await rootStore.setReceiverAddress().catch((e) => ElMessage.error(e))
 
   // if ((window as any).WallectConnect) {
@@ -23,7 +24,8 @@ onMounted(async () => {
   // }
   if (
     (window as any)?.ethereum &&
-    rootStore.chainWhiteList.includes((window as any)?.ethereum?.chainId)
+    rootStore.chainWhiteList.includes((window as any)?.ethereum?.chainId) &&
+    !rootStore.isWalletConnect
   ) {
     rootStore.InitWeb3Wallet(await new Web3SDK())
   }
@@ -31,10 +33,12 @@ onMounted(async () => {
     if (!userStore.showWallet) {
       userStore.$patch({ wallet: new SDK(import.meta.env.VITE_NET_WORK) })
     }
-    if (!userStore.showWallet.isInitSdked) {
+    if (!userStore.showWallet.isInitSdked && !rootStore.isWalletConnect) {
       await userStore.showWallet.initWallet()
     }
-    await rootStore.GetWeb3AccountBalance()
+    if (!rootStore.isWalletConnect) {
+      await rootStore.GetWeb3AccountBalance()
+    }
 
     // if (diffTime()) {
 
