@@ -34,6 +34,7 @@ onMounted(async () => {
     if (!userStore.showWallet.isInitSdked) {
       await userStore.showWallet.initWallet()
     }
+    await rootStore.GetWeb3AccountBalance()
 
     // if (diffTime()) {
 

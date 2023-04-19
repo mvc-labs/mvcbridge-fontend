@@ -41,7 +41,18 @@
             </div> -->
           </div>
         </div>
-        <div class="tips" v-if="amountMostThan">{{ $t('input amount is not less than 10') }}</div>
+        <div class="balance">
+          <span @click="sendInput = allowInputBalance"
+            >{{ $t('max') }}{{ allowInputBalance.toLocaleString() }}</span
+          >
+        </div>
+        <div class="tips" v-if="amountMostThan">
+          {{
+            +sendInput > +allowInputBalance
+              ? $t('input amount over hold')
+              : $t('input amount is not less than 10')
+          }}
+        </div>
       </div>
     </div>
 
@@ -236,11 +247,24 @@ const receiveInput = computed(() => {
   }
 })
 const amountMostThan = computed(() => {
-  return +sendInput.value < 10
+  return +sendInput.value < 10 || +sendInput.value > +allowInputBalance.value
+})
+
+const allowInputBalance = computed(() => {
+  if (fromChain.value == MappingChainName.ETH) {
+    return parseFloat(rootStore.Web3WalletTokenBalance.usdt)
+  } else if (fromChain.value == MappingChainName.MVC) {
+    return parseFloat(rootStore.mvcWalletTokenBalance.usdt)
+  }
 })
 
 const allowSwap = computed(() => {
-  if (sendInput.value && receiveInput.value && !amountMostThan.value) {
+  if (
+    sendInput.value &&
+    receiveInput.value &&
+    !amountMostThan.value &&
+    +sendInput.value <= +allowInputBalance.value
+  ) {
     return false
   } else {
     return true
@@ -639,10 +663,14 @@ async function confrimSwap() {
 
           // if (!orderWaitRes) throw new Error(`deposit tx not found`)
           rootStore.GetOrderApi.orderRegisterPost(registerRequest)
-            .then((order: any) => {
+            .then(async (order: any) => {
+              await tx.wait()
+              await rootStore.GetWeb3AccountBalance()
               console.log('order', order)
             })
-            .catch((e: any) => {
+            .catch(async (e: any) => {
+              await tx.wait()
+              await rootStore.GetWeb3AccountBalance()
               throw new Error(e)
             })
         }
@@ -720,12 +748,15 @@ async function confrimSwap() {
         ).catch((e) => {
           console.log(e)
         })
+
         // if (!orderWaitRes) throw new Error(`deposit tx not found`)
         rootStore.GetOrderApi.orderRegisterPost(registerRequest)
-          .then((order: any) => {
+          .then(async (order: any) => {
+            await rootStore.GetWeb3AccountBalance()
             console.log('order', order)
           })
-          .catch((e: any) => {
+          .catch(async (e: any) => {
+            await rootStore.GetWeb3AccountBalance()
             throw new Error(e)
           })
       } else {
