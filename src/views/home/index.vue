@@ -6,10 +6,10 @@
       </div>
 
       <div class="menu">
-        <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
+        <!-- <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
           <img :src="FaucetIcon" alt="" v-if="isHome" />
           <el-icon :size="15" color="#fff" v-else><HomeFilled /></el-icon>
-        </div>
+        </div> -->
         <div class="wallet" v-if="userStore.isAuthorized" @click="getPendingList">
           <img :src="HistoryIcon" alt="" />
         </div>
@@ -68,7 +68,7 @@
         <img :src="Logo" alt="" />
       </div>
       <div class="contract-us">
-        <img v-for="item in contractList" :src="item" alt="" />
+        <img :src="item.icon" alt="" v-for="item in contractList" @click="toLink(item.url)" />
       </div>
     </footer>
   </div>
@@ -342,7 +342,30 @@ enum OrderType {
 }
 
 const isHome = ref(true)
-const contractList: string[] = [mvc, twitter, instagram, reddit, discord]
+const env = ref(import.meta.env.MODE == 'prod' ? true : false)
+const contractList: any[] = [
+  //mvc, twitter, instagram, reddit, discord
+  {
+    icon: mvc,
+    url: `https://www.show3.io/talk/channels/MVC.metaid/4c86…726a8831b55e9b9fc767bec613ea60630b03d117ab01bbc21`,
+  },
+  {
+    icon: twitter,
+    url: `https://twitter.com/mvcglobal`,
+  },
+  {
+    icon: instagram,
+    url: ``,
+  },
+  {
+    icon: reddit,
+    url: ``,
+  },
+  {
+    icon: discord,
+    url: `https://discord.com/invite/RGHWazu9eS`,
+  },
+]
 const DrawerOperate = ref(false)
 const innerDrawer = ref(false)
 const formSize = ref('default')
@@ -464,9 +487,9 @@ watch(
             case MappingIcon.MUSDT:
               coin.balance = rootStore.mvcWalletTokenBalance.usdt
               break
-            case MappingIcon.MUSDC:
-              coin.balance = rootStore.mvcWalletTokenBalance.usdc
-              break
+            // case MappingIcon.MUSDC:
+            //   coin.balance = rootStore.mvcWalletTokenBalance.usdc
+            //   break
           }
           coin.loading = false
         })
@@ -544,7 +567,7 @@ const GetDecimal = computed(() => {
     case MappingIcon.MUSDC:
       return 8
     case MappingIcon.USD:
-      return 18
+      return 6
   }
 })
 
@@ -986,18 +1009,23 @@ const walletList: WalletInfo[] = reactive([
         loading: true,
         balance: '0',
       },
-      {
-        chainName: MappingIcon.MUSDC,
-        chainSymbol: CoinSymbol.MUSDC,
-        loading: true,
-        balance: '0',
-      },
+      // {
+      //   chainName: MappingIcon.MUSDC,
+      //   chainSymbol: CoinSymbol.MUSDC,
+      //   loading: true,
+      //   balance: '0',
+      // },
     ],
   },
 ])
 
 async function ConnectWallet() {
   await checkUserLogin()
+}
+
+function toLink(url: string) {
+  if (!url) return
+  window.open(url, '_blank')
 }
 </script>
 

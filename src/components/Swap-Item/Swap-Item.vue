@@ -50,7 +50,7 @@
           {{
             +sendInput > +allowInputBalance
               ? $t('input amount over hold')
-              : $t('input amount is not less than 10')
+              : `input amount is not less than ${minumSend}`
           }}
         </div>
       </div>
@@ -247,7 +247,7 @@ const receiveInput = computed(() => {
   }
 })
 const amountMostThan = computed(() => {
-  return +sendInput.value < 10 || +sendInput.value > +allowInputBalance.value
+  return +sendInput.value < +minumSend.value || +sendInput.value > +allowInputBalance.value
 })
 
 const allowInputBalance = computed(() => {
@@ -406,6 +406,18 @@ const txInfo = reactive([
     decimal: () => 'minutes',
   },
 ])
+
+const minumSend = computed(() => {
+  if (currentFromChain.value === MappingChainName.Ethereum) {
+    return new Decimal(rootStore.receiverInfo.eth.depositMinAmount)
+      .div(10 ** rootStore.receiverInfo.eth.decimal)
+      .toString()
+  } else if (currentFromChain.value === MappingChainName.MVC) {
+    return new Decimal(rootStore.receiverInfo.mvc.depositMinAmount)
+      .div(10 ** rootStore.receiverInfo.mvc.decimal)
+      .toString()
+  }
+})
 
 const estimatedTransferInfo = reactive({
   val: {

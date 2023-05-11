@@ -1,29 +1,34 @@
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
-import json from '@rollup/plugin-json'
-import typescript from 'rollup-plugin-typescript2'
-import builtins from 'rollup-plugin-node-builtins'
-import globals from 'rollup-plugin-node-globals'
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
+import typescript from "rollup-plugin-typescript2";
+import builtins from "rollup-plugin-node-builtins";
+import globals from "rollup-plugin-node-globals";
+import babel from "@rollup/plugin-babel";
 
 export default {
-  input: './src/request-sdk.ts',
+  input: "./src/request-sdk.ts",
   output: {
-    file: './dist/request-sdk.min.js',
-    format: 'umd',
-    name: 'HttpRequest'
+    file: "./dist/request-sdk.min.js",
+    format: "umd",
+    name: "HttpRequest",
   },
   external: [],
   plugins: [
     builtins(),
-    resolve({
-      jsnext: true,
-      main: true,
-      brower: true
+    resolve({ mainFields: ["jsnext", "preferBuiltins"] }), //"browser"
+    babel({
+      babelHelpers: "runtime",
+      exclude: "node_modules/**",
     }),
+    /**\
+     * {
+      browser: true,
+    }
+     */
     commonjs(),
     json(),
     typescript(),
-
-    globals()
-  ]
-}
+    globals(),
+  ],
+};

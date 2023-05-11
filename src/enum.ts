@@ -13,7 +13,7 @@ export enum MappingIcon {
 
 export enum CoinDecimal {
   USDT = 6,
-  USDC = 18,
+  USDC = 6,
 }
 
 export enum ChainTypeBalance {

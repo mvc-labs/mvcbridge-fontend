@@ -182,7 +182,7 @@ export function chainTokenInfo(chainid: string) {
       usdc: {
         contractAddress: eth.usdc,
         abi: ETH.USDC,
-        decimal: 18,
+        decimal: 6,
       },
     },
     sepolias: {

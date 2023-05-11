@@ -40,7 +40,7 @@ interface RootState {
   mvcWalletTokenBalance: {
     space: string
     usdt: string
-    usdc: string
+    usdc?: string
   }
   updatePlanRes: {
     registerTime: number
@@ -106,36 +106,36 @@ export const useRootStore = defineStore('root', {
         {
           tokenName: MvcUsdToken.M_USDT,
           codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-          genesis: '1739804f265e85826bdd1078f8c719a9e6f421d5',
+          genesis: '94c2ae3fdbf95a4fb0d788c818cf5fcc7a9aa66a',
           decimal: 6,
         },
-        {
-          tokenName: MvcUsdToken.M_USDC,
-          codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-          genesis: '744a02129eefc1f478e6aec5c3ab2e9147f0cf3c',
-          decimal: 8,
-        },
+        // {
+        //   tokenName: MvcUsdToken.M_USDC,
+        //   codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
+        //   genesis: '744a02129eefc1f478e6aec5c3ab2e9147f0cf3c',
+        //   decimal: 8,
+        // },
       ],
       receiverInfo: {
         mvc: {
-          address: 'mnAVPfHyWuQ1JeRDAnXz3WTUJMckYwSTXv',
-          chain: 'mvc',
-          decimal: 6,
-          depositConfirmation: 30,
-          depositMinAmount: 10000000,
-          tokenName: 'usdt',
-          withdrawBridgeFeeRate: '0.005',
-          withdrawGasFee: 100000,
+          // address: 'mnAVPfHyWuQ1JeRDAnXz3WTUJMckYwSTXv',
+          // chain: 'mvc',
+          // decimal: 6,
+          // depositConfirmation: 30,
+          // depositMinAmount: 10000000,
+          // tokenName: 'usdt',
+          // withdrawBridgeFeeRate: '0.005',
+          // withdrawGasFee: 0,
         },
         eth: {
-          address: '0x46b984dD9f5B04DD40E0A64Cad4C4D8821aef11c',
-          chain: 'eth',
-          decimal: 6,
-          depositConfirmation: 12,
-          depositMinAmount: 10000000,
-          tokenName: 'usdt',
-          withdrawBridgeFeeRate: '0.005',
-          withdrawGasFee: 5000000,
+          // address: '0x46b984dD9f5B04DD40E0A64Cad4C4D8821aef11c',
+          // chain: 'eth',
+          // decimal: 6,
+          // depositConfirmation: 12,
+          // depositMinAmount: 10000000,
+          // tokenName: 'usdt',
+          // withdrawBridgeFeeRate: '0.005',
+          // withdrawGasFee: 5000000,
         },
       },
     },
@@ -173,7 +173,7 @@ export const useRootStore = defineStore('root', {
       this.Web3WalletSdk = payload
     },
     InitOrderApi() {
-      this.orderApi = new OrderApi(undefined, BASE_PATH)
+      this.orderApi = new OrderApi(undefined, import.meta.env.VITE_MVC_BRIDGEAPI)
     },
 
     async GetWeb3AccountBalance(payload: ChainTypeBalance = ChainTypeBalance.ALL) {
@@ -221,13 +221,13 @@ export const useRootStore = defineStore('root', {
               .div(10 ** result[4].value[0]?.decimal || 0)
               .toNumber()
           ) || '0'
-        this.mvcWalletTokenBalance.usdc =
-          Math.abs(
-            new Decimal(result[5].value[0]?.confirmedString || '0')
-              .add(result[5].value[0]?.unconfirmed || '0')
-              .div(10 ** result[5].value[0]?.decimal || 0)
-              .toNumber()
-          ) || '0'
+        // this.mvcWalletTokenBalance.usdc =
+        //   Math.abs(
+        //     new Decimal(result[5].value[0]?.confirmedString || '0')
+        //       .add(result[5].value[0]?.unconfirmed || '0')
+        //       .div(10 ** result[5].value[0]?.decimal || 0)
+        //       .toNumber()
+        //   ) || '0'
       } else if (payload === ChainTypeBalance.ETH) {
         const ethCurrency = this.GetWeb3Wallet.provider.getBalance(
           this.GetWeb3Wallet.signer.address
@@ -268,11 +268,11 @@ export const useRootStore = defineStore('root', {
             .add(result[1].value[0]?.unconfirmed || '0')
             .div(10 ** result[1].value[0]?.decimal || 0)
             .toString() || '0'
-        this.mvcWalletTokenBalance.usdc =
-          new Decimal(result[2].value[0]?.confirmedString || 0)
-            .add(result[2].value[0]?.unconfirmed || '0')
-            .div(10 ** result[2].value[0]?.decimal || 0)
-            .toString() || '0'
+        // this.mvcWalletTokenBalance.usdc =
+        //   new Decimal(result[2].value[0]?.confirmedString || 0)
+        //     .add(result[2].value[0]?.unconfirmed || '0')
+        //     .div(10 ** result[2].value[0]?.decimal || 0)
+        //     .toString() || '0'
       }
 
       console.log(

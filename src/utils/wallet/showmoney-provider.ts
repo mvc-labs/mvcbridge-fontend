@@ -64,8 +64,8 @@ interface GetBalanceData {
 // const metaSvPrivateKey = 'KxSQqTxhonc5i8sVGGhP1cMBGh5cetVDMfZjQdFursveABTGVbZD'
 
 const MVCMetaSvMirror = {
-  [Network.testnet]: 'https://api-mvc-testnet.metasv.com',
-  [Network.mainnet]: 'https://api-mvc.metasv.com',
+  [Network.testnet]: 'https://testnet.mvcapi.com',
+  [Network.mainnet]: 'https://mainnet.mvcapi.com',
 }
 
 const BSVMetaSvMirror = {
