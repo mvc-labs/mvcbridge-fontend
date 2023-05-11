@@ -223,7 +223,10 @@ const receiveInput = computed(() => {
   if (!sendInput.value) {
     return null
   }
-  if (+sendInput.value < 10) {
+  if (+sendInput.value < +minumSend.value) {
+    return null
+  }
+  if (new Decimal(sendInput.value).sub(minumSend.value).toNumber() < 0) {
     return null
   }
   if (fromChain.value == MappingChainName.ETH) {

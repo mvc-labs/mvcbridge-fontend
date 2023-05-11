@@ -127,7 +127,7 @@ export default ({ mode, command }) => {
       drop: command === 'build' ? ['console', 'debugger'] : [],
     },
     build: {
-      target: isProduction ? 'es2015' : 'modules',
+      target: isProduction ? 'es2015' : 'module',
       minify: isProduction,
 
       sourcemap: isProduction ? false : 'inline',
