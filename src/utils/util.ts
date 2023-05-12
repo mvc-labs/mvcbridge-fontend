@@ -365,11 +365,7 @@ export function GeneratorSignatrue(registerRequest: OrderRegisterRequest): Order
     .privateKey.toString()
 
   //SignatureHelper.signMessageBitcoin
-  const signature = SignatureHelper.signMessageBitcoin(
-    message,
-    privateKey,
-    import.meta.env.MODE == 'prod' ? 'bitcoin' : 'testnet'
-  )
+  const signature = SignatureHelper.signMessageBitcoin(message, privateKey, 'mainnet')
 
   registerRequest.signature = signature
   return registerRequest
