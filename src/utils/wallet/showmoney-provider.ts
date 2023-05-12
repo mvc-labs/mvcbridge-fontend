@@ -77,7 +77,7 @@ export default class ShowmoneyProvider {
   // public apiPrefix: string = import.meta.env.VITE_BASEAPI
   // public metaSvApi: string = import.meta.env.VITE_META_SV_API
   public apiPrefix: string = import.meta.env.VITE_HOST_API
-  public metaSvApi: string = import.meta.env.VITE_META_SV_API
+  public metaSvApi: string = import.meta.env.VITE_METASV_API
   public bsvMetaSvApi: string = import.meta.env.VITE_BSV_META_SV_API
   public metaSvHttp
   public metasvSignatureHttp

@@ -1135,7 +1135,8 @@ export class HdWallet {
       network: this.network,
       purse: this.wallet!.deriveChild(0).deriveChild(0).privateKey.toString(),
       feeb: DEFAULTS.feeb,
-      apiHost: import.meta.env.VITE_META_SV_API,
+      // VITE_META_SV_API
+      apiHost: import.meta.env.VITE_METASV_API,
     })
 
     return ftManager
