@@ -1,7 +1,7 @@
 <template>
   <div class="header-wrap">
     <header class="flex flex-align-center">
-      <div class="logo">
+      <div class="logo" @click="toLink(`https://www.microvisionchain.com`)">
         <img :src="Logo" alt="" />
       </div>
 
@@ -975,8 +975,8 @@ const walletList: WalletInfo[] = reactive([
     chain: mappingChainOrigin((window as any)?.ethereum?.chainId),
     coinList: [
       {
-        chainName: mappingChain((window as any)?.ethereum?.chainId),
-        chainSymbol: mappingCoin((window as any)?.ethereum?.chainId),
+        chainName: mappingChain((window as any)?.ethereum?.chainId || '0x1'),
+        chainSymbol: mappingCoin((window as any)?.ethereum?.chainId || '0x1'),
         loading: true,
         balance: '0',
       },
