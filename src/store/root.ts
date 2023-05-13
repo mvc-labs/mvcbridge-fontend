@@ -163,7 +163,8 @@ export const useRootStore = defineStore('root', {
           chainName: 'mvc',
           tokenName: 'usdt',
         })
-
+        ethAddress.withdrawBridgeFeeRate == '0.0' ? '0' : ethAddress.withdrawBridgeFeeRate
+        mvcAddress.withdrawBridgeFeeRate == '0.0' ? '0' : mvcAddress.withdrawBridgeFeeRate
         this.receiverInfo = { mvc: mvcAddress, eth: ethAddress }
         console.log('this.receiverInfo', this.receiverInfo)
       } catch (error) {
