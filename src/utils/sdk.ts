@@ -1937,7 +1937,7 @@ export class SDK {
       tx: mvc.Transaction
     }>(async (resolve, reject) => {
       try {
-        await this.checkSdkStatus()
+        //await this.checkSdkStatus()
         const res = await this.wallet?.ftTransfer(params, option)
         // @ts-ignore
         if (res) resolve(res)

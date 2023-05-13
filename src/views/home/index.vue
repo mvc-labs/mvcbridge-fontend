@@ -141,9 +141,7 @@
         >
           <el-form-item label="Transfer Address" prop="address">
             <el-input
-              :placeholder="
-                MetaNameOrEns ? 'Enter Transfer Address/MetaName' : 'Enter Transfer Address/ENS'
-              "
+              :placeholder="MetaNameOrEns ? 'Enter Transfer Address' : 'Enter Transfer Address/ENS'"
               v-model="ruleForm.address"
             />
           </el-form-item>
@@ -815,22 +813,16 @@ function transferFt() {
     const value = new Decimal(ruleForm.amount).mul(Math.pow(10, GetDecimal.value)).toString()
 
     const res = await userStore.showWallet
-      .TransferFt(
+      .ftTransfer(
         {
-          nodeName: NodeName.FtTransfer,
-          data: JSON.stringify({
-            receivers: [
-              {
-                address: userInfo.val!.address,
-                amount: value,
-              },
-            ],
-            codehash: currentContractOperate.value.codehash,
-            genesis: currentContractOperate.value.genesis,
-          }),
+          receivers: {
+            address: ruleForm.address.trim(),
+            amount: value,
+          },
+          codehash: currentContractOperate.value.codehash,
+          genesis: currentContractOperate.value.genesis,
         },
         {
-          payType: SdkPayType.SPACE,
           isBroadcast: true,
         }
       )
@@ -856,7 +848,7 @@ function transferSpace() {
       .sendMoney([
         {
           amount: value,
-          address: userInfo.val!.address,
+          address: ruleForm.address.trim(),
         },
       ])
       .catch((error) => {
@@ -902,17 +894,18 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
       if (valid) {
         let res
         if (currentTransferType.value == MappingIcon.MVC) {
-          const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
-            transferLoading.value = false
-            ElMessage.error(e.toString())
-            throw new Error(e.message)
-          })
-          if (target) {
-            userInfo.val = target
-            await transferSpace()
-          } else {
-            transferLoading.value = false
-          }
+          // const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
+          //   transferLoading.value = false
+          //   ElMessage.error(e.toString())
+          //   throw new Error(e.message)
+          // })
+          // if (target) {
+          //   userInfo.val = target
+          //   await transferSpace()
+          // } else {
+          //   transferLoading.value = false
+          // }
+          await transferSpace()
         } else if (currentTransferType.value == MappingIcon.ETH) {
           toAddress = await ensConvertAddress(ruleForm.address.trim()).catch((e) => {
             return ElMessage.error(e.toString())
@@ -945,17 +938,18 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           currentTransferType.value == MappingIcon.MUSDT ||
           currentTransferType.value == MappingIcon.MUSDC
         ) {
-          const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
-            transferLoading.value = false
-            ElMessage.error(e.message)
-            throw new Error(e.message)
-          })
-          if (target) {
-            userInfo.val = target
-            await transferFt()
-          } else {
-            transferLoading.value = false
-          }
+          await transferFt()
+          // const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
+          //   transferLoading.value = false
+          //   ElMessage.error(e.message)
+          //   throw new Error(e.message)
+          // })
+          // if (target) {
+          //   userInfo.val = target
+          //   await transferFt()
+          // } else {
+          //   transferLoading.value = false
+          // }
         } else {
           transferLoading.value = false
           console.log('submit!')
