@@ -237,12 +237,22 @@ const receiveInput = computed(() => {
           10 ** rootStore.receiverInfo.mvc.decimal
         )
       )
+      .sub(
+        new Decimal(rootStore.receiverInfo.mvc.withdrawBridgeFeeFixed).div(
+          10 ** rootStore.receiverInfo.mvc.decimal
+        )
+      )
       .toString()
   } else if (fromChain.value == MappingChainName.MVC) {
     return new Decimal(sendInput.value)
       .sub(new Decimal(sendInput.value).mul(rootStore.receiverInfo.eth.withdrawBridgeFeeRate))
       .sub(
         new Decimal(rootStore.receiverInfo.eth.withdrawGasFee).div(
+          10 ** rootStore.receiverInfo.eth.decimal
+        )
+      )
+      .sub(
+        new Decimal(rootStore.receiverInfo.eth.withdrawBridgeFeeFixed).div(
           10 ** rootStore.receiverInfo.eth.decimal
         )
       )
@@ -396,6 +406,11 @@ const txInfo = reactive([
     decimal: () => currentCoin.value,
   },
   {
+    title: `You‘re pay in bridge feeFixed`,
+    value: () => estimatedTransferInfo.val.brigefeeFixed,
+    decimal: () => currentCoin.value,
+  },
+  {
     title: `You‘re pay in gas fees`,
     value: () => estimatedTransferInfo.val.gasFee,
     decimal: () => currentCoin.value,
@@ -431,6 +446,7 @@ const estimatedTransferInfo = reactive({
     time: 0,
     minerFee: '',
     minimumReceived: '',
+    brigefeeFixed: '',
   },
 })
 
@@ -453,6 +469,7 @@ function resetEstimatedInfo() {
     time: 0,
     minerFee: '',
     minimumReceived: '',
+    brigefeeFixed: '',
   }
 }
 
@@ -520,11 +537,17 @@ async function Swap() {
         )
           .div(10 ** rootStore.receiverInfo.eth.decimal)
           .toString()
+        estimatedTransferInfo.val.brigefeeFixed = new Decimal(
+          rootStore.receiverInfo.mvc.withdrawBridgeFeeFixed
+        )
+          .div(10 ** rootStore.receiverInfo.mvc.decimal)
+          .toString()
         estimatedTransferInfo.val.time = rootStore.receiverInfo.eth.depositConfirmation
         estimatedTransferInfo.val.gasFee = estimatedGasPrice(rootStore.receiverInfo.mvc)
         estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
           .sub(estimatedTransferInfo.val.brigefee)
           .sub(estimatedTransferInfo.val.gasFee)
+          .sub(estimatedTransferInfo.val.brigefeeFixed)
           .toString()
         ConfrimSwapDisable.value = false
       } else if (fromChain.value === MappingChainName.MVC) {
@@ -538,6 +561,11 @@ async function Swap() {
         estimatedTransferInfo.val.brigefee = new Decimal(sendInput.value)
           .mul(rootStore.receiverInfo.eth.withdrawBridgeFeeRate)
           .toString()
+        estimatedTransferInfo.val.brigefeeFixed = new Decimal(
+          rootStore.receiverInfo.eth.withdrawBridgeFeeFixed
+        )
+          .div(10 ** rootStore.receiverInfo.eth.decimal)
+          .toString()
         estimatedTransferInfo.val.minSendAmount = new Decimal(
           rootStore.receiverInfo.mvc.depositMinAmount
         )
@@ -548,6 +576,7 @@ async function Swap() {
         estimatedTransferInfo.val.minimumReceived = new Decimal(sendInput.value)
           .sub(estimatedTransferInfo.val.brigefee)
           .sub(estimatedTransferInfo.val.gasFee)
+          .sub(estimatedTransferInfo.val.brigefeeFixed)
           .toString()
         const estimatedRes: any = await estimatedTransferFtFee(params)
         if (estimatedRes) {

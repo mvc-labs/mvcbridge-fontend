@@ -165,6 +165,7 @@ export const useRootStore = defineStore('root', {
         })
 
         this.receiverInfo = { mvc: mvcAddress, eth: ethAddress }
+        console.log('this.receiverInfo', this.receiverInfo)
       } catch (error) {
         throw new Error(error)
       }

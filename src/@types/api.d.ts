@@ -17,6 +17,7 @@ declare interface GetReceiveAddressType {
   depositConfirmation: number
   withdrawGasFee: number
   withdrawBridgeFeeRate: string
+  withdrawBridgeFeeFixed: number
 }
 
 declare interface GetMyMEBalanceRes extends apiResponse {
