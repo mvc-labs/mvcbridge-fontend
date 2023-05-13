@@ -3169,10 +3169,10 @@ merkle-lib@^2.0.10:
   resolved "https://registry.npmmirror.com/merkle-lib/-/merkle-lib-2.0.10.tgz#82b8dbae75e27a7785388b73f9d7725d0f6f3326"
   integrity sha512-XrNQvUbn1DL5hKNe46Ccs+Tu3/PYOlrcZILuGUhb95oKBPjc/nmIC8D462PQkipVDGKRvwhn+QFg2cCdIvmDJA==
 
-meta-contract@^0.3.25:
-  version "0.3.25"
-  resolved "https://registry.npmmirror.com/meta-contract/-/meta-contract-0.3.25.tgz#8ad97cb44cfa80c60675177ceeed8e95c30f3d09"
-  integrity sha512-gjkdqhScYFHNE+d2jWQAD31GUU6C4CWRASdLrFEXk+H11Dk3pL3NdHwUXJVxVWQeVcaVIz+/qw12jmX+CEUOvw==
+meta-contract@^0.3.28:
+  version "0.3.28"
+  resolved "https://registry.yarnpkg.com/meta-contract/-/meta-contract-0.3.28.tgz#d16938dee7b618870cda14dfcfebf1beb25d2cad"
+  integrity sha512-KZ+LUqoF2Px9LIodJqoW50y4xm4DhKHjGACYKOUZ4Eyw8zb+IIPq0b7Ny8kQU+ZQ5vfU+yVHnSP84mpgkXjCFA==
   dependencies:
     mvc-scrypt "^0.1.2"
     node-fetch "2"
@@ -4016,7 +4016,7 @@ repeat-string@^1.6.1:
   integrity sha512-PV0dzCYDNfRi1jCDbJzpW7jNNDRuCOG/jI5ctQcGKt/clZD+YcPS3yIlWuTJMmESC8aevCFmWJy5wjAFgNqN6w==
 
 "request-sdk@file:.yalc/request-sdk":
-  version "0.0.12"
+  version "0.0.15"
   dependencies:
     axios "^0.27.2"
 

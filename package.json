@@ -27,7 +27,7 @@
     "element-plus": "^2.3.0",
     "ethers": "^6.1.0",
     "js-base64": "^3.7.5",
-    "meta-contract": "^0.3.25",
+    "meta-contract": "^0.3.28",
     "mvc-lib": "^1.0.5",
     "mvc-std-lib": "^1.1.4",
     "mvcbridge-sdk": "1.0.10",

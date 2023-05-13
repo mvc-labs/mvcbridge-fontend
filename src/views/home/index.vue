@@ -334,6 +334,7 @@ import Decimal from 'decimal.js-light'
 import { dateTimeFormat } from '@/utils/filters'
 import { useI18n } from 'vue-i18n'
 import { router } from '@/router'
+import { containsProp } from '@vueuse/shared'
 enum OrderType {
   Pending = 'Pending',
   Finalize = 'Finalize',
@@ -811,18 +812,23 @@ function checkWalletInfo() {
 function transferFt() {
   return new Promise(async (resolve, reject) => {
     const value = new Decimal(ruleForm.amount).mul(Math.pow(10, GetDecimal.value)).toString()
-
     const res = await userStore.showWallet
-      .ftTransfer(
+      .TransferFt(
         {
-          receivers: {
-            address: ruleForm.address.trim(),
-            amount: value,
-          },
-          codehash: currentContractOperate.value.codehash,
-          genesis: currentContractOperate.value.genesis,
+          nodeName: NodeName.FtTransfer,
+          data: JSON.stringify({
+            receivers: [
+              {
+                address: ruleForm.address.trim(),
+                amount: value,
+              },
+            ],
+            codehash: currentContractOperate.value.codehash,
+            genesis: currentContractOperate.value.genesis,
+          }),
         },
         {
+          payType: SdkPayType.SPACE,
           isBroadcast: true,
         }
       )
@@ -905,7 +911,9 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           // } else {
           //   transferLoading.value = false
           // }
-          await transferSpace()
+          await transferSpace().catch(() => {
+            transferLoading.value = false
+          })
         } else if (currentTransferType.value == MappingIcon.ETH) {
           toAddress = await ensConvertAddress(ruleForm.address.trim()).catch((e) => {
             return ElMessage.error(e.toString())
@@ -938,7 +946,10 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           currentTransferType.value == MappingIcon.MUSDT ||
           currentTransferType.value == MappingIcon.MUSDC
         ) {
-          await transferFt()
+          await transferFt().catch((e) => {
+            console.log('zxcz', e)
+            transferLoading.value = false
+          })
           // const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
           //   transferLoading.value = false
           //   ElMessage.error(e.message)
