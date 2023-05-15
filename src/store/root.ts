@@ -103,18 +103,20 @@ export const useRootStore = defineStore('root', {
       currentPrice: 'USD',
       orderApi: null,
       MvcFtList: [
-        // {
-        //   tokenName: MvcUsdToken.M_USDT,
-        //   codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-        //   genesis: '1739804f265e85826bdd1078f8c719a9e6f421d5',
-        //   decimal: 6,
-        // },
-        {
-          tokenName: MvcUsdToken.M_USDT,
-          codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-          genesis: '94c2ae3fdbf95a4fb0d788c818cf5fcc7a9aa66a',
-          decimal: 6,
-        },
+        import.meta.env.MODE === 'prod'
+          ? {
+              tokenName: MvcUsdToken.M_USDT,
+              codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
+              genesis: '94c2ae3fdbf95a4fb0d788c818cf5fcc7a9aa66a',
+              decimal: 6,
+            }
+          : {
+              tokenName: MvcUsdToken.M_USDT,
+              codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
+              genesis: '1739804f265e85826bdd1078f8c719a9e6f421d5',
+              decimal: 6,
+            },
+
         // {
         //   tokenName: MvcUsdToken.M_USDC,
         //   codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',

@@ -6,10 +6,10 @@
       </div>
 
       <div class="menu">
-        <!-- <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
+        <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
           <img :src="FaucetIcon" alt="" v-if="isHome" />
           <el-icon :size="15" color="#fff" v-else><HomeFilled /></el-icon>
-        </div> -->
+        </div>
         <div class="wallet" v-if="userStore.isAuthorized" @click="getPendingList">
           <img :src="HistoryIcon" alt="" />
         </div>
