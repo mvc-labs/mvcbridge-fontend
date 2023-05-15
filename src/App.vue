@@ -8,20 +8,30 @@ import { SDK } from '@/utils/sdk'
 import { diffTime } from '@/utils/util'
 import { ConnectType } from '@/enum'
 import { ElMessage } from 'element-plus'
+
+function sleep() {
+  return new Promise((resolve) =>
+    setTimeout(() => {
+      resolve(true)
+    }, 1000)
+  )
+}
+
 onMounted(async () => {
   const rootStore = useRootStore()
   const userStore = useUserStore()
-  rootStore.getExchangeRate()
-  rootStore.InitOrderApi()
-  console.log('!rootStore.isWalletConnect', rootStore.isWalletConnect)
-  await rootStore.setReceiverAddress().catch((e) => ElMessage.error(e))
-
   // if ((window as any).WallectConnect) {
   //   debugger
   //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.WalletConnect))
   // } else {
   //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.MetaMask))
   // }
+
+  rootStore.getExchangeRate()
+  rootStore.InitOrderApi()
+  console.log('!rootStore.isWalletConnect', rootStore.isWalletConnect)
+
+  await rootStore.setReceiverAddress().catch((e) => ElMessage.error(e))
   if (
     (window as any)?.ethereum &&
     rootStore.chainWhiteList.includes((window as any)?.ethereum?.chainId) &&

@@ -426,16 +426,18 @@ const txInfo = reactive([
 ])
 
 const minumSend = computed(() => {
+  console.log('rootStore.receiverInfo', rootStore.receiverInfo)
+
   if (
     currentFromChain.value === MappingChainName.Ethereum ||
     currentFromChain.value === MappingChainName.ETH
   ) {
-    return new Decimal(rootStore.receiverInfo.eth.depositMinAmount)
-      .div(10 ** rootStore.receiverInfo.eth.decimal)
+    return new Decimal(rootStore.GetReceiverInfo.eth.depositMinAmount)
+      .div(10 ** rootStore.GetReceiverInfo.eth.decimal)
       .toString()
   } else if (currentFromChain.value === MappingChainName.MVC) {
-    return new Decimal(rootStore.receiverInfo.mvc.depositMinAmount)
-      .div(10 ** rootStore.receiverInfo.mvc.decimal)
+    return new Decimal(rootStore.GetReceiverInfo.mvc.depositMinAmount)
+      .div(10 ** rootStore.GetReceiverInfo.mvc.decimal)
       .toString()
   }
 })
