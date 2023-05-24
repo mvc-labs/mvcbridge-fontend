@@ -834,7 +834,7 @@ function transferFt() {
       )
       .catch((error) => {
         ElMessage.error(error.message)
-        throw new Error(error.toString())
+        reject()
       })
     if (res) {
       resolve(res)
@@ -947,7 +947,6 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           currentTransferType.value == MappingIcon.MUSDC
         ) {
           await transferFt().catch((e) => {
-            console.log('zxcz', e)
             transferLoading.value = false
           })
           // const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {

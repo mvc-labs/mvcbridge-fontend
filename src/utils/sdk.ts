@@ -7,6 +7,7 @@ import {
   MetaIdJsRes,
   UtxoItem,
 } from '@/@types/sdk'
+import Decimal from 'decimal.js-light'
 import { router } from '@/router'
 import { DEFAULTS, HdWallet, hdWalletFromAccount } from '@/utils/wallet/hd-wallet'
 import { isAndroid, isAndroidApp, isIOS, isIosApp } from '@/store/root'
@@ -24,6 +25,7 @@ import { GetMeUtxos, GetMyMEBalance, GetProtocolMeInfo } from '@/api/v3'
 import { getLocalAccount } from './util'
 import { Transaction } from 'dexie'
 import { useUserStore } from '@/store/user'
+import { useRootStore } from '@/store/root'
 import { useJobsStore } from '@/store/jobs'
 // import SdkPayConfirmModalVue from '@/components/SdkPayConfirmModal/SdkPayConfirmModal.vue'
 import { h, render } from 'vue'
@@ -285,6 +287,14 @@ export class SDK {
             // 计算总价
             let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
             totalAmount += 70000
+            const rootStore = useRootStore()
+            if (
+              new Decimal(rootStore.mvcWalletTokenBalance.space).mul(10 ** 8).toNumber() <
+              totalAmount
+            ) {
+              throw new Error(`
+Space balance is not enough to support this transfer`)
+            }
             const useSatoshis = totalAmount
 
             //  获取余额
