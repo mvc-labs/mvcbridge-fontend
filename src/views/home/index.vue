@@ -833,13 +833,13 @@ function transferFt() {
         }
       )
       .catch((error) => {
+        console.log('error', error)
+
         ElMessage.error(error.message)
-        throw new Error(error.toString())
+        reject(error.message)
       })
     if (res) {
       resolve(res)
-    } else {
-      reject()
     }
   })
 }
@@ -947,9 +947,10 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           currentTransferType.value == MappingIcon.MUSDC
         ) {
           await transferFt().catch((e) => {
-            console.log('zxcz', e)
             transferLoading.value = false
+            throw new Error(e)
           })
+
           // const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
           //   transferLoading.value = false
           //   ElMessage.error(e.message)
@@ -961,13 +962,12 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           // } else {
           //   transferLoading.value = false
           // }
-        } else {
-          transferLoading.value = false
-          console.log('submit!')
         }
+
         ElMessage.success(`Transfer success!`)
         transferLoading.value = false
         innerDrawer.value = false
+        console.log('submit!')
       }
     })
   } catch (error) {
