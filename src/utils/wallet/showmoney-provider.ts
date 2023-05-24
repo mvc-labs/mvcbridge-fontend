@@ -471,7 +471,7 @@ export default class ShowmoneyProvider {
         reject(error)
       })
       if (res?.txid) {
-        await this.sendRawTx(txHex)
+        //await this.sendRawTx(txHex)
         resolve(res)
       } else {
         const response = JSON.parse(res.message)
