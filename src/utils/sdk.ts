@@ -289,8 +289,9 @@ export class SDK {
             totalAmount += 70000
             const rootStore = useRootStore()
             if (
+              +rootStore.mvcWalletTokenBalance.space > 0 &&
               new Decimal(rootStore.mvcWalletTokenBalance.space).mul(10 ** 8).toNumber() <
-              totalAmount
+                totalAmount
             ) {
               throw new Error(`
 Space balance is not enough to support this transfer`)
