@@ -834,7 +834,7 @@ function transferFt() {
       )
       .catch((error) => {
         ElMessage.error(error.message)
-        reject()
+        reject(error)
       })
     if (res) {
       resolve(res)
@@ -859,7 +859,8 @@ function transferSpace() {
       ])
       .catch((error) => {
         ElMessage.error(error.message)
-        throw new Error(error.toString())
+
+        reject(error.toString())
       })
 
     // const res = await userStore.showWallet
@@ -911,8 +912,9 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           // } else {
           //   transferLoading.value = false
           // }
-          await transferSpace().catch(() => {
+          await transferSpace().catch((e) => {
             transferLoading.value = false
+            throw new Error(e)
           })
         } else if (currentTransferType.value == MappingIcon.ETH) {
           toAddress = await ensConvertAddress(ruleForm.address.trim()).catch((e) => {
@@ -948,6 +950,7 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
         ) {
           await transferFt().catch((e) => {
             transferLoading.value = false
+            throw new Error(e)
           })
           // const target = await getAccountUserInfo(ruleForm.address).catch((e: any) => {
           //   transferLoading.value = false

@@ -288,13 +288,15 @@ export class SDK {
             let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
             totalAmount += 70000
             const rootStore = useRootStore()
+            if (+rootStore.mvcWalletTokenBalance.space <= 0) {
+              reject(`Space balance is not enough to support this transfer`)
+            }
             if (
               +rootStore.mvcWalletTokenBalance.space > 0 &&
               new Decimal(rootStore.mvcWalletTokenBalance.space).mul(10 ** 8).toNumber() <
                 totalAmount
             ) {
-              throw new Error(`
-Space balance is not enough to support this transfer`)
+              reject(`Space balance is not enough to support this transfer`)
             }
             const useSatoshis = totalAmount
 
@@ -1917,7 +1919,9 @@ Space balance is not enough to support this transfer`)
 
   async sendMoney(payTo: Array<{ amount: number; address: string }>) {
     const Utxos = await this.wallet?.provider.getUtxos(this.wallet.wallet.xpubkey.toString())
-
+    if (!Utxos.length) {
+      throw new Error(`Utxo is empty`)
+    }
     const res = await this.wallet?.makeTx({
       utxos: Utxos,
       opReturn: [],
