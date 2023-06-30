@@ -292,8 +292,6 @@ function loginSuccess(params: BindMetaIdRes) {
           .toString()
       }
 
-      console.log('params.userInfo', params)
-
       userStore.updateUserInfo({
         // ...metaIdInfo.data,
         ...params.userInfo,
