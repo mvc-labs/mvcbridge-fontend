@@ -812,8 +812,8 @@ function checkWalletInfo() {
 function transferFt() {
   return new Promise(async (resolve, reject) => {
     const value = new Decimal(ruleForm.amount).mul(Math.pow(10, GetDecimal.value)).toString()
-    const res = await userStore.showWallet
-      .TransferFt(
+    try {
+      const res = await userStore.showWallet.TransferFt(
         {
           nodeName: NodeName.FtTransfer,
           data: JSON.stringify({
@@ -832,14 +832,15 @@ function transferFt() {
           isBroadcast: true,
         }
       )
-      .catch((error) => {
-        ElMessage.error(error.message)
-        reject(error)
-      })
-    if (res) {
-      resolve(res)
-    } else {
-      reject()
+
+      if (res) {
+        resolve(res)
+      } else {
+        reject()
+      }
+    } catch (error) {
+      ElMessage.error(error)
+      reject(error)
     }
   })
 }
