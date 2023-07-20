@@ -695,7 +695,7 @@ export class HdWallet {
           throw new Error('Parameter Error: NodeName can not empty')
         }
         let privateKey = this.getPathPrivateKey('0/0')
-        // TODO: 自定义节点支持
+        // TODO:
         if (this.keyPathMap[nodeName]) {
           const nodeInfo = this.keyPathMap[nodeName]
           node = {
@@ -705,7 +705,7 @@ export class HdWallet {
           }
         } else {
           if (encoding === encoding) {
-            // 文件
+            //
             if (!node) {
               // @ts-ignore
               const _privateKey = new mvc.PrivateKey(undefined, this.network)
@@ -723,7 +723,7 @@ export class HdWallet {
             }
           }
         }
-        // 数据加密
+        //
         if (+encrypt === 1) {
           data = this.eciesEncryptData(data, privateKey, privateKey.publicKey).toString('hex')
         } else {
@@ -756,7 +756,7 @@ export class HdWallet {
           chain,
         }
 
-        // TODO: 父节点 utxo 管理
+        // TODO:
         // if (parentTxId !== 'NULL' && !parentAddress) {
         //   console.log('get parent utxos')
         // } else {
@@ -869,9 +869,9 @@ export class HdWallet {
       throw new Error('Wallet uninitialized! (core-makeTx)')
     }
     const tx = new mvc.Transaction()
-    // 更改 Transaction 为 Bsv  Transaction
+    //
     if (chain === HdWalletChain.BSV) tx.version = WalletTxVersion.BSV
-    // 添加 payto
+    //
     if (Array.isArray(payTo) && payTo.length) {
       payTo.forEach((item) => {
         if (!this.isValidOutput(item)) {
@@ -881,7 +881,7 @@ export class HdWallet {
       })
     }
 
-    // 添加 opReturn 内容
+    //
     if (opReturn) {
       tx.addOutput(
         new mvc.Transaction.Output({
@@ -934,7 +934,7 @@ export class HdWallet {
   }) {
     return new Promise<UtxoItem>(async (resolve, reject) => {
       try {
-        // 默认  outPutIndex = changeIndex
+        //
         if (typeof params?.outPutIndex === 'undefined') {
           if (params.tx._changeIndex) {
             params.outPutIndex = params.tx._changeIndex
@@ -958,7 +958,7 @@ export class HdWallet {
           }
         }
 
-        // 把Utxo 标记为已使用， 防止被其他地方用了
+        //
         this.provider.isUsedUtxos.push({
           txId: params.tx.id,
           address: OutPut.script.toAddress(this.network).toString(),
@@ -985,7 +985,7 @@ export class HdWallet {
     })
   }
 
-  // 验证交易输出 TODO：地址只验证长度，后续要做合法性验证
+  //
   private isValidOutput(output: OutputTypes): boolean {
     return (
       isNaturalNumber(output.amount) &&
@@ -995,10 +995,10 @@ export class HdWallet {
   }
 
   /**
-   * 选取足够金额的 utxos
+   *
    * @param tx
-   * @param utxos 指定来源 utxo 集
-   * @param amount 金额
+   * @param utxos
+   * @param amount
    * @returns
    */
   public pickUtxosByAmount(
@@ -1012,7 +1012,7 @@ export class HdWallet {
 
     for (const utxo of utxos) {
       let isPicked = false
-      // 排除已经选择的 utxos
+      //
       for (const pickedItem of pickedUtxos) {
         if (utxo.txId === pickedItem.txId && utxo.outputIndex === pickedItem.outputIndex) {
           isPicked = true
@@ -1031,7 +1031,7 @@ export class HdWallet {
     for (const utxo of unUsedInputs) {
       balance += Number(utxo.value)
       newPickedUtxos.push(utxo)
-      // 检查是否已经足够，加 200 浮动
+      //
       if (balance > amount + DEFAULTS.minAmount + 200) {
         isEnoughBalance = true
         break
@@ -1050,7 +1050,7 @@ export class HdWallet {
   }
 
   /**
-   * ECIES 加密
+   *
    */
   public eciesEncryptData(
     data: string | Buffer,
@@ -1064,7 +1064,7 @@ export class HdWallet {
   }
 
   /**
-   * ECIES 解密
+   *
    */
   public eciesDecryptData(
     data: Buffer | string,
@@ -1091,7 +1091,7 @@ export class HdWallet {
     return res
   }
 
-  // 拆UTXO逻辑
+  //
   public devideUtxo(
     devides: { amount: number; address: string }[],
     utxos?: UtxoItem[],
@@ -1102,8 +1102,8 @@ export class HdWallet {
         if (!utxos) {
           utxos = await this.provider.getUtxos(this.wallet.xpubkey.toString())
         }
-        let balance = 0 // utxo 余额
-        let useAmount = 50 * (devides.length - 1) // 需要花费 ： 初始转账费用50 * （n-1）
+        let balance = 0 //
+        let useAmount = 50 * (devides.length - 1) //
         for (const item of devides) {
           useAmount += item.amount
         }
@@ -1113,7 +1113,7 @@ export class HdWallet {
         if (balance < useAmount) {
           throw new Error('拆分失败，余额不足')
         }
-        // 开始拆分
+        //
         const tx = await this.sendMoney({
           payTo: devides,
           utxos: utxos,
@@ -1198,7 +1198,7 @@ export class HdWallet {
                   ...protocolInfo,
                 })
               } else {
-                throw new Error('path>150 异常，请联系客服处理')
+                throw new Error('path>150 Error')
               }
             }
           } else {
@@ -1242,7 +1242,7 @@ export class HdWallet {
     })
   }
 
-  // 创建协议节点
+  //
   public createBrfcNode(
     params: CreateBrfcNodePrams,
     option?: {
@@ -1289,9 +1289,9 @@ export class HdWallet {
             addressType: protocol.addressType,
             addressIndex: protocol.addressIndex,
           })
-          // 已存在根节点
+          //
         } else {
-          // 不存在根节点
+          //
           const newBrfcNodeBaseInfo = await this.provider.getNewBrfcNodeBaseInfo(
             this.wallet.xpubkey.toString(),
             params.parentTxId
@@ -1328,7 +1328,7 @@ export class HdWallet {
   public async createBrfcChildNode(
     params: HdWalletCreateBrfcChildNodeParams,
     option?: {
-      isBroadcast: boolean // 是否广播
+      isBroadcast: boolean //
       chain?: HdWalletChain
     }
   ): Promise<CreateNodeBrfcRes> {
@@ -1358,16 +1358,16 @@ export class HdWallet {
         ...option,
       }
       try {
-        // 是否指定地址
+        //
         let address
         let publickey
-        const addressType = -1 // 叶子节点都用 -1
-        const addressIndex = -1 // 叶子节点都用 -1
+        const addressType = -1 //
+        const addressIndex = -1 //
         if (params.publickey) {
           publickey = params.publickey
           address = mvc.PublicKey.fromHex(params.publickey).toAddress(this.network).toString()
         } else {
-          // 随机生生产 私钥
+          //
           // @ts-ignore
           const privateKey = new mvc.PrivateKey(undefined, this.network)
           publickey = privateKey.toPublicKey().toString()
@@ -1380,7 +1380,7 @@ export class HdWallet {
         }
 
         if (params.ecdh) {
-          // 付费Buzz 待完善
+          //
           // if (params.data !== 'NULL' && typeof params.data === 'string') {
           //   let r: any
           //   r = JSON.parse(params.data)

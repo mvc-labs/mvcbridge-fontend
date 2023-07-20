@@ -18,7 +18,7 @@
 
     <meta name="description" content="" />
 
-    <!-- 要动态更改 icon 所以不初始化设置 -->
+    <!--  -->
     <link rel="icon" key="favicon" href="/favicon.ico" />
     <style>
       @font-face {
@@ -31,7 +31,7 @@
         var docEl = doc.documentElement,
           isIOS = navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
           dpr = isIOS ? Math.min(win.devicePixelRatio, 3) : 1,
-          dpr = window.top === window.self ? dpr : 1, //被iframe引用时，禁止缩放
+          dpr = window.top === window.self ? dpr : 1, //
           resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize'
         docEl.dataset.dpr = dpr
         var recalc = function () {
@@ -44,7 +44,7 @@
           var fontSize = htmlFontSize * (width / designSize)
           let minFontSize = 90
           var agent = navigator.userAgent.toLowerCase()
-          //  微信浏览器
+          //
           if (agent.match(/MicroMessenger/i) == 'micromessenger') {
             minFontSize = 62
           }
@@ -68,7 +68,7 @@
       //   document.documentElement.classList.remove('dark')
       // }
 
-      // 计算屏幕宽度
+      //
       function calculateVh() {
         var vh = window.innerHeight * 0.01
         document.documentElement.style.setProperty('--vh', vh + 'px')

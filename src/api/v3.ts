@@ -30,7 +30,6 @@ const V3 = new HttpRequest(`${import.meta.env.VITE_BASEAPI}/v3`, {
         message: error.response.data.data,
       })
     } else {
-      // 对响应错误做点什么
       return Promise.reject(error)
     }
   },

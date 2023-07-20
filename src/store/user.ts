@@ -123,7 +123,7 @@ export const useUserStore = defineStore('user', {
 
         const { ...data } = userInfo
 
-        // 兼容处理
+        //
         // @ts-ignore
         if (!data.address && data?.rootAddress) {
           // @ts-ignore
@@ -168,12 +168,12 @@ export const useUserStore = defineStore('user', {
         } else {
           this.logout(route)
           const rootStore = useRootStore()
-          ElMessageBox.alert('登录信息过期，请重新登录', '温馨提示', {
-            confirmButtonText: '去登录',
+          ElMessageBox.alert('Login information expired, please log in again', 'Kind tips', {
+            confirmButtonText: 'to log in',
           }).then(() => {
             rootStore.$patch({ isShowLogin: true })
           })
-          reject(new Error('登录信息过期'))
+          reject(new Error('Login information expired'))
         }
       })
     },

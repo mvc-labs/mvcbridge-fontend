@@ -101,7 +101,7 @@ export default class ShowmoneyProvider {
 
     this.metaSvHttp = new HttpRequest(this.metaSvApi).request
     this.serviceHttp = new HttpRequest(this.apiPrefix + '/serviceapi').request
-    // 初始化 metasv签名接口 http
+    //
     // this.metasvSignatureHttp = new HttpRequest(this.apiPrefix + '/metasv-signature', {
     //https://api.showmoney.app/metasv-signature
 
@@ -149,7 +149,7 @@ export default class ShowmoneyProvider {
     }
   }
 
-  //发起MetaName交易前置请求
+  //
   public async reqMetaNameArgs(params: { name: string; address: string; op: number }) {
     let options = {
       headers: {
@@ -254,7 +254,7 @@ export default class ShowmoneyProvider {
     } else if (res.code === 601) {
       return null
     } else {
-      throw new Error('无法获取 MetaID')
+      throw new Error('unable to get MetaID')
     }
   }
 
@@ -272,7 +272,7 @@ export default class ShowmoneyProvider {
     } else if (res.code === 601) {
       return null
     } else {
-      throw new Error('无法获取 MetaID')
+      throw new Error('unable to get MetaID')
     }
   }
 
@@ -466,7 +466,7 @@ export default class ShowmoneyProvider {
         'post',
         chain
       ).catch((error) => {
-        // 广播容错，忽略返回
+        //
         // this.sendRawTx(txHex)
         reject(error)
       })
@@ -483,7 +483,7 @@ export default class ShowmoneyProvider {
     })
   }
 
-  // 上报RawTx
+  //
   public async sendRawTx(txHex: string): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       const sendRawTx = () => {

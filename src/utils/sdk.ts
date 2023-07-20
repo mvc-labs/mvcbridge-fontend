@@ -96,7 +96,7 @@ export class SDK {
         resolve()
       } catch (error) {
         console.error(error)
-        reject(new Error('生成钱包失败' + (error as any).message))
+        reject(new Error('Failed to generate wallet' + (error as any).message))
       }
     })
   }
@@ -107,7 +107,11 @@ export class SDK {
       if (window.appMetaIdJsV2[methodName]) {
         resolve()
       } else {
-        reject(Error('当前App版本不支持此功能，请先升级到最新版本使用'))
+        reject(
+          Error(
+            'The current App version does not support this function, please upgrade to the latest version first'
+          )
+        )
       }
     })
   }
@@ -143,7 +147,7 @@ export class SDK {
     })
   }
 
-  // 统一回调处理
+  //
   async callback(
     res: MetaIdJsRes,
     option?: {
@@ -194,16 +198,16 @@ export class SDK {
           if (this.wallet) {
             resolve()
           } else {
-            reject(new Error('生成钱包失败,请尝试重新登录'))
+            reject(new Error('Failed to generate wallet, please try to log in again'))
           }
         } else {
-          reject(new Error('请先登录，再操作'))
+          reject(new Error('Please log in first, then operate'))
         }
       }
     })
   }
 
-  // 签名
+  //
   sigMessage(msg: string, path = '0/0') {
     return new Promise<string>(async (resolve, reject) => {
       try {
@@ -257,7 +261,7 @@ export class SDK {
         ...option,
       }
       try {
-        // App 端
+        //
         if (this.appMetaIdJs) {
           await this.checkAppHasMethod('createBrfcChildNode')
           const functionName = `createBrfcChildNode${this.randomString()}`
@@ -279,12 +283,12 @@ export class SDK {
             functionName
           )
         } else {
-          // 构建没有utxo 的所有 transaction
+          //
           let transactions = await this.createFtTransferTransactions(params)
 
           let payToRes: CreateNodeBaseRes | undefined = undefined
           if (!params.utxos?.length) {
-            // 计算总价
+            //
             let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
             totalAmount += 70000
             const rootStore = useRootStore()
@@ -299,19 +303,7 @@ export class SDK {
               reject(`Space balance is not enough to support this transfer`)
             }
             const useSatoshis = totalAmount
-
-            //  获取余额
-            // const balance = await this.getBalance(option.payType!)
-            // 等待 确认支付
-            // const result = await this.awitSdkPayconfirm(
-            //   option.payType!,
-            //   totalAmount,
-            //   balance!,
-            //   option.checkOnly
-            // )
             if (true) {
-              // 确认支付
-              // 打钱地址
               let receive = {
                 address: this.wallet.rootAddress,
                 addressType: 0,
@@ -320,7 +312,6 @@ export class SDK {
 
               //this.getNodeTransactionsFirstReceive(transactions, params)
 
-              // 获取上链时的utxo
               const getUtxoRes = await this.getAmountUxto({
                 sdkPayType: option.payType!,
                 amount: useSatoshis,
@@ -332,24 +323,24 @@ export class SDK {
                 payToRes = getUtxoRes.payToRes
               }
 
-              // 使用utxo 组装 新的transactions
+              //
               transactions = await this.setUtxoForTransferFtTransactions(
                 transactions,
                 currentUtxo!,
                 params,
-                // 支付方式为Me时， 最后的找回地址是官方的地址， 不是就找回用户地址
+                //
                 option.payType === SdkPayType.ME
                   ? import.meta.env.VITE_CHANGE_ADDRESS
                   : this.wallet!.rootAddress
               )
 
-              // 广播
+              //
               if (option.isBroadcast) {
-                // 广播 打钱操作
+                //
                 if (payToRes && payToRes.transaction) {
                   await this.wallet?.provider.broadcast(payToRes.transaction.toString())
                 }
-                // 广播 transactions 所有交易
+                //
                 await this.broadcastNodeTransactions(transactions)
               }
 
@@ -361,15 +352,14 @@ export class SDK {
               resolve(null)
             }
           } else {
-            // 默认有 UTXO 不弹窗
+            //
 
-            // 广播
+            //
             if (option.isBroadcast) {
-              // 广播 打钱操作
               // if (payToRes && payToRes?.transaction) {
               //   await this.wallet?.provider.broadcast(payToRes.transaction.toString())
               // }
-              // 广播 transactions 所有交易
+              //
               await this.broadcastNodeTransactions(transactions)
             }
 
@@ -392,7 +382,7 @@ export class SDK {
       payType?: SdkPayType
       useQueue?: boolean
       subscribeId?: string
-      checkOnly?: boolean //false弹窗，true不弹窗
+      checkOnly?: boolean //
     }
   ) {
     return new Promise<NodeTransactions | null>(async (resolve, reject) => {
@@ -430,7 +420,6 @@ export class SDK {
         params.payTo = params.payTo.filter((item) => item.amount)
       }
       try {
-        // App 端
         if (this.appMetaIdJs) {
           await this.checkAppHasMethod('createBrfcChildNode')
           const functionName = `createBrfcChildNode${this.randomString()}`
@@ -452,16 +441,16 @@ export class SDK {
             functionName
           )
         } else {
-          // 构建没有utxo 的所有 transaction
+          //
           let transactions = await this.createBrfcChildNodeTransactions(params)
 
           let payToRes: CreateNodeBaseRes | undefined = undefined
           if (!params.utxos!.length) {
-            // 计算总价
+            //
             let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
             totalAmount += 70000
             const useSatoshis = totalAmount
-            // 当时用Me支付时，总价 space 要转换为 ME 值
+            //
             if (option.payType === SdkPayType.ME) {
               const meInfo = await GetProtocolMeInfo({
                 protocol: params.nodeName,
@@ -472,9 +461,9 @@ export class SDK {
               totalAmount = useMe
             }
 
-            //  获取余额
+            //
             // const balance = await this.getBalance(option.payType!)
-            // 等待 确认支付
+            //
             // const result = await this.awitSdkPayconfirm(
             //   option.payType!,
             //   totalAmount,
@@ -482,11 +471,11 @@ export class SDK {
             //   option.checkOnly
             // )
             if (true) {
-              // 确认支付
-              // 打钱地址
+              //
+              //
               let receive = this.getNodeTransactionsFirstReceive(transactions, params)
 
-              // 获取上链时的utxo
+              //
               const getUtxoRes = await this.getAmountUxto({
                 sdkPayType: option.payType!,
                 amount: useSatoshis,
@@ -499,24 +488,24 @@ export class SDK {
                 payToRes = getUtxoRes.payToRes
               }
 
-              // 使用utxo 组装 新的transactions
+              //
               transactions = await this.setUtxoForCreateChileNodeTransactions(
                 transactions,
                 currentUtxo!,
                 params,
-                // 支付方式为Me时， 最后的找回地址是官方的地址， 不是就找回用户地址
+                //
                 option.payType === SdkPayType.ME
                   ? import.meta.env.VITE_CHANGE_ADDRESS
                   : this.wallet!.rootAddress
               )
 
-              // 广播
+              //
               if (option.isBroadcast && !option.useQueue) {
-                // 广播 打钱操作
+                //
                 if (payToRes && payToRes.transaction) {
                   await this.wallet?.provider.broadcast(payToRes.transaction.toString())
                 }
-                // 广播 transactions 所有交易
+                //
                 await this.broadcastNodeTransactions(transactions)
               }
 
@@ -526,7 +515,7 @@ export class SDK {
                 subscribeId: option!.subscribeId,
               })
 
-              // 如果使用队列，则不进行广播，而是收集当次Job的所有交易作为step，推进队列
+              //
               if (option.useQueue) {
                 this.convertTransactionsIntoJob(transactions, payToRes, option!.subscribeId!)
               }
@@ -534,15 +523,15 @@ export class SDK {
               resolve(null)
             }
           } else {
-            // 默认有 UTXO 不弹窗
+            //
 
-            // 广播
+            //
             if (option.isBroadcast) {
-              // 广播 打钱操作
+              //
               // if (payToRes && payToRes?.transaction) {
               //   await this.wallet?.provider.broadcast(payToRes.transaction.toString())
               // }
-              // 广播 transactions 所有交易
+              //
               await this.broadcastNodeTransactions(transactions)
             }
 
@@ -582,35 +571,35 @@ export class SDK {
     }
     const converting: Transaction[] = []
 
-    // A. 收集交易
-    // 1. 打钱交易
+    // A.
+    // 1.
     if (payToRes && payToRes.transaction) {
       converting.push(payToRes.transaction)
     }
-    // 2. Metafile Brfc交易
+    // 2.
     if (transactions.metaFileBrfc?.transaction) {
       converting.push(transactions.metaFileBrfc.transaction)
     }
-    // 3. Metafile 交易
+    // 3.
     if (transactions.metaFiles && transactions.metaFiles.length) {
       for (let i = 0; i < transactions.metaFiles.length; i++) {
         converting.push(transactions.metaFiles[i].transaction)
       }
     }
-    // 4. 当前节点 Brfc 交易
+    // 4.
     if (transactions.currentNodeBrfc?.transaction) {
       converting.push(transactions.currentNodeBrfc.transaction)
     }
-    // 5. 当前节点交易
+    // 5.
     if (transactions.currentNode?.transaction) {
       converting.push(transactions.currentNode.transaction)
     }
-    // 6. NFT issue 交易
+    // 6.
     if (transactions.nft?.issue?.transaction) {
       converting.push(transactions.nft?.issue?.transaction)
     }
 
-    // B. 将交易转换为step
+    // B.
     converting.forEach((tx: any) => {
       job.steps.push({
         txId: tx.id,
@@ -619,7 +608,7 @@ export class SDK {
       })
     })
 
-    // C. 将job推进队列
+    // C.
     jobsStore.push(job)
   }
 
@@ -674,19 +663,19 @@ export class SDK {
       let payToRes: CreateNodeBaseRes | undefined = undefined
       let payToResIsbBroadcast = false
 
-      // 构建tx 并机选总价
-      let totalAmount = 0 // 总价
+      //
+      let totalAmount = 0 //
       let useSatoshis = 0
       for (let i = 0; i < params.length; i++) {
         const transactions = await this.createBrfcChildNodeTransactions(params[i])
         transactionsList.push(transactions)
 
-        //  + transactions 价格
+        //  +
         totalAmount += this.getNodeTransactionsAmount(transactions, params[i].payTo)
         useSatoshis = totalAmount
       }
 
-      // 使用MC 上链时，需要 把价格 换算成 ME
+      //
       if (option.payType === SdkPayType.ME) {
         const meInfo = await GetProtocolMeInfo({
           protocol: params[0].nodeName,
@@ -697,16 +686,16 @@ export class SDK {
         totalAmount = useMe
       }
 
-      // 获取余额
+      //
       const balance = await this.getBalance(option.payType!)
 
-      // 等待 确认支付
+      //
       const result = await this.awitSdkPayconfirm(option.payType!, totalAmount, balance!)
       if (result) {
-        // 打钱地址
+        //
         let receive = this.getNodeTransactionsFirstReceive(transactionsList[0], params[0])
 
-        // 获取上链时的utxo
+        //
         let currentUtxo: UtxoItem
         const getUtxoRes = await this.getAmountUxto({
           sdkPayType: option.payType!,
@@ -719,12 +708,12 @@ export class SDK {
           payToRes = getUtxoRes.payToRes
         }
 
-        let err // 广播错误？
+        let err //
 
-        // 使用utxo 组装 每個 新的transactions
+        //
         for (let i = 0; i < transactionsList.length; i++) {
           try {
-            //  下一个请求开始的第一个地址
+            //
             const nextNodeReceiveAddress =
               i < transactionsList.length - 1
                 ? this.getNodeTransactionsFirstReceive(transactionsList[i + 1], params[i + 1])
@@ -739,9 +728,9 @@ export class SDK {
               nextNodeReceiveAddress
             )
 
-            // 广播
+            //
             if (option.isBroadcast) {
-              // 广播 打钱操作
+              //
               if (payToRes && payToRes.transaction && !payToResIsbBroadcast) {
                 await this.wallet?.provider.broadcast(payToRes.transaction.toString())
                 payToResIsbBroadcast = true
@@ -760,7 +749,7 @@ export class SDK {
             }
 
             if (i !== transactionsList.length - 1) {
-              //  获取 下一个请求 要用的 utxo
+              //
               currentUtxo = await this.wallet!.utxoFromTx({
                 tx: this.getNodeTransactionsLastTx(transactionsList[i]),
               })
@@ -774,9 +763,9 @@ export class SDK {
           }
         }
 
-        // 广播
+        //
         // if (option.isBroadcast) {
-        //   // 广播 打钱操作
+        //   //
         //   if (payToRes && payToRes.transaction) {
         //     await this.wallet?.provider.broadcast(payToRes.transaction.toString())
         //   }
@@ -889,7 +878,7 @@ export class SDK {
         const chain = params.payType === SdkPayType.BSV ? HdWalletChain.BSV : HdWalletChain.MVC
         let transactions: NodeTransactions = {}
         if (params.nodeName === NodeName.SendMoney) {
-          // 只转钱
+          //
           const scriptPlayload = [import.meta.env.VITE_App_Key]
           const tx = await this.wallet?.makeTx({
             payTo: params.payTo,
@@ -905,7 +894,7 @@ export class SDK {
             }
           }
         } else if (this.isInfoNode(params.nodeName)) {
-          // 非 Protocols 节点
+          //
 
           const res = await this.wallet?.createNode({
             ...params,
@@ -914,9 +903,9 @@ export class SDK {
           })
           transactions.currentNode = res
         } else {
-          // Protocols 节点
+          //
 
-          // 如果有附件
+          //
           //   if (params.attachments && params.attachments!.length > 0) {
           //     transactions.metaFileBrfc = await this.getBrfcNode(
           //       {
@@ -937,11 +926,11 @@ export class SDK {
           //     )
           //   }
 
-          //  处理当前节点
+          //
           if (params.nodeName !== NodeName.MetaFile) {
-            // 当前节点的brfc 节点
+            //
             if (params.publickey && params.txId) {
-              // 修改
+              //
               const res = await GetTx(params.txId)
               if (res.code === 0) {
                 const protocol = await this.wallet!.getProtocolInfo(
@@ -958,7 +947,7 @@ export class SDK {
                 }
               }
             } else {
-              // 新增
+              //
               transactions.currentNodeBrfc = await this.getBrfcNode(
                 {
                   nodeName: params.nodeName,
@@ -1058,7 +1047,7 @@ export class SDK {
     transactions: NodeTransactions,
     params: createBrfcChildNodeParams
   ) {
-    // 打钱地址
+    //
     let receive: {
       address: string
       addressIndex: number
@@ -1078,21 +1067,21 @@ export class SDK {
         addressIndex: parseInt(this.wallet!.keyPathMap['Protocols'].keyPath.split('/')[0]),
       }
     } else if (transactions.metaFileBrfc?.transaction) {
-      // 需要创建 metafile brfc 节点 ，把钱打去 protocol 地址
+      //
       receive = {
         address: this.wallet!.protocolAddress,
         addressType: parseInt(this.wallet!.keyPathMap['Protocols'].keyPath.split('/')[0]),
         addressIndex: parseInt(this.wallet!.keyPathMap['Protocols'].keyPath.split('/')[1]),
       }
     } else if (transactions.metaFiles && transactions.metaFiles.length) {
-      // 需要创建 metafile 节点 ，把钱打去 metafile brfc 地址
+      //
       receive = {
         address: transactions.metaFileBrfc!.address,
         addressType: transactions.metaFileBrfc!.addressType,
         addressIndex: transactions.metaFileBrfc!.addressIndex,
       }
     } else if (transactions.currentNodeBrfc?.transaction) {
-      // 需要创建 brfc 节点 ，把钱打去 protocol 地址
+      //
       receive = {
         address: this.wallet!.protocolAddress,
         addressType: parseInt(this.wallet!.keyPathMap['Protocols'].keyPath.split('/')[0]),
@@ -1189,7 +1178,7 @@ export class SDK {
             [utxo],
             lastChangeAddress
           )
-          // 更新txId
+          //
 
           transactions.currentNode!.txId = transactions.currentNode!.transaction.id
         } else {
@@ -1199,20 +1188,20 @@ export class SDK {
           //       [utxo],
           //       transactions.metaFileBrfc.address
           //     )
-          //     // 更新txId
+          //     //
           //     transactions.metaFileBrfc.txId = transactions.metaFileBrfc.transaction.id
-          //     // 更新本地bfrcNodeList
+          //     //
           //     this.updateBfrcNodeList(NodeName.MetaFile, transactions.metaFileBrfc)
 
-          //     // 组装新 utxo
+          //     //
           //     utxo = await this.wallet!.utxoFromTx({
           //       tx: transactions.metaFileBrfc.transaction,
           //       chain,
           //     })
 
-          //     // 当有 metafile Brfc 改变时 metafile 节点也需要重新构建，因为父节点Brfc的txid 已改变
+          //     //
           //     transactions.metaFiles!.length = 0
-          //     // 移除 旧的 metafile metaFileSha256TxIdList
+          //     //
           //     for (const item of params.attachments!) {
           //       const index = this.metaFileSha256TxIdList.findIndex(
           //         (_item) => _item.sha256 === item.sha256
@@ -1244,12 +1233,12 @@ export class SDK {
           //       this.setTransferUtxoAndOutputAndSign(
           //         metaFileTransactions[i].transaction,
           //         [utxo],
-          //         // 最后一个metafile 的找零地址 如果之后需要创建brfc节点 则打到 protocol 地址 否则 打到 bfr节点地址
+          //         //
           //         changeAddress
           //       )
-          //       // 更新txId
+          //       //
           //       metaFileTransactions[i].txId = metaFileTransactions[i].transaction.id
-          //       // 更新 所有的metafile Txid 待完善
+          //       //
           //       const metaFileSha256Index = this.metaFileSha256TxIdList.findIndex(
           //         (_item) => _item.sha256 === metaFileTransactions[i].sha256
           //       )
@@ -1257,7 +1246,7 @@ export class SDK {
           //         this.metaFileSha256TxIdList[metaFileSha256Index].txId = metaFileTransactions[i].txId
           //       }
 
-          //       // 组装新 utxo
+          //       //
           //       const addressInfo: any = {}
           //       if (i < metaFileTransactions.length - 1) {
           //         addressInfo.addressIndex = transactions.metaFileBrfc!.addressIndex
@@ -1287,7 +1276,7 @@ export class SDK {
           //       })
           //     }
 
-          //     // 再循环一边， 把每个metafile txId 更新到最新的， 防止没有更新 ： batchCreateBrfcChildNode 的时候
+          //     //
           //     for (let i = 0; i < transactions.metaFiles.length; i++) {
           //       if (!transactions.metaFiles[i].transaction) {
           //         const index = this.metaFileSha256TxIdList.findIndex(
@@ -1307,19 +1296,19 @@ export class SDK {
                 [utxo],
                 transactions.currentNodeBrfc.address
               )
-              // 更新txId
+              //
               transactions.currentNodeBrfc.txId = transactions.currentNodeBrfc.transaction.id
-              // 更新本地bfrcNodeList
+              //
               this.updateBfrcNodeList(params.nodeName, transactions.currentNodeBrfc)
 
-              // 组装新 utxo
+              //
               utxo = await this.wallet!.utxoFromTx({
                 tx: transactions.currentNodeBrfc!.transaction,
                 chain,
               })
             }
 
-            // metafile txId变了，所以要改变currentNode 节点的data 对应数据
+            //
             if (transactions.metaFiles && transactions.metaFiles.length) {
               for (let i = 0; i < transactions.metaFiles.length; i++) {
                 const fileSuffix =
@@ -1388,11 +1377,11 @@ export class SDK {
                 params.nodeName === NodeName.NftIssue ? this.wallet!.rootAddress : lastChangeAddress
               )
               console.log('currentNode', utxo)
-              // 更新txId
+              //
               transactions.currentNode.txId = transactions.currentNode.transaction.id
 
               //    if (params.nodeName === NodeName.NftIssue) {
-              //      // 组装新 utxo
+              //      //
               //      utxo = await this.wallet!.utxoFromTx({
               //        tx: transactions.currentNode!.transaction,
               //        chain,
@@ -1421,7 +1410,7 @@ export class SDK {
           }
         }
 
-        // 把nft mvc transaction -> Bsv transaction
+        //
         if (params.payType === SdkPayType.BSV && transactions?.nft) {
           for (let i in transactions.nft) {
             // @ts-ignore
@@ -1441,7 +1430,7 @@ export class SDK {
     })
   }
 
-  // 更新本地存储的brfc节点信息
+  //
   private updateBfrcNodeList(nodeName: NodeName, nodeInfo: CreateNodeBrfcRes) {
     const index = this.bfrcNodeList.findIndex((item) => item.nodeName === nodeName)
     if (index !== -1) {
@@ -1455,15 +1444,15 @@ export class SDK {
   private broadcastNodeTransactions(transactions: NodeTransactions) {
     return new Promise<void>(async (resolve, reject) => {
       try {
-        // 广播 SendMoney
+        //
         if (transactions.sendMoney?.transaction) {
           await this.wallet?.provider.broadcast(transactions.sendMoney.transaction.toString())
         }
-        // 广播 Metafile Brfc
+        //
         if (transactions.metaFileBrfc?.transaction) {
           await this.wallet?.provider.broadcast(transactions.metaFileBrfc.transaction.toString())
         }
-        // 广播 Metafile
+        //
         if (transactions.metaFiles && transactions.metaFiles.length) {
           let catchError
           for (
@@ -1484,12 +1473,12 @@ export class SDK {
             throw new Error(catchError)
           }
         }
-        // 广播当前节点的Brfc节点
+        //
 
         if (transactions.currentNodeBrfc?.transaction) {
           await this.wallet?.provider.broadcast(transactions.currentNodeBrfc.transaction.toString())
         }
-        // 广播当前节点
+        //
         if (transactions.currentNode?.transaction) {
           await this.wallet?.provider.broadcast(transactions.currentNode.transaction.toString())
           // if (
@@ -1500,14 +1489,14 @@ export class SDK {
           // }
         }
 
-        // 广播 nft
+        //
         if (transactions.nft) {
           for (let i in transactions.nft) {
             if (i === 'sell') {
-              // sell 先广播 sellTransaction
+              //
               await this.wallet?.provider.broadcast(transactions.nft[i]?.sellTransaction.toString())
             } else if (i === 'buy' || i === 'cancel') {
-              //  buy / cancel 先广播 unlockCheckTransaction
+              //
               await this.wallet?.provider.broadcast(
                 transactions.nft[i]!.unlockCheckTransaction.toString()
               )
@@ -1537,23 +1526,23 @@ export class SDK {
 
   private getNodeTransactionsAmount(transactions: NodeTransactions, payTo: PayToItem[] = []) {
     let amount = 0
-    // 计算总价
-    // metafile brfc 节点价格
+    //
+    //
     if (transactions.sendMoney?.transaction) {
       amount += mvc.Transaction.DUST_AMOUNT + mvc.Transaction.DUST_AMOUNT
     }
     if (transactions.metaFileBrfc?.transaction)
       amount += transactions.metaFileBrfc.transaction.getNeedFee()
-    // metafile 节点价格
+    //
     if (transactions.metaFiles && transactions.metaFiles.length > 0) {
       for (const item of transactions.metaFiles.filter((item) => item.transaction)) {
         amount += item.transaction.getNeedFee()
       }
     }
-    // brfc 节点价格
+    //
     if (transactions.currentNodeBrfc?.transaction)
       amount += transactions.currentNodeBrfc.transaction.getNeedFee()
-    // 节点价格
+    //
     if (transactions.currentNode?.transaction)
       amount += transactions.currentNode.transaction.getNeedFee()
 
@@ -1586,8 +1575,8 @@ export class SDK {
         let balance = 0
         const userStore = useUserStore()
         if (type === SdkPayType.SPACE) {
-          // 使用bsv 上链时，不需要检查权限
-          // 获取余额
+          //
+          //
           const res = await this.wallet?.provider.getXpubBalance(
             this.wallet.wallet.xpubkey.toString()
           )
@@ -1640,7 +1629,7 @@ export class SDK {
 
           const useUtxos = []
           if (allUtxos && allUtxos?.length > 0) {
-            // 总价加个 最小金额  给转账费用
+            //
             let leftAmount = params.amount + mvc.Transaction.DUST_AMOUNT
             for (let i = 0; i < allUtxos.length; i++) {
               if (leftAmount > 0) {
@@ -1685,13 +1674,13 @@ export class SDK {
             amount: params.amount,
             meta_id: userStore.user!.metaId,
             protocol: params.nodeName,
-            // 打钱地址： 如果需要创建brfc节点则打到 protocol 地址，否则打到 brfc 节点地址
+            //
             receive_address: params.receive.address,
           })
           if (getMeUtxo.code === 0) {
             utxo = {
               address: getMeUtxo.data.address,
-              // utxo 所在的路径
+              //
               addressIndex: params.receive.addressIndex,
               addressType: params.receive!.addressType,
               outputIndex: 0,
@@ -1730,7 +1719,7 @@ export class SDK {
           (!userStore.sdkPayConfirm[payType].visible &&
             userStore.sdkPayConfirm[payType].value < useAmount))
       ) {
-        // 需要弹出确认框操作
+        //
         const divId = `sdk-pay-conirm-${new Date().getTime()}`
         const div = document.createElement('div')
         div.id = divId
@@ -1771,7 +1760,7 @@ export class SDK {
           document.getElementById(divId)!
         )
       } else {
-        // 不需要弹出 确认框操作
+        //
         resolve(true)
       }
     })
@@ -1811,7 +1800,7 @@ export class SDK {
       : 'web'
   }
 
-  // 去登录， 兼容 iosApp 和其他情况
+  //
   toLogin(fullpath: string) {
     if (this.appMetaIdJs) {
       this.appMetaIdJs.needLogin('', '', '')
@@ -1862,7 +1851,7 @@ export class SDK {
   }
 
   /**
-   * ECIES 解密
+   * ECIES
    */
   eciesDecryptData(params: {
     data: string | Buffer

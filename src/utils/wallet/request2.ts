@@ -54,9 +54,9 @@ export interface ApiRequestTypes {
 }
 export interface ApiParamsTypes {
   a: string // jwt token
-  n: number // 随机数
-  t: number // 时间戳
-  d?: unknown // 参数
+  n: number //
+  t: number //
+  d?: unknown //
 }
 
 export class HttpRequests implements Http {
@@ -92,15 +92,14 @@ export class HttpRequests implements Http {
           if (response.ok) {
             return response.json()
           } else {
-            // alert("服务器繁忙，请稍后再试！");
           }
         })
         .then<R>((response) => {
-          // response.code：是与服务器端约定 code：200 表示请求成功，非 200 表示请求失败，message：请求失败内容
+          // response.code：
           if (response) {
             return response
           } else {
-            // 非 200，错误处理
+            //
             return response
           }
         })
@@ -145,20 +144,14 @@ export class HttpRequests implements Http {
     const res = await fetch(url, options)
       .then<R>(async (response: any) => {
         if (response.ok) {
-          // 返回数字精度处理
+          //
           const resText = await response.text()
           const fmtText = resText.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"')
           return JSON.parse(fmtText)
         } else {
-          // console.log(response)
-          // alert("服务器繁忙，请稍后再试；\r\nCode:" + response.status);
-          // Vue.toasted.error('服务器繁忙，请稍后再试；\r\nCode:' + response.status)
-          // throw new CustomError(response.status, response)
         }
       })
       .then<R>((response) => {
-        // response.code：是与服务器端约定 code：200 表示请求成功，非 200 表示请求失败，message：请求失败内容
-        // console.log(response)
         return response
       })
       .catch<R>((error) => {

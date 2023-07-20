@@ -91,7 +91,7 @@ export function getLocalAccount() {
   console.log('localPassword', localPassword, localUserInfo)
 
   if (!localPassword || !localUserInfo) {
-    throw new Error('用户登录失败')
+    throw new Error('User login failed')
   }
   const password = decode(localPassword)
   const userInfo: UserInfo = JSON.parse(decode(localUserInfo))

@@ -63,17 +63,14 @@ export const GetMetaIdByLoginName = (params: {
   return Core.post(`/api/v1/evm/wallet/user/info`, params)
 }
 
-//获取随机word
 export const GetRandomWord = (): Promise<{ code: number; data: { word: string } }> => {
   return Core.get(`/api/v1/mnemonic/getWord`)
 }
 
-//注册前获取Word
 export const GetWordBeforeReg = (params: { evmAddress: string; chainId: string }) => {
   return Core.post(`/api/v1/evm/wallet/word/verify`, params)
 }
 
-//新用户登录
 export const LoginByNewUser = (params: {
   word: string
   address: string
@@ -88,7 +85,6 @@ export const LoginByNewUser = (params: {
   return Core.post(`/api/v1/evm/wallet/mnemonic/info/add`, params)
 }
 
-//助记词登录
 export const MnemoicLogin = (params: {
   xpub: string
   sign: string //publickey+word签名
@@ -101,7 +97,6 @@ export const MnemoicLogin = (params: {
   return Core.post(`/api/v1/mnemonic/verification`, params)
 }
 
-//上报hashData
 export const setHashData = (params: {
   accessKey: string
   userName: string
@@ -129,7 +124,6 @@ export const setHashData = (params: {
   )
 }
 
-//用户账户升级计划
 export const evmLoginAccountUpdate = (params: {
   accessKey: string
   userName: string

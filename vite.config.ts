@@ -42,7 +42,7 @@ export default ({ mode, command }) => {
           },
         },
       }),
-      // element-plus 按需加载
+      // element-plus
       AutoImport({
         resolvers: [
           ElementPlusResolver(),
@@ -64,7 +64,7 @@ export default ({ mode, command }) => {
       Icons({
         autoInstall: true,
       }),
-      // 多语言加载
+      //
       vueI18n({
         // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
         // compositionOnly: false,
