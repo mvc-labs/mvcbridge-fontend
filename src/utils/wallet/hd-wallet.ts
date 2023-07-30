@@ -1142,21 +1142,6 @@ export class HdWallet {
     return ftManager
   }
 
-  private async getAllAddressUtxos() {
-    const xPublicKey = this.wallet.xpubkey.toString()
-
-    return await fetch(`https://apiv2.metasv.com/xpubLite/${xPublicKey}/utxo`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization:
-          'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpbnRlcm5hbF90ZXN0X3Nob3dwYXkiLCJpc3MiOiJNZXRhU1YiLCJleHAiOjE2NTM4OTc0MTB9.genUip-PcA3tdQtOMKZUzwuc7XxC3zF7Vy5wdYAfKsM',
-      },
-    }).then((response) => {
-      return response.json()
-    })
-  }
-
   async getProtocolInfo(
     nodeName: NodeName,
     protocolsTxId: string,
