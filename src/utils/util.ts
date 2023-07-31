@@ -10,6 +10,7 @@ import { email } from './reg'
 import { GetMetaNameInfo, GetMetaIdByAddress, GetUserAllInfo } from '@/api/aggregation'
 import i18n from './i18n'
 import dayjs from 'dayjs'
+//@ts-ignores
 import { resolveAddress, isAddress } from 'ethers'
 import { OrderApi, OrderRegisterRequest } from 'mvcbridge-sdk/api'
 import { SignatureHelper } from 'mvcbridge-sdk/signature'

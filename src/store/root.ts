@@ -209,32 +209,69 @@ export const useRootStore = defineStore('root', {
           mvcRequest.push(res)
         }
 
-        const result: any = await Promise.allSettled([
-          ethCurrency,
-          mvcCurrency,
-          usdt,
-          usdc,
-          ...mvcRequest,
-        ])
+        ethCurrency.then((res) => {
+          this.Web3WalletTokenBalance.currency = res
+            ? new Decimal(formatEther(res.toString())).toNumber().toFixed(4)
+            : '0'
+        })
 
-        this.Web3WalletTokenBalance.currency = result[0].value
-          ? new Decimal(formatEther(result[0].value)).toNumber().toFixed(4)
-          : '0'
+        mvcCurrency.then((res) => {
+          this.mvcWalletTokenBalance.space = res ? Math.abs(+res.toFixed(8)) : '0'
+        })
 
-        this.mvcWalletTokenBalance.space = Math.abs(result[1].value?.toFixed(8)) || '0'
-        this.Web3WalletTokenBalance.usdt = result[2].value
-          ? new Decimal(formatUnits(result[2].value, 6)).toNumber().toFixed(4)
-          : '0'
-        this.Web3WalletTokenBalance.usdc = result[3].value
-          ? new Decimal(formatUnits(result[3].value, 6)).toNumber().toFixed(4)
-          : '0'
-        this.mvcWalletTokenBalance.usdt =
-          Math.abs(
-            new Decimal(result[4].value[0]?.confirmedString || '0')
-              .add(result[4].value[0]?.unconfirmed || '0')
-              .div(10 ** result[4].value[0]?.decimal || 0)
-              .toNumber()
-          ) || '0'
+        usdt.then((res) => {
+          this.Web3WalletTokenBalance.usdt = res
+            ? new Decimal(formatUnits(res.toString(), 6)).toNumber().toFixed(4)
+            : '0'
+        })
+
+        usdc.then((res) => {
+          this.Web3WalletTokenBalance.usdc = res
+            ? new Decimal(formatUnits(res.toString(), 6)).toNumber().toFixed(4)
+            : '0'
+        })
+        console.log('mvcRequest', mvcRequest)
+        mvcRequest.forEach((item) => {
+          item.then((res) => {
+            if (res.length) {
+              this.mvcWalletTokenBalance.usdt =
+                Math.abs(
+                  new Decimal(res.confirmedString || '0')
+                    .add(res.unconfirmed || '0')
+                    .div(10 ** res.decimal || 0)
+                    .toNumber()
+                ) || '0'
+            } else {
+              this.mvcWalletTokenBalance.usdt = '0'
+            }
+          })
+        })
+        // const result: any = await Promise.allSettled([
+        //   ethCurrency,
+        //   mvcCurrency,
+        //   usdt,
+        //   usdc,
+        //   ...mvcRequest,
+        // ])
+
+        // this.Web3WalletTokenBalance.currency = result[0].value
+        //   ? new Decimal(formatEther(result[0].value)).toNumber().toFixed(4)
+        //   : '0'
+
+        // this.mvcWalletTokenBalance.space = Math.abs(result[1].value?.toFixed(8)) || '0'
+        // this.Web3WalletTokenBalance.usdt = result[2].value
+        //   ? new Decimal(formatUnits(result[2].value, 6)).toNumber().toFixed(4)
+        //   : '0'
+        // this.Web3WalletTokenBalance.usdc = result[3].value
+        //   ? new Decimal(formatUnits(result[3].value, 6)).toNumber().toFixed(4)
+        //   : '0'
+        // this.mvcWalletTokenBalance.usdt =
+        //   Math.abs(
+        //     new Decimal(result[4].value[0]?.confirmedString || '0')
+        //       .add(result[4].value[0]?.unconfirmed || '0')
+        //       .div(10 ** result[4].value[0]?.decimal || 0)
+        //       .toNumber()
+        //   ) || '0'
         // this.mvcWalletTokenBalance.usdc =
         //   Math.abs(
         //     new Decimal(result[5].value[0]?.confirmedString || '0')
@@ -248,17 +285,23 @@ export const useRootStore = defineStore('root', {
         )
         const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
         const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
-        const result: any = await Promise.allSettled([ethCurrency, usdt, usdc])
-        console.log('result', result)
-        this.Web3WalletTokenBalance.currency = result[0].value
-          ? new Decimal(formatEther(result[0].value)).toNumber().toFixed(4)
-          : '0'
-        this.Web3WalletTokenBalance.usdt = result[1].value
-          ? new Decimal(formatUnits(result[1].value, 6)).toNumber().toFixed(4)
-          : '0'
-        this.Web3WalletTokenBalance.usdc = result[2].value
-          ? new Decimal(formatUnits(result[2].value, 6)).toNumber().toFixed(4)
-          : '0'
+        //const result: any = await Promise.allSettled([ethCurrency, usdt, usdc])
+        ethCurrency.then((res) => {
+          this.Web3WalletTokenBalance.currency = res
+            ? new Decimal(formatEther(res.toString())).toNumber().toFixed(4)
+            : '0'
+        })
+
+        usdt.then((res) => {
+          this.Web3WalletTokenBalance.usdt = res
+            ? new Decimal(formatUnits(res.toString(), 6)).toNumber().toFixed(4)
+            : '0'
+        })
+        usdc.then((res) => {
+          this.Web3WalletTokenBalance.usdc = res
+            ? new Decimal(formatUnits(res.toString(), 6)).toNumber().toFixed(4)
+            : '0'
+        })
       } else if (payload == ChainTypeBalance.MVC) {
         const mvcCurrency = GetSpanceBalance()
 
@@ -271,17 +314,21 @@ export const useRootStore = defineStore('root', {
           mvcRequest.push(res)
         }
 
-        const result: any = await Promise.allSettled([mvcCurrency, ...mvcRequest])
+        //const result: any = await Promise.allSettled([mvcCurrency, ...mvcRequest])
+        mvcCurrency.then((res) => {
+          this.mvcWalletTokenBalance.space = +res.toFixed(8)
+        })
 
-        console.log('result', result)
+        mvcRequest.forEach((item) => {
+          item.then((res) => {
+            this.mvcWalletTokenBalance.usdt =
+              new Decimal(res.confirmedString || 0)
+                .add(res.unconfirmed || '0')
+                .div(10 ** res.decimal || 0)
+                .toString() || '0'
+          })
+        })
 
-        this.mvcWalletTokenBalance.space = result[0].value.toFixed(8)
-
-        this.mvcWalletTokenBalance.usdt =
-          new Decimal(result[1].value[0]?.confirmedString || 0)
-            .add(result[1].value[0]?.unconfirmed || '0')
-            .div(10 ** result[1].value[0]?.decimal || 0)
-            .toString() || '0'
         // this.mvcWalletTokenBalance.usdc =
         //   new Decimal(result[2].value[0]?.confirmedString || 0)
         //     .add(result[2].value[0]?.unconfirmed || '0')
