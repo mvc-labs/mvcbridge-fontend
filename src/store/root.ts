@@ -219,15 +219,15 @@ export const useRootStore = defineStore('root', {
 
         this.Web3WalletTokenBalance.currency = result[0].value
           ? new Decimal(formatEther(result[0].value)).toNumber().toFixed(4)
-          : 0
+          : '0'
 
         this.mvcWalletTokenBalance.space = Math.abs(result[1].value?.toFixed(8)) || '0'
         this.Web3WalletTokenBalance.usdt = result[2].value
           ? new Decimal(formatUnits(result[2].value, 6)).toNumber().toFixed(4)
-          : 0
+          : '0'
         this.Web3WalletTokenBalance.usdc = result[3].value
           ? new Decimal(formatUnits(result[3].value, 6)).toNumber().toFixed(4)
-          : 0
+          : '0'
         this.mvcWalletTokenBalance.usdt =
           Math.abs(
             new Decimal(result[4].value[0]?.confirmedString || '0')
@@ -252,13 +252,13 @@ export const useRootStore = defineStore('root', {
         console.log('result', result)
         this.Web3WalletTokenBalance.currency = result[0].value
           ? new Decimal(formatEther(result[0].value)).toNumber().toFixed(4)
-          : 0
+          : '0'
         this.Web3WalletTokenBalance.usdt = result[1].value
           ? new Decimal(formatUnits(result[1].value, 6)).toNumber().toFixed(4)
-          : 0
+          : '0'
         this.Web3WalletTokenBalance.usdc = result[2].value
           ? new Decimal(formatUnits(result[2].value, 6)).toNumber().toFixed(4)
-          : 0
+          : '0'
       } else if (payload == ChainTypeBalance.MVC) {
         const mvcCurrency = GetSpanceBalance()
 
