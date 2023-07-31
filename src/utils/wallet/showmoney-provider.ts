@@ -186,6 +186,8 @@ export default class ShowmoneyProvider {
         .catch((error) => reject(error))
       if (res.code === 0) {
         resolve(res.data as MetasvSigTypes)
+      } else {
+        reject(`Get Signature Failed:${res.code}`)
       }
     })
   }
