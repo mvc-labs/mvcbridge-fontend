@@ -236,9 +236,9 @@ export const useRootStore = defineStore('root', {
             if (res.length) {
               this.mvcWalletTokenBalance.usdt =
                 Math.abs(
-                  new Decimal(res.confirmedString || '0')
-                    .add(res.unconfirmed || '0')
-                    .div(10 ** res.decimal || 0)
+                  new Decimal(res[0].confirmedString || '0')
+                    .add(res[0].unconfirmed || '0')
+                    .div(10 ** res[0].decimal || 0)
                     .toNumber()
                 ) || '0'
             } else {
@@ -322,9 +322,9 @@ export const useRootStore = defineStore('root', {
         mvcRequest.forEach((item) => {
           item.then((res) => {
             this.mvcWalletTokenBalance.usdt =
-              new Decimal(res.confirmedString || 0)
-                .add(res.unconfirmed || '0')
-                .div(10 ** res.decimal || 0)
+              new Decimal(res[0].confirmedString || 0)
+                .add(res[0].unconfirmed || '0')
+                .div(10 ** res[0].decimal || 0)
                 .toString() || '0'
           })
         })
