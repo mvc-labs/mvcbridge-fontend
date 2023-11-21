@@ -1,32 +1,33 @@
+//
 export enum Lang {
   CN = 'cn',
-  EN = 'en'
+  EN = 'en',
 }
 
 export enum NFTIssueParamsIconType {
   File = 'pic',
-  TXId = 'txId'
+  TXId = 'txId',
 }
 
 export enum SdkType {
   Null = -1,
   App = 1,
   Metaidjs = 2,
-  Dotwallet = 3
+  Dotwallet = 3,
 }
 
 export enum Encrypt {
   Yes = '1',
-  No = '0'
+  No = '0',
 }
 
 export enum PayToAddressCurrency {
   SATS = 'sats',
-  BSV = 'bsv'
+  BSV = 'bsv',
 }
 export enum AppMode {
   PROD = 'prod',
   GRAY = 'gray',
   TEST = 'test',
-  DEV2 = 'dev2'
+  DEV2 = 'dev2',
 }

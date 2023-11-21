@@ -1,5 +1,6 @@
+
 {
-  "version": "v1",
+  "version": "v1.0.1",
   "packages": {
     "request-sdk": {
       "signature": "bafa3b957f8ecf899b649049ebbb4094",
