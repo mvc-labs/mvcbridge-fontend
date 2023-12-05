@@ -419,6 +419,7 @@ async function connectWalletConnect(isUpdate: boolean = false) {
     try {
       //toQuantity
       rootStore.InitWeb3Wallet(await new Web3SDK())
+
       address = accounts[0].toLocaleLowerCase()
       message = `${toQuantity(toUtf8Bytes(sha256(toUtf8Bytes(accounts[0].toLocaleLowerCase()))))}`
 

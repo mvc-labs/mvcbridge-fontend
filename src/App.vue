@@ -2,12 +2,15 @@
 import ConnectWalletModalVue from '@/components/ConnectWalletModal/ConnectWalletModal.vue'
 import { useRootStore } from './store/root'
 import Web3SDK from '@/utils/ethers'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useUserStore } from './store/user'
 import { SDK } from '@/utils/sdk'
-import { diffTime } from '@/utils/util'
+import { diffTime, mappingCurrentChainName } from '@/utils/util'
 import { ConnectType } from '@/enum'
 import { ElMessage } from 'element-plus'
+import { ReceiverChainName } from '@/enum'
+
+const currentChainName = ref(setCurrentChainName())
 
 function sleep() {
   return new Promise((resolve) =>
@@ -17,11 +20,22 @@ function sleep() {
   )
 }
 
+function setCurrentChainName() {
+  switch (mappingCurrentChainName((window as any)?.ethereum?.chainId)) {
+    case ReceiverChainName.ETH:
+      return ReceiverChainName.ETH
+    case ReceiverChainName.OP:
+      return ReceiverChainName.OP
+    case ReceiverChainName.ARB:
+      return ReceiverChainName.ARB
+  }
+}
+
 onMounted(async () => {
   const rootStore = useRootStore()
   const userStore = useUserStore()
   // if ((window as any).WallectConnect) {
-  //   debugger
+  //
   //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.WalletConnect))
   // } else {
   //   rootStore.InitWeb3Wallet(await new Web3SDK(ConnectType.MetaMask))
@@ -30,8 +44,11 @@ onMounted(async () => {
   rootStore.getExchangeRate()
   rootStore.InitOrderApi()
   console.log('!rootStore.isWalletConnect', rootStore.isWalletConnect)
+  ;(window as any)?.ethereum?.on('networkChanged', (networkIDstring: string[]) => {
+    currentChainName.value = setCurrentChainName()
+  })
 
-  await rootStore.setReceiverAddress().catch((e) => ElMessage.error(e))
+  await rootStore.setReceiverAddress(currentChainName.value).catch((e) => ElMessage.error(e))
   if (
     (window as any)?.ethereum &&
     rootStore.chainWhiteList.includes((window as any)?.ethereum?.chainId) &&

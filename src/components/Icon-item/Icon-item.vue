@@ -13,10 +13,13 @@ import BSC from '@/assets/images/BSC.png?url'
 import USDC from '@/assets/images/USDC.png?url'
 import USDT from '@/assets/images/USDT.png?url'
 import MVC from '@/assets/images/MVC.png?url'
-
+import Optimism from '@/assets/images/op.webp?url'
+import Arbitrum from '@/assets/images/ar.png?url'
 import { MappingIcon, MappingChainName } from '@/enum'
 const IconList = reactive({
   ETH,
+  Optimism,
+  Arbitrum,
   POLYGON,
   BSC,
   USDC,
@@ -40,6 +43,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {})
 const marginLeft = ref(props.iconMap ? '6px' : '12px')
 const currentIcon = computed(() => {
+  console.log('props.iconMap', props.iconMap)
+
   return {
     name: props.iconMap ? props.iconMap : props.chainMap,
     icon: props.iconMap ? props.iconMap : props.chainMap,

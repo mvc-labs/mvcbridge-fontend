@@ -2,9 +2,23 @@ import { ElLoading, LoadingParentElement, ElMessage } from 'element-plus'
 import { decode, encode } from 'js-base64'
 import { useUserStore } from '@/store/user'
 import { useRootStore } from '@/store/root'
-import { MappingIcon, CoinSymbol, ChainOrigin, MappingChainName, ChainTypeBalance } from '@/enum'
-import { eth, bsc, polygon, sepolias } from '@/assets/contract/contract.json'
-import { ETH, BSC, POLYGON, SEPOLIA } from '@/assets/contract/abi.json'
+import {
+  MappingIcon,
+  CoinSymbol,
+  ChainOrigin,
+  MappingChainName,
+  ChainTypeBalance,
+  ReceiverChainName,
+} from '@/enum'
+import {
+  eth,
+  bsc,
+  polygon,
+  sepolias,
+  op_sepolias,
+  arb_sepolias,
+} from '@/assets/contract/contract.json'
+import { ETH, BSC, POLYGON, SEPOLIA, OP_SEPOLIA, ARB_SEPOLIA } from '@/assets/contract/abi.json'
 import Decimal from 'decimal.js-light'
 import { email } from './reg'
 import { GetMetaNameInfo, GetMetaIdByAddress, GetUserAllInfo } from '@/api/aggregation'
@@ -132,6 +146,22 @@ export function mappingChainName(chainid: string) {
       return MappingChainName.Matic
     case '0x38':
       return MappingChainName.BNB
+    case '0xaa37dc':
+      return MappingChainName.OP
+    case '0x66eee':
+      return MappingChainName.AR
+  }
+}
+
+export function mappingCurrentChainName(chainid: string) {
+  switch (chainid) {
+    case '0x1':
+    case '0xaa36a7':
+      return ReceiverChainName.ETH
+    case '0xaa37dc':
+      return ReceiverChainName.OP
+    case '0x66eee':
+      return ReceiverChainName.ARB
   }
 }
 
@@ -144,6 +174,10 @@ export function mappingChain(chainid: string) {
       return MappingIcon.POLYGON
     case '0x38':
       return MappingIcon.BSC
+    case '0xaa37dc':
+      return MappingIcon.OP
+    case '0x66eee':
+      return MappingIcon.ARB
   }
 }
 
@@ -156,6 +190,10 @@ export function mappingChainOrigin(chainid: string) {
       return ChainOrigin.POLYGON
     case '0x38':
       return ChainOrigin.BSC
+    case '0xaa37dc':
+      return ChainOrigin.OP
+    case '0x66eee':
+      return ChainOrigin.ARB
   }
 }
 
@@ -163,6 +201,8 @@ export function mappingCoin(chainid: string) {
   switch (chainid) {
     case '0x1':
     case '0xaa36a7':
+    case '0xaa37dc':
+    case '0x66eee':
       return CoinSymbol.ETH
     case '0x89':
       return CoinSymbol.POLYGON
@@ -225,6 +265,29 @@ export function chainTokenInfo(chainid: string) {
         decimal: 18,
       },
     },
+    arb_sepolias: {
+      usdt: {
+        contractAddress: arb_sepolias.usdt,
+        abi: ARB_SEPOLIA.USDT,
+        decimal: 6,
+      },
+    },
+    op_sepolias: {
+      usdt: {
+        contractAddress: op_sepolias.usdt,
+        abi: OP_SEPOLIA.USDT,
+        decimal: 6,
+      },
+      usdc: {
+        contractAddress: op_sepolias.usdc,
+        abi: OP_SEPOLIA.USDC,
+        decimal: 6,
+      },
+      faucet: {
+        contractAddress: op_sepolias.faucet,
+        abi: OP_SEPOLIA.FAUCET,
+      },
+    },
   }
   const rootStore = useRootStore()
   if (rootStore.chainWhiteList.includes(chainid)) {
@@ -237,6 +300,10 @@ export function chainTokenInfo(chainid: string) {
         return info.polygon
       case '0x38':
         return info.bsc
+      case '0xaa37dc':
+        return info.op_sepolias
+      case '0x66eee':
+        return info.arb_sepolias
     }
   } else return false
 }

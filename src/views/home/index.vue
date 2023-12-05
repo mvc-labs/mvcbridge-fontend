@@ -418,7 +418,7 @@ onMounted(async () => {
   // setTimeout(async () => {
   //   const signature = await rootStore.GetWeb3Wallet.signer.signMessage(preMessage + message)
   //   console.log('signature', signature)
-  //   debugger
+  //
   // }, 5000)
   // const message = 'hello'
   // const res = await verifyMessage(
@@ -462,6 +462,7 @@ watch(
   async (val: boolean) => {
     if (val) {
       await rootStore.GetWeb3AccountBalance()
+      console.log('walletList', walletList)
       walletList.forEach((item) =>
         item.coinList.forEach((coin) => {
           switch (coin.chainName) {
@@ -475,6 +476,12 @@ watch(
               coin.balance = rootStore.Web3WalletTokenBalance.currency
               break
             case MappingIcon.ETH:
+              coin.balance = rootStore.Web3WalletTokenBalance.currency
+              break
+            case MappingIcon.ARB:
+              coin.balance = rootStore.Web3WalletTokenBalance.currency
+              break
+            case MappingIcon.OP:
               coin.balance = rootStore.Web3WalletTokenBalance.currency
               break
             case MappingIcon.Tether:
@@ -501,6 +508,8 @@ type Coin = {
   chainName:
     | MappingIcon.ETH
     | MappingIcon.BSC
+    | MappingIcon.ARB
+    | MappingIcon.OP
     | MappingIcon.POLYGON
     | MappingIcon.Tether
     | MappingIcon.USD
@@ -669,7 +678,7 @@ async function AllHistoryList() {
   toChain: string
   TX: string
   fromAmount: string
-         * 
+         *
          */
 async function getPendingList() {
   if (currentTableLayout.value == OrderType.Pending) {
@@ -1023,6 +1032,8 @@ const walletList: WalletInfo[] = reactive([
     ],
   },
 ])
+
+console.log('walletList', walletList)
 
 async function ConnectWallet() {
   await checkUserLogin()
