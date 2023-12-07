@@ -124,7 +124,7 @@ export default ({ mode, command }) => {
       // },
     },
     esbuild: {
-      drop: command === 'build' ? ['console', ''] : [],
+      drop: command === 'build' ? ['console', 'debugger'] : [],
     },
     build: {
       target: isProduction ? 'es2015' : 'modules',

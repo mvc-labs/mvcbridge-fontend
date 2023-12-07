@@ -173,7 +173,9 @@ export const useRootStore = defineStore('root', {
       return toRaw(state.Web3WalletSdk)
     },
     GetOrderApi: (state) => {
-      return toRaw(state.orderApi)
+      console.log('state', state)
+
+      return state.orderApi
     },
     currentExchangeRate: (state) =>
       state.exchangeRate.find((item) => item.symbol === state.currentPrice),

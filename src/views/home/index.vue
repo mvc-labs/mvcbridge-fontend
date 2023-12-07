@@ -621,17 +621,21 @@ function mappingFromToken(token: string) {
 }
 
 async function AllPendingList() {
-  const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
-    //MappingChainName.ETH.toLocaleLowerCase(),
-    rootStore.curretnETHChain,
-    MappingIcon.USDT.toLocaleLowerCase(),
-    rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
-  ).catch((e) => console.log(e))
-  const mvcOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
-    MappingChainName.MVC.toLocaleLowerCase(),
-    MappingIcon.USDT.toLocaleLowerCase(),
-    userStore.user?.address
-  ).catch((e) => console.log(e))
+  const ethOrderWaitRes = await rootStore.orderApi
+    .orderFromChainFromTokenNameAddressPendingGet(
+      //MappingChainName.ETH.toLocaleLowerCase(),
+      rootStore.curretnETHChain.toLocaleLowerCase(),
+      MappingIcon.USDT.toLocaleLowerCase(),
+      rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
+    )
+    .catch((e) => console.log(e))
+  const mvcOrderWaitRes = await rootStore.orderApi
+    .orderFromChainFromTokenNameAddressPendingGet(
+      MappingChainName.MVC.toLocaleLowerCase(),
+      MappingIcon.USDT.toLocaleLowerCase(),
+      userStore.user?.address
+    )
+    .catch((e) => console.log(e))
   if (!ethOrderWaitRes?.data.length && mvcOrderWaitRes?.data.length) {
     list.push(...mvcOrderWaitRes.data)
   } else if (!mvcOrderWaitRes?.data.length && ethOrderWaitRes?.data.length) {
@@ -644,19 +648,21 @@ async function AllPendingList() {
 }
 
 async function AllHistoryList() {
-  const ethOrderWaitRes =
-    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
+  const ethOrderWaitRes = await rootStore.orderApi
+    .orderFromChainFromTokenNameAddressFinalizedGet(
       //MappingChainName.ETH.toLocaleLowerCase(),
-      rootStore.curretnETHChain,
+      rootStore.curretnETHChain.toLocaleLowerCase(),
       MappingIcon.USDT.toLocaleLowerCase(),
       rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
-    ).catch((e) => console.log(e))
-  const mvcOrderWaitRes =
-    await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
+    )
+    .catch((e) => console.log(e))
+  const mvcOrderWaitRes = await rootStore.orderApi
+    .orderFromChainFromTokenNameAddressFinalizedGet(
       MappingChainName.MVC.toLocaleLowerCase(),
       MappingIcon.USDT.toLocaleLowerCase(),
       userStore.user?.address
-    ).catch((e) => console.log(e))
+    )
+    .catch((e) => console.log(e))
   // if (mvcOrderWaitRes?.data.length) {
   //   list.push(...mvcOrderWaitRes.data)
   // }
@@ -712,8 +718,6 @@ async function getPendingList() {
      */
     list.length &&
       list.forEach((ele, id) => {
-        console.log('ele', ele)
-
         let item = {
           Currency: mappingFromToken(ele!.vaultId.split('_')[1]),
           Send:
@@ -723,7 +727,7 @@ async function getPendingList() {
           Receive:
             MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC
-              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+              : MappingIcon[rootStore.curretnETHChain.toLocaleUpperCase()], //MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
 
           Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
           State: ele?.state,
@@ -742,11 +746,10 @@ async function getPendingList() {
           toChain:
             MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC.toLowerCase()
-              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+              : rootStore.curretnETHChain.toLowerCase(),
         }
         transationHistoryList.push(item)
       })
-    console.log('transationHistoryList', transationHistoryList)
 
     loadingHistory.value = false
   } catch (error) {
@@ -776,11 +779,11 @@ async function getHistoryList() {
           Send:
             MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] == MappingIcon.MVC
               ? MappingIcon.MVC
-              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+              : MappingIcon[rootStore.curretnETHChain.toUpperCase()],
           Receive:
             MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC
-              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+              : MappingIcon[rootStore.curretnETHChain.toUpperCase()],
           Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
           State: ele?.state,
           Date: ele?.finalizedTimestamp,
@@ -797,10 +800,11 @@ async function getHistoryList() {
           toChain:
             MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC.toLowerCase()
-              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+              : rootStore.curretnETHChain.toLowerCase(),
         }
         transationHistoryList.push(item)
       })
+
     loadingHistory.value = false
   } catch (error) {
     loadingHistory.value = false

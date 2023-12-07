@@ -749,7 +749,7 @@ async function confrimSwap() {
           console.log('registerRequest', registerRequest)
           await retryOrderRequest(
             {
-              fromChain: rootStore.curretnETHChain, //fromChain.value.toLowerCase(),
+              fromChain: rootStore.curretnETHChain.toLowerCase(), //fromChain.value.toLowerCase(),
               fromTokenName: currentCoin.value!.toLowerCase(),
               address: rootStore.Web3WalletSdk.signer.address,
               txHash: tx.hash,
@@ -760,7 +760,8 @@ async function confrimSwap() {
           })
 
           // if (!orderWaitRes) throw new Error(`deposit tx not found`)
-          rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+          rootStore.orderApi
+            .orderRegisterPost(registerRequest)
             .then(async (order: any) => {
               await tx.wait()
               await rootStore.GetWeb3AccountBalance()
@@ -829,7 +830,7 @@ async function confrimSwap() {
           txid: tx?.ft?.transfer?.txId,
           amount: new Decimal(sendInput.value).mul(10 ** 6).toString(),
           fromAddress: userStore.user!.address,
-          toChain: curretnToChain.value.toLowerCase(),
+          toChain: rootStore.curretnETHChain.toLowerCase(),
           toTokenName: currentCoin.value!.toLowerCase(),
           toAddress: rootStore.GetWeb3Wallet.signer.address,
         })
@@ -848,7 +849,8 @@ async function confrimSwap() {
         })
 
         // if (!orderWaitRes) throw new Error(`deposit tx not found`)
-        rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+        rootStore.orderApi
+          .orderRegisterPost(registerRequest)
           .then(async (order: any) => {
             await rootStore.GetWeb3AccountBalance()
             console.log('order', order)
@@ -879,7 +881,7 @@ function orderRequest(params: {
 }) {
   return new Promise(async (resolve, reject) => {
     try {
-      const orderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+      const orderWaitRes = await rootStore.orderApi.orderFromChainFromTokenNameAddressWaitingGet(
         params.fromChain,
         params.fromTokenName,
         params.address

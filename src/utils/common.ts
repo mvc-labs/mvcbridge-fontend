@@ -22,7 +22,8 @@ export function RetryWaitRequest(params) {
       const sign = await rootStore.GetWeb3Wallet.signer.signMessage(message)
       if (sign) {
         registerRequest.signature = sign
-        rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+        rootStore.orderApi
+          .orderRegisterPost(registerRequest)
           .then((order: any) => {
             console.log('order', order)
             resolve(order)
@@ -43,7 +44,8 @@ export function RetryWaitRequest(params) {
         toAddress: params.toAddress,
       })
       if (registerRequest) {
-        rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+        rootStore.orderApi
+          .orderRegisterPost(registerRequest)
           .then((order: any) => {
             resolve(order)
           })
