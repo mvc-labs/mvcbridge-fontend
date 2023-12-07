@@ -33,7 +33,7 @@ export enum ReceiverChainName {
 export enum MappingChainName {
   Ethereum = 'Ethereum',
   OP = 'Optimism',
-  AR = 'Arbitrum',
+  ARB = 'Arbitrum',
   Polygon = 'Polygon',
   BNB = 'BNB Chain',
   MVC = 'MVC',
@@ -49,6 +49,12 @@ export enum Chains {
   MUMBAI = 'mumbai',
   POLYGON = 'polygon',
   BSV = 'bsv',
+}
+
+export enum ETHChain {
+  ETH = 'ETH',
+  OP = 'op',
+  ARB = 'arb',
 }
 
 export enum CoinSymbol {

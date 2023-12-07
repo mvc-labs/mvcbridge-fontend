@@ -342,6 +342,7 @@ enum OrderType {
 
 const isHome = ref(true)
 const env = ref(import.meta.env.MODE == 'prod' ? true : false)
+const isETHorLayer2 = reactive([MappingChainName.ETH, MappingChainName.ARB, MappingChainName.OP])
 const contractList: any[] = [
   //mvc, twitter, instagram, reddit, discord
   {
@@ -603,6 +604,10 @@ function mappingFromChain(chain: string) {
       return MappingIcon.ETH
     case MappingChainName.MVC.toLocaleLowerCase():
       return MappingIcon.MVC
+    case MappingChainName.OP.toLocaleLowerCase():
+      return MappingIcon.OP
+    case MappingChainName.ARB.toLocaleLowerCase():
+      return MappingIcon.ARB
   }
 }
 
@@ -617,7 +622,8 @@ function mappingFromToken(token: string) {
 
 async function AllPendingList() {
   const ethOrderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressPendingGet(
-    MappingChainName.ETH.toLocaleLowerCase(),
+    //MappingChainName.ETH.toLocaleLowerCase(),
+    rootStore.curretnETHChain,
     MappingIcon.USDT.toLocaleLowerCase(),
     rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
   ).catch((e) => console.log(e))
@@ -640,7 +646,8 @@ async function AllPendingList() {
 async function AllHistoryList() {
   const ethOrderWaitRes =
     await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressFinalizedGet(
-      MappingChainName.ETH.toLocaleLowerCase(),
+      //MappingChainName.ETH.toLocaleLowerCase(),
+      rootStore.curretnETHChain,
       MappingIcon.USDT.toLocaleLowerCase(),
       rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
     ).catch((e) => console.log(e))
@@ -695,15 +702,29 @@ async function getPendingList() {
     if (!list.length) {
       loadingHistory.value = false
     }
-    list.length &&
-      list.forEach((ele, id) => {
-        let item = {
-          Currency: mappingFromToken(ele!.vaultId.split('_')[1]),
-          Send: mappingFromChain(ele!.vaultId.split('_')[0]),
-          Receive:
-            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+    console.log('list', list)
+
+    /**
+     *   ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
               ? MappingIcon.MVC
               : MappingIcon.ETH,
+     * 
+     */
+    list.length &&
+      list.forEach((ele, id) => {
+        console.log('ele', ele)
+
+        let item = {
+          Currency: mappingFromToken(ele!.vaultId.split('_')[1]),
+          Send:
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] == MappingIcon.MVC
+              ? MappingIcon.MVC
+              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+          Receive:
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
+              ? MappingIcon.MVC
+              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+
           Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
           State: ele?.state,
           Date: ele?.finalizedTimestamp,
@@ -714,17 +735,19 @@ async function getPendingList() {
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,
           toAddress:
-            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? userStore.user.address
               : rootStore.GetWeb3Wallet.signer.address,
           fromChain: ele!.vaultId.split('_')[0],
           toChain:
-            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC.toLowerCase()
-              : MappingIcon.ETH.toLowerCase(),
+              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
         }
         transationHistoryList.push(item)
       })
+    console.log('transationHistoryList', transationHistoryList)
+
     loadingHistory.value = false
   } catch (error) {
     loadingHistory.value = false
@@ -750,11 +773,14 @@ async function getHistoryList() {
       list.forEach((ele, id) => {
         let item = {
           Currency: mappingFromToken(ele!.vaultId.split('_')[1]),
-          Send: mappingFromChain(ele!.vaultId.split('_')[0]),
-          Receive:
-            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+          Send:
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] == MappingIcon.MVC
               ? MappingIcon.MVC
-              : MappingIcon.ETH,
+              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
+          Receive:
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
+              ? MappingIcon.MVC
+              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
           Amount: new Decimal(ele!.fromAmount).div(10 ** 6).toString(),
           State: ele?.state,
           Date: ele?.finalizedTimestamp,
@@ -764,14 +790,14 @@ async function getHistoryList() {
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,
           toAddress:
-            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? userStore.user.address
               : rootStore.GetWeb3Wallet.signer.address,
           fromChain: ele!.vaultId.split('_')[0],
           toChain:
-            ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
+            MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC.toLowerCase()
-              : MappingIcon.ETH.toLowerCase(),
+              : MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()],
         }
         transationHistoryList.push(item)
       })
@@ -923,7 +949,7 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
           await transferSpace().catch(() => {
             transferLoading.value = false
           })
-        } else if (currentTransferType.value == MappingIcon.ETH) {
+        } else if (isETHorLayer2.includes(currentTransferType.value)) {
           toAddress = await ensConvertAddress(ruleForm.address.trim()).catch((e) => {
             return ElMessage.error(e.toString())
           })

@@ -8,7 +8,7 @@ import { SDK } from '@/utils/sdk'
 import { diffTime, mappingCurrentChainName } from '@/utils/util'
 import { ConnectType } from '@/enum'
 import { ElMessage } from 'element-plus'
-import { ReceiverChainName } from '@/enum'
+import { ReceiverChainName, ETHChain } from '@/enum'
 
 const currentChainName = ref(setCurrentChainName())
 
@@ -49,6 +49,8 @@ onMounted(async () => {
   })
 
   await rootStore.setReceiverAddress(currentChainName.value).catch((e) => ElMessage.error(e))
+
+  rootStore.setCurretnETHChain(ETHChain[currentChainName.value.toLocaleUpperCase()])
   if (
     (window as any)?.ethereum &&
     rootStore.chainWhiteList.includes((window as any)?.ethereum?.chainId) &&

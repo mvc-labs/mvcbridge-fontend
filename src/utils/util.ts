@@ -149,7 +149,7 @@ export function mappingChainName(chainid: string) {
     case '0xaa37dc':
       return MappingChainName.OP
     case '0x66eee':
-      return MappingChainName.AR
+      return MappingChainName.ARB
   }
 }
 

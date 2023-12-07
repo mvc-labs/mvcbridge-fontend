@@ -195,6 +195,7 @@ import {
   SdkPayType,
   CoinDecimal,
   ChainTypeBalance,
+  ETHChain,
   ReceiverChainName,
 } from '@/enum'
 import IconItem from '@/components/Icon-item/Icon-item.vue'
@@ -224,7 +225,7 @@ const transationDetailDialog = ref(false)
 const swapSuccess = ref(false)
 const i18n = useI18n()
 const sendInput = ref(null)
-const isETHorLayer2 = reactive([MappingChainName.ETH, MappingChainName.AR, MappingChainName.OP])
+const isETHorLayer2 = reactive([MappingChainName.ETH, MappingChainName.ARB, MappingChainName.OP])
 const currentChainName = ref(ReceiverChainName.ETH)
 
 onMounted(() => {
@@ -235,6 +236,7 @@ onMounted(() => {
       curretnToChain.value = mappingChainName((window as any)?.ethereum?.chainId)
     }
     setCurrentChainName()
+    rootStore.setCurretnETHChain(ETHChain[currentChainName.value.toLocaleUpperCase()])
   })
 })
 
@@ -289,7 +291,7 @@ const allowInputBalance = computed(() => {
     switch (fromChain.value) {
       case MappingChainName.ETH:
       case MappingChainName.OP:
-      case MappingChainName.AR:
+      case MappingChainName.ARB:
         return parseFloat(rootStore.Web3WalletTokenBalance.usdt)
       case MappingChainName.MVC:
         return parseFloat(rootStore.mvcWalletTokenBalance.usdt)
@@ -368,8 +370,8 @@ const fromChain = computed(() => {
       return MappingChainName.MVC
     case MappingChainName.OP:
       return MappingChainName.OP
-    case MappingChainName.AR:
-      return MappingChainName.AR
+    case MappingChainName.ARB:
+      return MappingChainName.ARB
     default:
       return MappingChainName.ETH
   }
@@ -405,7 +407,7 @@ const currentCoin = computed(() => {
 const supportChain = reactive([
   MappingChainName.Ethereum,
   MappingChainName.OP,
-  MappingChainName.AR,
+  MappingChainName.ARB,
   // MappingChainName.Polygon,
   // MappingChainName.BNB,
 ])
@@ -457,7 +459,7 @@ const minumSend = computed(() => {
   if (
     currentFromChain.value === MappingChainName.Ethereum ||
     currentFromChain.value === MappingChainName.ETH ||
-    currentFromChain.value === MappingChainName.AR ||
+    currentFromChain.value === MappingChainName.ARB ||
     currentFromChain.value === MappingChainName.OP
   ) {
     return new Decimal(rootStore.GetReceiverInfo.eth.depositMinAmount)
@@ -717,7 +719,6 @@ async function confrimSwap() {
       )
       console.log('rootStore.receiverInfo.eth.address', rootStore.receiverInfo.eth.address)
 
-      debugger
       const tx = await currentContractOperate.value.contract
         .transfer(`${rootStore.receiverInfo.eth.address}`, value)
         .catch((e: any) => {
@@ -727,7 +728,7 @@ async function confrimSwap() {
       if (tx) {
         // await tx.wait()
         const registerRequest: OrderRegisterRequest = {
-          fromChain: fromChain.value.toLowerCase(),
+          fromChain: rootStore.curretnETHChain, //fromChain.value.toLowerCase(),
           fromTokenName: currentCoin.value!.toLowerCase(),
           txid: tx.hash,
           amount: new Decimal(sendInput.value)
@@ -738,6 +739,8 @@ async function confrimSwap() {
           toTokenName: currentCoin.value!.toLowerCase(),
           toAddress: userStore.user.address,
         }
+        console.log('registerRequest', registerRequest)
+
         const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
 
         const sign = await rootStore.GetWeb3Wallet.signer.signMessage(message)
@@ -746,7 +749,7 @@ async function confrimSwap() {
           console.log('registerRequest', registerRequest)
           await retryOrderRequest(
             {
-              fromChain: fromChain.value.toLowerCase(),
+              fromChain: rootStore.curretnETHChain, //fromChain.value.toLowerCase(),
               fromTokenName: currentCoin.value!.toLowerCase(),
               address: rootStore.Web3WalletSdk.signer.address,
               txHash: tx.hash,

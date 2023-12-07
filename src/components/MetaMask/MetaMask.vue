@@ -129,9 +129,18 @@ const dialogTitle = computed(() => {
   }
 })
 
+function sleep(timeout: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, timeout * 1000)
+  })
+}
+
 function sign() {
   return new Promise(async (resolve, reject) => {
     try {
+      await sleep(1)
       rootStore.InitWeb3Wallet(await new Web3SDK())
       resolve(true)
     } catch (error) {

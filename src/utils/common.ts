@@ -7,7 +7,7 @@ export function RetryWaitRequest(params) {
   const rootStore = useRootStore()
   let registerRequest: OrderRegisterRequest
   return new Promise(async (resolve, reject) => {
-    if (params.Send === MappingIcon.ETH) {
+    if (params.Send !== MappingIcon.MVC) {
       registerRequest = {
         fromChain: params.fromChain,
         fromTokenName: params.Currency.toLowerCase(),
@@ -31,7 +31,7 @@ export function RetryWaitRequest(params) {
             reject(e)
           })
       }
-    } else if (params.Send === MappingIcon.MVC) {
+    } else {
       registerRequest = GeneratorSignatrue({
         fromChain: params.fromChain,
         fromTokenName: params.Currency.toLowerCase(),

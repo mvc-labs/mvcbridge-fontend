@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { toRaw } from 'vue'
 import { formatEther, formatUnits } from 'ethers'
 import { GetSpanceBalance } from '@/utils/util'
-import { ToCurrency, MvcUsdToken, ChainTypeBalance, ReceiverChainName } from '@/enum'
+import { ToCurrency, MvcUsdToken, ChainTypeBalance, ReceiverChainName, ETHChain } from '@/enum'
 import { GetFtBalance } from '@/api/metasv'
 import { useUserStore } from '@/store/user'
 import { OrderApi } from 'mvcbridge-sdk/api'
@@ -64,8 +64,22 @@ interface RootState {
     mvc: Partial<GetReceiveAddressType> | null
     eth: Partial<GetReceiveAddressType> | null
   }
+  curretnETHChain: ETHChain
 }
 const UA = window.navigator.userAgent.toLowerCase()
+
+export const mappingETHChain = () => {
+  const chainid = (window as any).ethereum?.chainId
+  switch (chainid) {
+    case '0x1':
+    case '0xaa36a7':
+      return ETHChain.ETH
+    case '0xaa37dc':
+      return ETHChain.OP
+    case '0x66eee':
+      return ETHChain.ARB
+  }
+}
 
 export const isApp = !!window.appMetaIdJsV2
 export const isAndroid = !!(UA && UA.indexOf('android') > 0)
@@ -85,6 +99,7 @@ export const useRootStore = defineStore('root', {
       },
       isShowMetaMak: false,
       updatePlanRes: null,
+      curretnETHChain: mappingETHChain(),
       //@ts-ignore
       exchangeRate: JSON.parse(window.localStorage.getItem('currentRate')) || [],
       // isGetedExchangeRate: false,
@@ -167,18 +182,22 @@ export const useRootStore = defineStore('root', {
     },
   },
   actions: {
+    setCurretnETHChain(payload: ETHChain) {
+      this.curretnETHChain = payload
+    },
+
     async setReceiverAddress(payload: ReceiverChainName) {
       try {
         const ethAddress = await GetReceiveAddress({
           chainName: payload,
           tokenName: 'usdt',
         })
-        debugger
+
         const mvcAddress = await GetReceiveAddress({
           chainName: 'mvc',
           tokenName: 'usdt',
         })
-        debugger
+
         ethAddress.withdrawBridgeFeeRate == '0.0' ? '0' : ethAddress.withdrawBridgeFeeRate
         mvcAddress.withdrawBridgeFeeRate == '0.0' ? '0' : mvcAddress.withdrawBridgeFeeRate
         this.receiverInfo = { mvc: mvcAddress, eth: ethAddress }
@@ -197,7 +216,7 @@ export const useRootStore = defineStore('root', {
     async GetWeb3AccountBalance(payload: ChainTypeBalance = ChainTypeBalance.ALL) {
       const userStore = useUserStore()
       const mvcRequest = []
-      debugger
+
       if (payload === ChainTypeBalance.ALL) {
         console.log('this.GetWeb3Wallet', this.GetWeb3Wallet)
 
