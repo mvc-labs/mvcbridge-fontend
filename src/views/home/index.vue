@@ -730,7 +730,9 @@ async function AllPendingList() {
     .orderFromChainFromTokenNameAddressPendingGet(
       MappingChainName.MVC.toLowerCase(),
       MappingIcon.USDT.toLowerCase(),
-      userStore.user?.address
+      userStore.user?.address,
+      rootStore.curretnETHChain.toLowerCase(),
+      MappingIcon.USDT.toLowerCase()
     )
     .catch((e) => console.log(e))
   if (!ethOrderWaitRes?.data.length && mvcOrderWaitRes?.data.length) {
@@ -757,7 +759,9 @@ async function AllHistoryList() {
     .orderFromChainFromTokenNameAddressFinalizedGet(
       MappingChainName.MVC.toLowerCase(),
       MappingIcon.USDT.toLowerCase(),
-      userStore.user?.address
+      userStore.user?.address,
+      rootStore.curretnETHChain.toLowerCase(),
+      MappingIcon.USDT.toLowerCase()
     )
     .catch((e) => console.log(e))
   // if (mvcOrderWaitRes?.data.length) {
