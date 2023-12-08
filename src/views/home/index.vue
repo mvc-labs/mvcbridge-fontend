@@ -269,6 +269,22 @@
 
           <!-- <el-table-column class-name="col-item" prop="Date" label="Date" /> -->
 
+          <el-table-column class-name="col-item" width="100" prop="Txid" label="Txid" fixed="right">
+            <template #default="scope">
+              <el-tooltip class="box-item" effect="dark" :content="scope.row.Txid" placement="top">
+                <div class="tx-cell" style="margin-right: 3px" @click="toScan(scope.row.Txid)">
+                  <span class="txid">{{ $filters.omitMiddle(scope.row.Txid) }}</span>
+                </div>
+              </el-tooltip>
+
+              <div class="tx-cell">
+                <el-icon :size="15" color="#fff" @click="copyTx(scope.row.Txid)"
+                  ><CopyDocument
+                /></el-icon>
+              </div>
+            </template>
+          </el-table-column>
+
           <el-table-column class-name="col-item" prop="State" label="States" fixed="right">
             <template #default="scope">
               <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
@@ -297,7 +313,7 @@ import twitter from '@/assets/images/twitter.svg?url'
 import reddit from '@/assets/images/reddit.svg?url'
 import instagram from '@/assets/images/instagram.svg?url'
 import discord from '@/assets/images/discord.svg?url'
-import { ArrowLeftBold, Select, HomeFilled, Back } from '@element-plus/icons-vue'
+import { ArrowLeftBold, Select, HomeFilled, Back, CopyDocument } from '@element-plus/icons-vue'
 import Logo from '@/assets/images/logo_mvc.svg?url'
 import WalletIcon from '@/assets/images/Wallets-icon.svg?url'
 import HistoryIcon from '@/assets/images/History-icon.svg?url'
@@ -313,6 +329,7 @@ import {
   CoinUint,
   NodeName,
   SdkPayType,
+  ETHChain,
 } from '@/enum'
 import { ElMessage, FormInstance, FormRules } from 'element-plus'
 import { ElLoading } from 'element-plus'
@@ -329,6 +346,7 @@ import {
   ensConvertAddress,
   copy,
 } from '@/utils/util'
+import { toClipboard } from '@soerenmartius/vue3-clipboard'
 import { RetryWaitRequest } from '@/utils/common'
 import Decimal from 'decimal.js-light'
 import { dateTimeFormat } from '@/utils/filters'
@@ -399,7 +417,7 @@ interface TransationItem {
   toAddress: string
   fromChain: string
   toChain: string
-  TX: string
+  Txid: string
   fromAmount: string
 }
 const svg = `
@@ -542,6 +560,35 @@ const rules = reactive<FormRules>({
   ],
 })
 
+function copyTx(txid: string) {
+  toClipboard(txid).then(() => {
+    ElMessage.success('Copy Success!')
+  })
+}
+
+function toScan(txid: string) {
+  let url = ''
+  let type = txid.indexOf('0x') > -1 ? 'eth' : 'mvc'
+  console.log('rootStore.curretnETHChain', rootStore.curretnETHChain)
+
+  if (type == 'eth') {
+    switch (rootStore.curretnETHChain) {
+      case ETHChain.ETH:
+        url = `${import.meta.env.VITE_ETHSCAN_URL}`
+        break
+      case ETHChain.OP:
+        url = `${import.meta.env.VITE_OPSCAN_URL}`
+        break
+      case ETHChain.ARB:
+        url = `${import.meta.env.VITE_ARBSCAN_URL}`
+        break
+    }
+  } else {
+    url = `${import.meta.env.VITE_MVCSCAN_URL}`
+  }
+  window.open(`${url}/tx/${txid}`, '_blank')
+}
+
 function toSepoliaFauct() {
   window.open(`https://sepoliafaucet.com`, '_blank')
 }
@@ -600,22 +647,22 @@ const currentContractOperate = computed(() => {
 
 function mappingFromChain(chain: string) {
   switch (chain) {
-    case MappingChainName.ETH.toLocaleLowerCase():
+    case MappingChainName.ETH.toLowerCase():
       return MappingIcon.ETH
-    case MappingChainName.MVC.toLocaleLowerCase():
+    case MappingChainName.MVC.toLowerCase():
       return MappingIcon.MVC
-    case MappingChainName.OP.toLocaleLowerCase():
+    case MappingChainName.OP.toLowerCase():
       return MappingIcon.OP
-    case MappingChainName.ARB.toLocaleLowerCase():
+    case MappingChainName.ARB.toLowerCase():
       return MappingIcon.ARB
   }
 }
 
 function mappingFromToken(token: string) {
   switch (token) {
-    case MappingIcon.USDT.toLocaleLowerCase():
+    case MappingIcon.USDT.toLowerCase():
       return MappingIcon.USDT
-    case MappingIcon.USDC.toLocaleLowerCase():
+    case MappingIcon.USDC.toLowerCase():
       return MappingIcon.USDC
   }
 }
@@ -623,16 +670,16 @@ function mappingFromToken(token: string) {
 async function AllPendingList() {
   const ethOrderWaitRes = await rootStore.orderApi
     .orderFromChainFromTokenNameAddressPendingGet(
-      //MappingChainName.ETH.toLocaleLowerCase(),
-      rootStore.curretnETHChain.toLocaleLowerCase(),
-      MappingIcon.USDT.toLocaleLowerCase(),
-      rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
+      //MappingChainName.ETH.toLowerCase(),
+      rootStore.curretnETHChain.toLowerCase(),
+      MappingIcon.USDT.toLowerCase(),
+      rootStore.GetWeb3Wallet.signer.address.toLowerCase()
     )
     .catch((e) => console.log(e))
   const mvcOrderWaitRes = await rootStore.orderApi
     .orderFromChainFromTokenNameAddressPendingGet(
-      MappingChainName.MVC.toLocaleLowerCase(),
-      MappingIcon.USDT.toLocaleLowerCase(),
+      MappingChainName.MVC.toLowerCase(),
+      MappingIcon.USDT.toLowerCase(),
       userStore.user?.address
     )
     .catch((e) => console.log(e))
@@ -650,16 +697,16 @@ async function AllPendingList() {
 async function AllHistoryList() {
   const ethOrderWaitRes = await rootStore.orderApi
     .orderFromChainFromTokenNameAddressFinalizedGet(
-      //MappingChainName.ETH.toLocaleLowerCase(),
-      rootStore.curretnETHChain.toLocaleLowerCase(),
-      MappingIcon.USDT.toLocaleLowerCase(),
-      rootStore.GetWeb3Wallet.signer.address.toLocaleLowerCase()
+      //MappingChainName.ETH.toLowerCase(),
+      rootStore.curretnETHChain.toLowerCase(),
+      MappingIcon.USDT.toLowerCase(),
+      rootStore.GetWeb3Wallet.signer.address.toLowerCase()
     )
     .catch((e) => console.log(e))
   const mvcOrderWaitRes = await rootStore.orderApi
     .orderFromChainFromTokenNameAddressFinalizedGet(
-      MappingChainName.MVC.toLocaleLowerCase(),
-      MappingIcon.USDT.toLocaleLowerCase(),
+      MappingChainName.MVC.toLowerCase(),
+      MappingIcon.USDT.toLowerCase(),
       userStore.user?.address
     )
     .catch((e) => console.log(e))
@@ -735,7 +782,7 @@ async function getPendingList() {
           NeedConfirm: ele?.confirmationRequired,
           CurrentConfirm: ele?.currentConfirmation,
           Process: `${ele?.currentConfirmation}/${ele?.confirmationRequired}`,
-          TX: ele.txid,
+          Txid: ele.txid,
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,
           toAddress:
@@ -789,7 +836,7 @@ async function getHistoryList() {
           Date: ele?.finalizedTimestamp,
           NeedConfirm: ele?.confirmationRequired,
           CurrentConfirm: ele?.currentConfirmation,
-          TX: ele.txid,
+          Txid: ele.txid,
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,
           toAddress:

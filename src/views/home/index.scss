@@ -441,6 +441,7 @@
   .col-item{
     border: none !important;
     padding: 17px 0;
+    
   }
  .tx-cell-img{
   display: flex;
@@ -453,6 +454,8 @@
   border-radius: 50%;
   background: linear-gradient(144deg, #72F5F6 14%, #171AFF 85%);;
  }
+
+
    .tx-cell{
             
             display: flex;
@@ -464,6 +467,12 @@
             cursor: pointer;
             &:hover{
                 opacity: .8;
+            }
+            .txid{
+               &:hover{
+                color: #0d78f6 !important;
+                opacity: 1;
+            }
             }
             img{
                 width: 24px;

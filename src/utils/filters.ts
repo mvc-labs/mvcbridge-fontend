@@ -41,3 +41,16 @@ export function rateToUsd(amount: string, coin: string) {
       return new Decimal(amount).toFixed(2)
   }
 }
+
+export function omitMiddle(str: string) {
+  const ellipsis = '...'
+  const ellipsisLength = ellipsis.length
+
+  const startLength = Math.ceil(ellipsisLength)
+  const endLength = Math.floor(ellipsisLength)
+
+  const start = str.substring(0, startLength)
+  const end = str.substring(str.length - endLength)
+
+  return start + ellipsis + end
+}
