@@ -336,7 +336,10 @@
               <div class="tx-cell-img" v-if="scope.row.State == 'SUCCESS'">
                 <el-icon :size="15" color="#fff"><Select /></el-icon>
               </div>
-              <div class="tx-cell" v-else-if="scope.row.State == 'WAITING_REQUEST'">
+              <div
+                class="tx-cell"
+                v-else-if="!scope.row.TargetValue || scope.row.State == 'WAITING_REQUEST'"
+              >
                 <el-button @click="retryRequest(scope.row)">{{ $t('retry') }}</el-button>
               </div>
               <div class="tx-cell" v-else>
@@ -466,6 +469,7 @@ interface TransationItem {
   TransactionId: string
   ProcessTxid: string
   fromAmount: string
+  TargetValue?: string
 }
 const svg = `
         <path class="path" d="
@@ -849,6 +853,7 @@ async function getPendingList() {
             MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC.toLowerCase()
               : rootStore.curretnETHChain.toLowerCase(),
+          TargetValue: ele?.targetVaultId,
         }
         transationHistoryList.push(item)
       })
@@ -904,6 +909,7 @@ async function getHistoryList() {
             MappingIcon[ele?.vaultId.split('_')[0].toUpperCase()] !== MappingIcon.MVC
               ? MappingIcon.MVC.toLowerCase()
               : rootStore.curretnETHChain.toLowerCase(),
+          TargetValue: ele?.targetVaultId,
         }
         transationHistoryList.push(item)
       })
