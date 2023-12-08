@@ -1129,12 +1129,12 @@ const walletList: WalletInfo[] = reactive([
         loading: true,
         balance: '0',
       },
-      {
-        chainName: MappingIcon.USD,
-        chainSymbol: CoinSymbol.USDC,
-        loading: true,
-        balance: '0',
-      },
+      // {
+      //   chainName: MappingIcon.USD,
+      //   chainSymbol: CoinSymbol.USDC,
+      //   loading: true,
+      //   balance: '0',
+      // },
     ],
   },
   {
