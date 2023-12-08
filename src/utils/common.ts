@@ -11,7 +11,7 @@ export function RetryWaitRequest(params) {
       registerRequest = {
         fromChain: params.fromChain,
         fromTokenName: params.Currency.toLowerCase(),
-        txid: params.TX,
+        txid: params.TransactionId,
         amount: params.fromAmount,
         fromAddress: params.fromAddress,
         toChain: params.toChain,
@@ -36,7 +36,7 @@ export function RetryWaitRequest(params) {
       registerRequest = GeneratorSignatrue({
         fromChain: params.fromChain,
         fromTokenName: params.Currency.toLowerCase(),
-        txid: params.TX,
+        txid: params.TransactionId,
         amount: params.fromAmount,
         fromAddress: params.fromAddress,
         toChain: params.toChain,
