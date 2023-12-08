@@ -222,14 +222,14 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column class-name="col-item" prop="Send" label="Send" width="100">
+          <el-table-column class-name="col-item" prop="Send" label="Send" width="110">
             <template #default="scope">
               <div class="tx-cell">
                 <IconItem :iconMap="scope.row.Send"></IconItem>
               </div>
             </template>
           </el-table-column>
-          <el-table-column class-name="col-item" prop="Receive" label="Receive" width="100">
+          <el-table-column class-name="col-item" prop="Receive" label="Receive" width="110">
             <template #default="scope">
               <div class="tx-cell">
                 <IconItem :iconMap="scope.row.Receive"></IconItem>
@@ -269,16 +269,62 @@
 
           <!-- <el-table-column class-name="col-item" prop="Date" label="Date" /> -->
 
-          <el-table-column class-name="col-item" width="100" prop="Txid" label="Txid" fixed="right">
+          <el-table-column
+            class-name="col-item"
+            width="120"
+            prop="TransactionId"
+            label="TransactionId"
+            fixed="right"
+          >
             <template #default="scope">
-              <el-tooltip class="box-item" effect="dark" :content="scope.row.Txid" placement="top">
-                <div class="tx-cell" style="margin-right: 3px" @click="toScan(scope.row.Txid)">
-                  <span class="txid">{{ $filters.omitMiddle(scope.row.Txid) }}</span>
+              <el-tooltip
+                class="box-item"
+                effect="dark"
+                :content="scope.row.TransactionId"
+                placement="top"
+              >
+                <div
+                  class="tx-cell"
+                  style="margin-right: 3px"
+                  @click="toScan(scope.row.TransactionId)"
+                >
+                  <span class="txid">{{ $filters.omitMiddle(scope.row.TransactionId) }}</span>
                 </div>
               </el-tooltip>
 
-              <div class="tx-cell">
-                <el-icon :size="15" color="#fff" @click="copyTx(scope.row.Txid)"
+              <div class="tx-cell" v-if="scope.row.TransactionId">
+                <el-icon :size="15" color="#fff" @click="copyTx(scope.row.TransactionId)"
+                  ><CopyDocument
+                /></el-icon>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            class-name="col-item"
+            width="100"
+            prop="ProcessTxid"
+            label="ProcessTxid"
+            fixed="right"
+          >
+            <template #default="scope">
+              <el-tooltip
+                class="box-item"
+                effect="dark"
+                :content="scope.row.ProcessTxid"
+                placement="top"
+              >
+                <div
+                  class="tx-cell"
+                  style="margin-right: 3px"
+                  @click="toScan(scope.row.ProcessTxid)"
+                >
+                  <span class="txid">{{ $filters.omitMiddle(scope.row.ProcessTxid) }}</span>
+                </div>
+              </el-tooltip>
+
+              <div class="tx-cell" v-if="scope.row.ProcessTxid">
+                <el-icon :size="15" color="#fff" @click="copyTx(scope.row.ProcessTxid)"
                   ><CopyDocument
                 /></el-icon>
               </div>
@@ -417,7 +463,8 @@ interface TransationItem {
   toAddress: string
   fromChain: string
   toChain: string
-  Txid: string
+  TransactionId: string
+  ProcessTxid: string
   fromAmount: string
 }
 const svg = `
@@ -567,6 +614,9 @@ function copyTx(txid: string) {
 }
 
 function toScan(txid: string) {
+  if (!txid) {
+    return
+  }
   let url = ''
   let type = txid.indexOf('0x') > -1 ? 'eth' : 'mvc'
   console.log('rootStore.curretnETHChain', rootStore.curretnETHChain)
@@ -782,7 +832,8 @@ async function getPendingList() {
           NeedConfirm: ele?.confirmationRequired,
           CurrentConfirm: ele?.currentConfirmation,
           Process: `${ele?.currentConfirmation}/${ele?.confirmationRequired}`,
-          Txid: ele.txid,
+          TransactionId: ele.txid,
+          ProcessTxid: ele.processTxid,
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,
           toAddress:
@@ -836,7 +887,8 @@ async function getHistoryList() {
           Date: ele?.finalizedTimestamp,
           NeedConfirm: ele?.confirmationRequired,
           CurrentConfirm: ele?.currentConfirmation,
-          Txid: ele.txid,
+          TransactionId: ele.txid,
+          ProcessTxid: ele.processTxid,
           fromAmount: ele!.fromAmount,
           fromAddress: ele.fromAddress,
           toAddress:

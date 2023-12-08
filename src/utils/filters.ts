@@ -43,6 +43,9 @@ export function rateToUsd(amount: string, coin: string) {
 }
 
 export function omitMiddle(str: string) {
+  if (!str) {
+    return '--'
+  }
   const ellipsis = '...'
   const ellipsisLength = ellipsis.length
 
