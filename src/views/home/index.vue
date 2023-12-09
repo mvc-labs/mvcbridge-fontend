@@ -1014,33 +1014,39 @@ function transferFt() {
   return new Promise(async (resolve, reject) => {
     const value = new Decimal(ruleForm.amount).mul(Math.pow(10, GetDecimal.value)).toString()
     try {
-      const res = await userStore.showWallet.TransferFt(
-        {
-          nodeName: NodeName.FtTransfer,
-          data: JSON.stringify({
-            receivers: [
-              {
-                address: ruleForm.address.trim(),
-                amount: value,
-              },
-            ],
-            codehash: currentContractOperate.value.codehash,
-            genesis: currentContractOperate.value.genesis,
-          }),
-        },
-        {
-          payType: SdkPayType.SPACE,
-          isBroadcast: true,
-        }
-      )
-      .catch((error) => {
-        console.log('error', error)
+      const res = await userStore.showWallet
+        .TransferFt(
+          {
+            nodeName: NodeName.FtTransfer,
+            data: JSON.stringify({
+              receivers: [
+                {
+                  address: ruleForm.address.trim(),
+                  amount: value,
+                },
+              ],
+              codehash: currentContractOperate.value.codehash,
+              genesis: currentContractOperate.value.genesis,
+            }),
+          },
+          {
+            payType: SdkPayType.SPACE,
+            isBroadcast: true,
+          }
+        )
+        .catch((error) => {
+          console.log('error', error)
 
-        ElMessage.error(error.message)
-        reject(error.message)
-      })
-    if (res) {
-      resolve(res)
+          ElMessage.error(error.message)
+          reject(error.message)
+        })
+
+      if (res) {
+        resolve(res)
+      }
+    } catch (error) {
+      ElMessage.error(error.message)
+      reject(error.message)
     }
   })
 }
