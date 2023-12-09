@@ -2,9 +2,34 @@ import { ElLoading, LoadingParentElement, ElMessage } from 'element-plus'
 import { decode, encode } from 'js-base64'
 import { useUserStore } from '@/store/user'
 import { useRootStore } from '@/store/root'
-import { MappingIcon, CoinSymbol, ChainOrigin, MappingChainName, ChainTypeBalance } from '@/enum'
-import { eth, bsc, polygon, sepolias } from '@/assets/contract/contract.json'
-import { ETH, BSC, POLYGON, SEPOLIA } from '@/assets/contract/abi.json'
+import {
+  MappingIcon,
+  CoinSymbol,
+  ChainOrigin,
+  MappingChainName,
+  ChainTypeBalance,
+  ReceiverChainName,
+} from '@/enum'
+import {
+  eth,
+  bsc,
+  polygon,
+  sepolias,
+  op_sepolias,
+  arb_sepolias,
+  op,
+  arb,
+} from '@/assets/contract/contract.json'
+import {
+  ETH,
+  BSC,
+  POLYGON,
+  SEPOLIA,
+  OP,
+  ARB,
+  OP_SEPOLIA,
+  ARB_SEPOLIA,
+} from '@/assets/contract/abi.json'
 import Decimal from 'decimal.js-light'
 import { email } from './reg'
 import { GetMetaNameInfo, GetMetaIdByAddress, GetUserAllInfo } from '@/api/aggregation'
@@ -133,6 +158,26 @@ export function mappingChainName(chainid: string) {
       return MappingChainName.Matic
     case '0x38':
       return MappingChainName.BNB
+    case '0xa':
+    case '0xaa37dc':
+      return MappingChainName.OP
+    case '0xa4b1':
+    case '0x66eee':
+      return MappingChainName.ARB
+  }
+}
+
+export function mappingCurrentChainName(chainid: string) {
+  switch (chainid) {
+    case '0x1':
+    case '0xaa36a7':
+      return ReceiverChainName.ETH
+    case '0xa':
+    case '0xaa37dc':
+      return ReceiverChainName.OP
+    case '0xa4b1':
+    case '0x66eee':
+      return ReceiverChainName.ARB
   }
 }
 
@@ -145,6 +190,12 @@ export function mappingChain(chainid: string) {
       return MappingIcon.POLYGON
     case '0x38':
       return MappingIcon.BSC
+    case '0xa':
+    case '0xaa37dc':
+      return MappingIcon.OP
+    case '0xa4b1':
+    case '0x66eee':
+      return MappingIcon.ARB
   }
 }
 
@@ -157,13 +208,23 @@ export function mappingChainOrigin(chainid: string) {
       return ChainOrigin.POLYGON
     case '0x38':
       return ChainOrigin.BSC
+    case '0xa':
+    case '0xaa37dc':
+      return ChainOrigin.OP
+    case '0xa4b1':
+    case '0x66eee':
+      return ChainOrigin.ARB
   }
 }
 
 export function mappingCoin(chainid: string) {
   switch (chainid) {
     case '0x1':
+    case '0xa':
+    case '0xa4b1':
     case '0xaa36a7':
+    case '0xaa37dc':
+    case '0x66eee':
       return CoinSymbol.ETH
     case '0x89':
       return CoinSymbol.POLYGON
@@ -183,6 +244,20 @@ export function chainTokenInfo(chainid: string) {
       usdc: {
         contractAddress: eth.usdc,
         abi: ETH.USDC,
+        decimal: 6,
+      },
+    },
+    op: {
+      usdt: {
+        contractAddress: op.usdt,
+        abi: OP.USDT,
+        decimal: 6,
+      },
+    },
+    arb: {
+      usdt: {
+        contractAddress: arb.usdt,
+        abi: ARB.USDT,
         decimal: 6,
       },
     },
@@ -226,18 +301,49 @@ export function chainTokenInfo(chainid: string) {
         decimal: 18,
       },
     },
+    arb_sepolias: {
+      usdt: {
+        contractAddress: arb_sepolias.usdt,
+        abi: ARB_SEPOLIA.USDT,
+        decimal: 6,
+      },
+    },
+    op_sepolias: {
+      usdt: {
+        contractAddress: op_sepolias.usdt,
+        abi: OP_SEPOLIA.USDT,
+        decimal: 6,
+      },
+      usdc: {
+        contractAddress: op_sepolias.usdc,
+        abi: OP_SEPOLIA.USDC,
+        decimal: 6,
+      },
+      faucet: {
+        contractAddress: op_sepolias.faucet,
+        abi: OP_SEPOLIA.FAUCET,
+      },
+    },
   }
   const rootStore = useRootStore()
   if (rootStore.chainWhiteList.includes(chainid)) {
     switch (chainid) {
       case '0x1':
         return info.eth
+      case '0xa':
+        return info.op
+      case '0xa4b1':
+        return info.arb
       case '0xaa36a7':
         return info.sepolias
       case '0x89':
         return info.polygon
       case '0x38':
         return info.bsc
+      case '0xaa37dc':
+        return info.op_sepolias
+      case '0x66eee':
+        return info.arb_sepolias
     }
   } else return false
 }
@@ -399,8 +505,6 @@ export function checkAmount(params: {
     amount: string
   }
 }) {
-  console.log('params', params)
-
   return new Promise(async (resolve, reject): Promise<void> => {
     const rootStore = useRootStore()
 

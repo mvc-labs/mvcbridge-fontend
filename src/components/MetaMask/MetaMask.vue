@@ -71,7 +71,7 @@ onMounted(() => {
   //   console.log('toQuantity(11155111)', toQuantity(11155111), networkIDstring)
   //   const whiteChainList = [1, 5, 11155111]
   //   if (!whiteChainList.includes(+networkIDstring)) {
-  //     debugger
+  //
   //     // return ElMessage.error(`暂不支持其他链`)
   //     ElMessageBox.confirm(
   //       i18n.t('MetaMak.Chain Network Error Tips') + `${import.meta.env.VITE_ETH_CHAIN}`,
@@ -129,9 +129,18 @@ const dialogTitle = computed(() => {
   }
 })
 
+function sleep(timeout: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, timeout * 1000)
+  })
+}
+
 function sign() {
   return new Promise(async (resolve, reject) => {
     try {
+      await sleep(1)
       rootStore.InitWeb3Wallet(await new Web3SDK())
       resolve(true)
     } catch (error) {
@@ -146,9 +155,11 @@ async function MetaMaskConnect() {
   try {
     if (rootStore.chainWhiteList.includes((window as any)?.ethereum?.chainId)) {
       const connetSuccess = await sign()
+
       if (connetSuccess) {
         const type = isUpdatePlan ? TagType.old : TagType.new
         const signHash = await rootStore.GetWeb3Wallet.sign(type)
+
         if (signHash && !loginedButBind) {
           emit('success', {
             signAddressHash: signHash,

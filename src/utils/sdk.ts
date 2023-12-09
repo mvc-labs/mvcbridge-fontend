@@ -34,6 +34,7 @@ import { v1 as UUID } from 'uuid'
 import { mvc } from 'meta-contract'
 import { GetTx } from '@/api/metaid-base'
 import AllNodeName from './AllNodeName'
+import Decimal from 'decimal.js-light'
 enum AppMode {
   PROD = 'prod',
   GRAY = 'gray',
@@ -285,18 +286,16 @@ export class SDK {
           let payToRes: CreateNodeBaseRes | undefined = undefined
           if (!params.utxos?.length) {
             // 计算总价
-            let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
-            totalAmount += 70000
             const rootStore = useRootStore()
-            if (+rootStore.mvcWalletTokenBalance.space <= 0) {
-              reject(`Space balance is not enough to support this transfer`)
-            }
+            let totalAmount = this.getNodeTransactionsAmount(transactions, params.payTo)
+
+            totalAmount += 70000
             if (
-              +rootStore.mvcWalletTokenBalance.space > 0 &&
               new Decimal(rootStore.mvcWalletTokenBalance.space).mul(10 ** 8).toNumber() <
-                totalAmount
+              totalAmount
             ) {
-              reject(`Space balance is not enough to support this transfer`)
+              throw new Error(`
+Space balance is not enough to support this transfer`)
             }
             const useSatoshis = totalAmount
 

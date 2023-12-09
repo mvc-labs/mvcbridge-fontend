@@ -1,5 +1,7 @@
 export enum MappingIcon {
   ETH = 'ETH',
+  OP = 'Optimism',
+  ARB = 'Arbitrum',
   POLYGON = 'POLYGON',
   BSC = 'BSC',
   USDC = 'USDC',
@@ -19,11 +21,20 @@ export enum CoinDecimal {
 export enum ChainTypeBalance {
   ALL = 'ALL',
   ETH = 'ETH',
+
   MVC = 'MVC',
+}
+
+export enum ReceiverChainName {
+  ETH = 'eth',
+  OP = 'op',
+  ARB = 'arb',
 }
 
 export enum MappingChainName {
   Ethereum = 'Ethereum',
+  OP = 'Optimism',
+  ARB = 'Arbitrum',
   Polygon = 'Polygon',
   BNB = 'BNB Chain',
   MVC = 'MVC',
@@ -41,10 +52,18 @@ export enum Chains {
   BSV = 'bsv',
 }
 
+export enum ETHChain {
+  ETH = 'ETH',
+  OP = 'op',
+  ARB = 'arb',
+}
+
 export enum CoinSymbol {
   USDT = 'USDT',
   USDC = 'USDC',
   ETH = 'ETH',
+  OP = 'Optimism',
+  ARB = 'Arbitrum',
   SPACE = 'SPACE',
   BSC = 'BNB',
   POLYGON = 'MATIC',
@@ -54,6 +73,8 @@ export enum CoinSymbol {
 
 export enum ChainOrigin {
   ETH = 'Ethereum',
+  OP = 'Optimism',
+  ARB = 'Arbitrum',
   MVC = 'MicrovisionChain',
   BSC = 'BSC',
   POLYGON = 'POLYGON',

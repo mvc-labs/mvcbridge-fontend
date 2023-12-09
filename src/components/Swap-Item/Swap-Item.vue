@@ -186,7 +186,7 @@
 
 <script setup lang="ts">
 import { ArrowDownBold, Select } from '@element-plus/icons-vue'
-import { reactive, ref, computed, toRaw } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import {
   MappingIcon,
   MappingChainName,
@@ -195,6 +195,8 @@ import {
   SdkPayType,
   CoinDecimal,
   ChainTypeBalance,
+  ETHChain,
+  ReceiverChainName,
 } from '@/enum'
 import IconItem from '@/components/Icon-item/Icon-item.vue'
 import ConvertIcon from '@/assets/images/icon_Convert.svg?url'
@@ -202,7 +204,12 @@ import Dialog from '@/components/Dialog/Dialog.vue'
 import { useUserStore } from '@/store/user'
 import { useRootStore } from '@/store/root'
 import { ElMessage } from 'element-plus'
-import { mappingChainName, GeneratorSignatrue, checkAmount } from '@/utils/util'
+import {
+  mappingChainName,
+  GeneratorSignatrue,
+  checkAmount,
+  mappingCurrentChainName,
+} from '@/utils/util'
 import Decimal from 'decimal.js-light'
 import { toQuantity } from 'ethers'
 
@@ -218,6 +225,21 @@ const transationDetailDialog = ref(false)
 const swapSuccess = ref(false)
 const i18n = useI18n()
 const sendInput = ref(null)
+const isETHorLayer2 = reactive([MappingChainName.ETH, MappingChainName.ARB, MappingChainName.OP])
+const currentChainName = ref(ReceiverChainName.ETH)
+
+onMounted(() => {
+  ;(window as any)?.ethereum?.on('networkChanged', (networkIDstring: string[]) => {
+    rootStore.setCurrentChainID((window as any)?.ethereum?.chainId)
+    if (curretnToChain.value === MappingChainName.MVC) {
+      currentFromChain.value = mappingChainName((window as any)?.ethereum?.chainId)
+    } else {
+      curretnToChain.value = mappingChainName((window as any)?.ethereum?.chainId)
+    }
+    setCurrentChainName()
+    rootStore.setCurretnETHChain(ETHChain[currentChainName.value.toLocaleUpperCase()])
+  })
+})
 
 const receiveInput = computed(() => {
   if (!sendInput.value) {
@@ -229,7 +251,7 @@ const receiveInput = computed(() => {
   if (new Decimal(sendInput.value).sub(minumSend.value).toNumber() < 0) {
     return null
   }
-  if (fromChain.value == MappingChainName.ETH) {
+  if (isETHorLayer2.includes(fromChain.value)) {
     return new Decimal(sendInput.value)
       .sub(new Decimal(sendInput.value).mul(rootStore.receiverInfo.mvc.withdrawBridgeFeeRate))
       .sub(
@@ -265,10 +287,15 @@ const amountMostThan = computed(() => {
 
 const allowInputBalance = computed(() => {
   if (userStore.isAuthorized) {
-    if (fromChain.value == MappingChainName.ETH) {
-      return parseFloat(rootStore.Web3WalletTokenBalance.usdt)
-    } else if (fromChain.value == MappingChainName.MVC) {
-      return parseFloat(rootStore.mvcWalletTokenBalance.usdt)
+    console.log('fromChain.value', fromChain.value)
+
+    switch (fromChain.value) {
+      case MappingChainName.ETH:
+      case MappingChainName.OP:
+      case MappingChainName.ARB:
+        return parseFloat(rootStore.Web3WalletTokenBalance.usdt)
+      case MappingChainName.MVC:
+        return parseFloat(rootStore.mvcWalletTokenBalance.usdt)
     }
   } else {
     return 0
@@ -292,16 +319,11 @@ const rootStore = useRootStore()
 const userStore = useUserStore()
 
 const currentContractOperate = computed(() => {
-  if (fromChain.value == MappingChainName.ETH) {
+  if (isETHorLayer2.includes(fromChain.value)) {
     if (currentAssert.value == MappingIcon.USDT) {
       return {
         contract: rootStore.GetWeb3Wallet.usdt,
         decimal: CoinDecimal.USDT,
-      }
-    } else {
-      return {
-        contract: rootStore.GetWeb3Wallet.usdc,
-        decimal: CoinDecimal.USDC,
       }
     }
   } else {
@@ -331,9 +353,10 @@ const mvcTokenDecimal = computed(() => {
   return 8
 })
 
-const currentFromChain = ref(mappingChainName((window as any)?.ethereum?.chainId))
 const curretnToChain = ref(MappingChainName.MVC)
 const currentAssert = ref(MappingIcon.USDT)
+const currentWalletChain = ref((window as any)?.ethereum?.chainId)
+const currentFromChain = ref(mappingChainName(currentWalletChain.value))
 
 const fromChain = computed(() => {
   switch (currentFromChain.value) {
@@ -346,6 +369,10 @@ const fromChain = computed(() => {
       return MappingChainName.Bsc
     case MappingChainName.MVC:
       return MappingChainName.MVC
+    case MappingChainName.OP:
+      return MappingChainName.OP
+    case MappingChainName.ARB:
+      return MappingChainName.ARB
     default:
       return MappingChainName.ETH
   }
@@ -380,8 +407,10 @@ const currentCoin = computed(() => {
 
 const supportChain = reactive([
   MappingChainName.Ethereum,
-  MappingChainName.Polygon,
-  MappingChainName.BNB,
+  MappingChainName.OP,
+  MappingChainName.ARB,
+  // MappingChainName.Polygon,
+  // MappingChainName.BNB,
 ])
 const CoinList = reactive([
   {
@@ -430,7 +459,9 @@ const minumSend = computed(() => {
 
   if (
     currentFromChain.value === MappingChainName.Ethereum ||
-    currentFromChain.value === MappingChainName.ETH
+    currentFromChain.value === MappingChainName.ETH ||
+    currentFromChain.value === MappingChainName.ARB ||
+    currentFromChain.value === MappingChainName.OP
   ) {
     return new Decimal(rootStore.GetReceiverInfo.eth.depositMinAmount)
       .div(10 ** rootStore.GetReceiverInfo.eth.decimal)
@@ -464,6 +495,17 @@ const minimumReceived = reactive({
     decimal: () => currentCoin.value,
   },
 })
+
+function setCurrentChainName() {
+  switch (mappingCurrentChainName((window as any)?.ethereum?.chainId)) {
+    case ReceiverChainName.ETH:
+      currentChainName.value = ReceiverChainName.ETH
+    case ReceiverChainName.OP:
+      currentChainName.value = ReceiverChainName.OP
+    case ReceiverChainName.ARB:
+      currentChainName.value = ReceiverChainName.ARB
+  }
+}
 
 function resetEstimatedInfo() {
   estimatedTransferInfo.val = {
@@ -522,13 +564,13 @@ async function Swap() {
       swapSuccess.value = false
       ConfrimSwapDisable.value = true
       estimatedTransferInfo.val.send = sendInput.value
-      await rootStore.setReceiverAddress()
+      await rootStore.setReceiverAddress(currentChainName.value)
       // recevierInfo.val = await GetReceiveAddress({
       //   chainName: fromChain.value!,
       //   tokenName: currentAssert.value,
       // })
 
-      if (fromChain.value === MappingChainName.ETH) {
+      if (isETHorLayer2.includes(fromChain.value)) {
         console.log('sedddd', sendInput.value)
         // params = {
         //   amount: sendInput.value,
@@ -659,7 +701,7 @@ async function confrimSwap() {
         `The transaction amount needs to be at least ${estimatedTransferInfo.val.minSendAmount} USDT`
       )
     swapLoading.value = true
-    if (fromChain.value === MappingChainName.ETH) {
+    if (isETHorLayer2.includes(fromChain.value)) {
       await rootStore.GetWeb3AccountBalance(ChainTypeBalance.ETH).catch(() => {
         throw new Error(`GetBalance fail.`)
       })
@@ -676,6 +718,8 @@ async function confrimSwap() {
       const value = toQuantity(
         new Decimal(sendInput.value).mul(10 ** currentContractOperate.value.decimal).toString()
       )
+      console.log('rootStore.receiverInfo.eth.address', rootStore.receiverInfo.eth.address)
+
       const tx = await currentContractOperate.value.contract
         .transfer(`${rootStore.receiverInfo.eth.address}`, value)
         .catch((e: any) => {
@@ -685,7 +729,7 @@ async function confrimSwap() {
       if (tx) {
         // await tx.wait()
         const registerRequest: OrderRegisterRequest = {
-          fromChain: fromChain.value.toLowerCase(),
+          fromChain: rootStore.curretnETHChain, //fromChain.value.toLowerCase(),
           fromTokenName: currentCoin.value!.toLowerCase(),
           txid: tx.hash,
           amount: new Decimal(sendInput.value)
@@ -696,6 +740,8 @@ async function confrimSwap() {
           toTokenName: currentCoin.value!.toLowerCase(),
           toAddress: userStore.user.address,
         }
+        console.log('registerRequest', registerRequest)
+
         const message = SignatureHelper.getSigningMessageFromOrder(registerRequest)
 
         const sign = await rootStore.GetWeb3Wallet.signer.signMessage(message)
@@ -704,7 +750,7 @@ async function confrimSwap() {
           console.log('registerRequest', registerRequest)
           await retryOrderRequest(
             {
-              fromChain: fromChain.value.toLowerCase(),
+              fromChain: rootStore.curretnETHChain.toLowerCase(), //fromChain.value.toLowerCase(),
               fromTokenName: currentCoin.value!.toLowerCase(),
               address: rootStore.Web3WalletSdk.signer.address,
               txHash: tx.hash,
@@ -715,7 +761,8 @@ async function confrimSwap() {
           })
 
           // if (!orderWaitRes) throw new Error(`deposit tx not found`)
-          rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+          rootStore.orderApi
+            .orderRegisterPost(registerRequest)
             .then(async (order: any) => {
               await tx.wait()
               await rootStore.GetWeb3AccountBalance()
@@ -784,7 +831,7 @@ async function confrimSwap() {
           txid: tx?.ft?.transfer?.txId,
           amount: new Decimal(sendInput.value).mul(10 ** 6).toString(),
           fromAddress: userStore.user!.address,
-          toChain: curretnToChain.value.toLowerCase(),
+          toChain: rootStore.curretnETHChain.toLowerCase(),
           toTokenName: currentCoin.value!.toLowerCase(),
           toAddress: rootStore.GetWeb3Wallet.signer.address,
         })
@@ -803,7 +850,8 @@ async function confrimSwap() {
         })
 
         // if (!orderWaitRes) throw new Error(`deposit tx not found`)
-        rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+        rootStore.orderApi
+          .orderRegisterPost(registerRequest)
           .then(async (order: any) => {
             await rootStore.GetWeb3AccountBalance()
             console.log('order', order)
@@ -834,7 +882,7 @@ function orderRequest(params: {
 }) {
   return new Promise(async (resolve, reject) => {
     try {
-      const orderWaitRes = await rootStore.GetOrderApi.orderFromChainFromTokenNameAddressWaitingGet(
+      const orderWaitRes = await rootStore.orderApi.orderFromChainFromTokenNameAddressWaitingGet(
         params.fromChain,
         params.fromTokenName,
         params.address

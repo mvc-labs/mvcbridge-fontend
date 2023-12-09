@@ -7,11 +7,11 @@ export function RetryWaitRequest(params) {
   const rootStore = useRootStore()
   let registerRequest: OrderRegisterRequest
   return new Promise(async (resolve, reject) => {
-    if (params.Send === MappingIcon.ETH) {
+    if (params.Send !== MappingIcon.MVC) {
       registerRequest = {
         fromChain: params.fromChain,
         fromTokenName: params.Currency.toLowerCase(),
-        txid: params.TX,
+        txid: params.TransactionId,
         amount: params.fromAmount,
         fromAddress: params.fromAddress,
         toChain: params.toChain,
@@ -22,7 +22,8 @@ export function RetryWaitRequest(params) {
       const sign = await rootStore.GetWeb3Wallet.signer.signMessage(message)
       if (sign) {
         registerRequest.signature = sign
-        rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+        rootStore.orderApi
+          .orderRegisterPost(registerRequest)
           .then((order: any) => {
             console.log('order', order)
             resolve(order)
@@ -31,11 +32,11 @@ export function RetryWaitRequest(params) {
             reject(e)
           })
       }
-    } else if (params.Send === MappingIcon.MVC) {
+    } else {
       registerRequest = GeneratorSignatrue({
         fromChain: params.fromChain,
         fromTokenName: params.Currency.toLowerCase(),
-        txid: params.TX,
+        txid: params.TransactionId,
         amount: params.fromAmount,
         fromAddress: params.fromAddress,
         toChain: params.toChain,
@@ -43,7 +44,8 @@ export function RetryWaitRequest(params) {
         toAddress: params.toAddress,
       })
       if (registerRequest) {
-        rootStore.GetOrderApi.orderRegisterPost(registerRequest)
+        rootStore.orderApi
+          .orderRegisterPost(registerRequest)
           .then((order: any) => {
             resolve(order)
           })
