@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { toRaw } from 'vue'
 import { formatEther, formatUnits } from 'ethers'
 import { GetSpanceBalance } from '@/utils/util'
-import { ToCurrency, MvcUsdToken, ChainTypeBalance } from '@/enum'
+import { ToCurrency, MvcUsdToken, ChainTypeBalance, ReceiverChainName, ETHChain } from '@/enum'
 import { GetFtBalance } from '@/api/metasv'
 import { useUserStore } from '@/store/user'
 import { OrderApi } from 'mvcbridge-sdk/api'
@@ -64,8 +64,25 @@ interface RootState {
     mvc: Partial<GetReceiveAddressType> | null
     eth: Partial<GetReceiveAddressType> | null
   }
+  curretnETHChain: ETHChain
+  currentChainId: string
 }
 const UA = window.navigator.userAgent.toLowerCase()
+
+export const mappingETHChain = () => {
+  const chainid = (window as any).ethereum?.chainId
+  switch (chainid) {
+    case '0x1':
+    case '0xaa36a7':
+      return ETHChain.ETH
+    case '0xa':
+    case '0xaa37dc':
+      return ETHChain.OP
+    case '0xa4b1':
+    case '0x66eee':
+      return ETHChain.ARB
+  }
+}
 
 export const isApp = !!window.appMetaIdJsV2
 export const isAndroid = !!(UA && UA.indexOf('android') > 0)
@@ -85,6 +102,8 @@ export const useRootStore = defineStore('root', {
       },
       isShowMetaMak: false,
       updatePlanRes: null,
+      curretnETHChain: mappingETHChain(),
+      currentChainId: (window as any).ethereum.chainId,
       //@ts-ignore
       exchangeRate: JSON.parse(window.localStorage.getItem('currentRate')) || [],
       // isGetedExchangeRate: false,
@@ -98,23 +117,28 @@ export const useRootStore = defineStore('root', {
         usdt: '0',
         usdc: '0',
       },
-      chainWhiteList: import.meta.env.MODE == 'gray' ? ['0xaa36a7'] : ['0x1'],
+      chainWhiteList:
+        import.meta.env.MODE == 'gray'
+          ? ['0xaa36a7', '0xaa37dc', '0x66eee']
+          : ['0x1', '0xa', '0xa4b1'],
       updatePlanWhiteList: ['0x0c45B536C69AB0B8806a65C94BA8C8e6e71Ba7c'],
       currentPrice: 'USD',
       orderApi: null,
       MvcFtList: [
-        // {
-        //   tokenName: MvcUsdToken.M_USDT,
-        //   codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-        //   genesis: '1739804f265e85826bdd1078f8c719a9e6f421d5',
-        //   decimal: 6,
-        // },
-        {
-          tokenName: MvcUsdToken.M_USDT,
-          codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
-          genesis: '94c2ae3fdbf95a4fb0d788c818cf5fcc7a9aa66a',
-          decimal: 6,
-        },
+        import.meta.env.MODE === 'prod'
+          ? {
+              tokenName: MvcUsdToken.M_USDT,
+              codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
+              genesis: '94c2ae3fdbf95a4fb0d788c818cf5fcc7a9aa66a',
+              decimal: 6,
+            }
+          : {
+              tokenName: MvcUsdToken.M_USDT,
+              codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
+              genesis: '1739804f265e85826bdd1078f8c719a9e6f421d5',
+              decimal: 6,
+            },
+
         // {
         //   tokenName: MvcUsdToken.M_USDC,
         //   codeHash: 'a2421f1e90c6048c36745edd44fad682e8644693',
@@ -155,7 +179,9 @@ export const useRootStore = defineStore('root', {
       return toRaw(state.Web3WalletSdk)
     },
     GetOrderApi: (state) => {
-      return toRaw(state.orderApi)
+      console.log('state', state)
+
+      return state.orderApi
     },
     currentExchangeRate: (state) =>
       state.exchangeRate.find((item) => item.symbol === state.currentPrice),
@@ -164,16 +190,26 @@ export const useRootStore = defineStore('root', {
     },
   },
   actions: {
-    async setReceiverAddress() {
+    setCurrentChainID(payload: string) {
+      this.currentChainId = payload
+    },
+
+    setCurretnETHChain(payload: ETHChain) {
+      this.curretnETHChain = payload
+    },
+
+    async setReceiverAddress(payload: ReceiverChainName) {
       try {
         const ethAddress = await GetReceiveAddress({
-          chainName: 'eth',
+          chainName: payload,
           tokenName: 'usdt',
         })
+
         const mvcAddress = await GetReceiveAddress({
           chainName: 'mvc',
           tokenName: 'usdt',
         })
+
         ethAddress.withdrawBridgeFeeRate == '0.0' ? '0' : ethAddress.withdrawBridgeFeeRate
         mvcAddress.withdrawBridgeFeeRate == '0.0' ? '0' : mvcAddress.withdrawBridgeFeeRate
         this.receiverInfo = { mvc: mvcAddress, eth: ethAddress }
@@ -192,13 +228,19 @@ export const useRootStore = defineStore('root', {
     async GetWeb3AccountBalance(payload: ChainTypeBalance = ChainTypeBalance.ALL) {
       const userStore = useUserStore()
       const mvcRequest = []
+
       if (payload === ChainTypeBalance.ALL) {
+        console.log('this.GetWeb3Wallet', this.GetWeb3Wallet.contract)
+
         const ethCurrency = this.GetWeb3Wallet.provider.getBalance(
           this.GetWeb3Wallet.signer.address
         )
+        console.log('this.GetWeb3Wallet', ethCurrency)
+
         const mvcCurrency = GetSpanceBalance()
         const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
-        const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
+
+        //const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
 
         for (let i of this.MvcFtList) {
           const res = GetFtBalance({
@@ -213,7 +255,7 @@ export const useRootStore = defineStore('root', {
           ethCurrency,
           mvcCurrency,
           usdt,
-          usdc,
+          //usdc,
           ...mvcRequest,
         ])
 
@@ -224,14 +266,14 @@ export const useRootStore = defineStore('root', {
         this.Web3WalletTokenBalance.usdt = new Decimal(formatUnits(result[2].value, 6))
           .toNumber()
           .toFixed(4)
-        this.Web3WalletTokenBalance.usdc = new Decimal(formatUnits(result[3].value, 6))
-          .toNumber()
-          .toFixed(4)
+        // this.Web3WalletTokenBalance.usdc = new Decimal(formatUnits(result[3].value, 6))
+        //   .toNumber()
+        //   .toFixed(4)
         this.mvcWalletTokenBalance.usdt =
           Math.abs(
-            new Decimal(result[4].value[0]?.confirmedString || '0')
-              .add(result[4].value[0]?.unconfirmed || '0')
-              .div(10 ** result[4].value[0]?.decimal || 0)
+            new Decimal(result[3].value[0]?.confirmedString || '0')
+              .add(result[3].value[0]?.unconfirmed || '0')
+              .div(10 ** result[3].value[0]?.decimal || 0)
               .toNumber()
           ) || '0'
         // this.mvcWalletTokenBalance.usdc =
@@ -246,8 +288,9 @@ export const useRootStore = defineStore('root', {
           this.GetWeb3Wallet.signer.address
         )
         const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
-        const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
-        const result: any = await Promise.allSettled([ethCurrency, usdt, usdc])
+
+        //const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
+        const result: any = await Promise.allSettled([ethCurrency, usdt])
         console.log('result', result)
         this.Web3WalletTokenBalance.currency = new Decimal(formatEther(result[0].value))
           .toNumber()
@@ -255,9 +298,9 @@ export const useRootStore = defineStore('root', {
         this.Web3WalletTokenBalance.usdt = new Decimal(formatUnits(result[1].value, 6))
           .toNumber()
           .toFixed(4)
-        this.Web3WalletTokenBalance.usdc = new Decimal(formatUnits(result[2].value, 6))
-          .toNumber()
-          .toFixed(4)
+        // this.Web3WalletTokenBalance.usdc = new Decimal(formatUnits(result[2].value, 6))
+        //   .toNumber()
+        //   .toFixed(4)
       } else if (payload == ChainTypeBalance.MVC) {
         const mvcCurrency = GetSpanceBalance()
 

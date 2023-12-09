@@ -6,9 +6,9 @@
     "gray": "yarn vite --mode gray",
     "test": "yarn vite --mode test",
     "prod": "yarn vite --mode prod",
-    "build": "node --max_old_space_size=10336 ./node_modules/vite/bin/vite.js build --mode prod",
+    "build": "node --max_old_space_size=8336 ./node_modules/vite/bin/vite.js build --mode prod",
     "build:test": "vite build --mode test",
-    "build:gray": "node --max_old_space_size=10336 ./node_modules/vite/bin/vite.js build --mode gray",
+    "build:gray": "node --max_old_space_size=8336 ./node_modules/vite/bin/vite.js build --mode gray",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -30,7 +30,7 @@
     "meta-contract": "0.3.25",
     "mvc-lib": "^1.0.5",
     "mvc-std-lib": "^1.1.4",
-    "mvcbridge-sdk": "1.0.10",
+    "mvcbridge-sdk": "^1.0.12",
     "normalize.css": "^8.0.1",
     "pinia": "^2.0.33",
     "qs": "6.10.1",

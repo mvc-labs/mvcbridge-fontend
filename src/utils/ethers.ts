@@ -19,6 +19,7 @@ let USDC: tokenType
 //let FAUCET: any
 function getTokenInfo() {
   const res = chainTokenInfo((window as any)?.ethereum?.chainId)
+
   if (!res) {
   } else {
     USDT = res.usdt
@@ -50,9 +51,10 @@ export default class Web3SDK {
       this.signer = await this.provider.getSigner()
 
       this.usdt = new Contract(USDT.contractAddress, JSON.stringify(USDT.abi), this.signer)
-      this.usdc = new Contract(USDC.contractAddress, JSON.stringify(USDC.abi), this.signer)
+      //this.usdc = new Contract(USDC.contractAddress, JSON.stringify(USDC.abi), this.signer)
       //this.faucet = new Contract(FAUCET.contractAddress, JSON.stringify(FAUCET.abi), this.signer)
-      this.contract.push(this.usdt, this.usdc)
+      //this.contract.push(this.usdt, this.usdc)
+      this.contract.push(this.usdt)
       console.log('zxczxczxc1111', this.contract)
       resolve(this)
     })

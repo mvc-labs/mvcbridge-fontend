@@ -175,6 +175,7 @@ declare interface ExchangeRate {
 declare interface OrderHistroyItem {
   vaultId: string
   txid: string
+  processTxid: string
   fromAddress: string
   fromAmount: string
   fromChain: string
