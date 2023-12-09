@@ -3,6 +3,12 @@
     "usdt": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     "usdc": "0x7ea2be2df7ba6e54b1a9c70676f668455e329d29"
   },
+  "op": {
+    "usdt": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58"
+  },
+  "arb": {
+    "usdt": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
+  },
   "sepolias": {
     "usdt": "0x706e3C571209099120b49D27725C00E739fB1F10",
     "usdc": "0xd6D360247373C1Ac1A110631b1139bdD9b50b4B9",

@@ -230,6 +230,7 @@ const currentChainName = ref(ReceiverChainName.ETH)
 
 onMounted(() => {
   ;(window as any)?.ethereum?.on('networkChanged', (networkIDstring: string[]) => {
+    rootStore.setCurrentChainID((window as any)?.ethereum?.chainId)
     if (curretnToChain.value === MappingChainName.MVC) {
       currentFromChain.value = mappingChainName((window as any)?.ethereum?.chainId)
     } else {

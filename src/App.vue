@@ -45,6 +45,7 @@ onMounted(async () => {
   rootStore.InitOrderApi()
   console.log('!rootStore.isWalletConnect', rootStore.isWalletConnect)
   ;(window as any)?.ethereum?.on('networkChanged', (networkIDstring: string[]) => {
+    rootStore.setCurrentChainID((window as any)?.ethereum?.chainId)
     currentChainName.value = setCurrentChainName()
   })
 

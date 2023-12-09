@@ -6,7 +6,7 @@
       </div>
 
       <div class="menu">
-        <div class="wallet" v-if="userStore.isAuthorized" @click="isHome = !isHome">
+        <div class="wallet" v-if="userStore.isAuthorized && !isProd" @click="isHome = !isHome">
           <img :src="FaucetIcon" alt="" v-if="isHome" />
           <el-icon :size="15" color="#fff" v-else><HomeFilled /></el-icon>
         </div>
@@ -446,6 +446,7 @@ const historyDialog = ref(false)
 const loadingHistory = ref(false)
 const i18n = useI18n()
 const currentTableLayout = ref('')
+const isProd = ref(import.meta.env.MODE == 'prod')
 const faucetLoading = ref(false)
 const MetaNameOrEns = computed(() => {
   let mvc = [MappingIcon.MVC, MappingIcon.MUSDC, MappingIcon.MUSDT]
@@ -483,6 +484,58 @@ const svg = `
       `
 const transationHistoryList: TransationItem[] = reactive([])
 onMounted(async () => {
+  ;(window as any)?.ethereum?.on('networkChanged', (networkIDstring: string[]) => {
+    walletList.length = 0
+    const list = [
+      {
+        chain: mappingChainOrigin(rootStore.currentChainId),
+        coinList: [
+          {
+            chainName: mappingChain(rootStore.currentChainId || '0x1'),
+            chainSymbol: mappingCoin(rootStore.currentChainId || '0x1'),
+            loading: true,
+            balance: '0',
+          },
+          {
+            chainName: MappingIcon.Tether,
+            chainSymbol: CoinSymbol.USDT,
+            loading: true,
+            balance: '0',
+          },
+          // {
+          //   chainName: MappingIcon.USD,
+          //   chainSymbol: CoinSymbol.USDC,
+          //   loading: true,
+          //   balance: '0',
+          // },
+        ],
+      },
+      {
+        chain: ChainOrigin.MVC,
+        coinList: [
+          {
+            chainName: MappingIcon.MVC,
+            chainSymbol: CoinSymbol.SPACE,
+            loading: true,
+            balance: '0',
+          },
+          {
+            chainName: MappingIcon.MUSDT,
+            chainSymbol: CoinSymbol.MUSDT,
+            loading: true,
+            balance: '0',
+          },
+          // {
+          //   chainName: MappingIcon.MUSDC,
+          //   chainSymbol: CoinSymbol.MUSDC,
+          //   loading: true,
+          //   balance: '0',
+          // },
+        ],
+      },
+    ]
+    walletList.push(...list)
+  })
   // const preMessage = '\u0019Ethereum Signed Message:\n'
   // const message = 'hello'
   // setTimeout(async () => {
@@ -533,8 +586,8 @@ watch(
     if (val) {
       await rootStore.GetWeb3AccountBalance()
       console.log('walletList', walletList)
-      walletList.forEach((item) =>
-        item.coinList.forEach((coin) => {
+      walletList.map((item) =>
+        item.coinList.map((coin) => {
           switch (coin.chainName) {
             case MappingIcon.MVC:
               coin.balance = rootStore.mvcWalletTokenBalance.space
@@ -819,7 +872,7 @@ async function getPendingList() {
      *   ele?.vaultId.split('_')[0].toUpperCase() === MappingIcon.ETH
               ? MappingIcon.MVC
               : MappingIcon.ETH,
-     * 
+     *
      */
     list.length &&
       list.forEach((ele, id) => {
@@ -1123,13 +1176,13 @@ const TransferConfrim = async (formEl: FormInstance | undefined) => {
   }
 }
 
-const walletList: WalletInfo[] = reactive([
+const walletList: Array<WalletInfo> = reactive([
   {
-    chain: mappingChainOrigin((window as any)?.ethereum?.chainId),
+    chain: mappingChainOrigin(rootStore.currentChainId),
     coinList: [
       {
-        chainName: mappingChain((window as any)?.ethereum?.chainId || '0x1'),
-        chainSymbol: mappingCoin((window as any)?.ethereum?.chainId || '0x1'),
+        chainName: mappingChain(rootStore.currentChainId || '0x1'),
+        chainSymbol: mappingCoin(rootStore.currentChainId || '0x1'),
         loading: true,
         balance: '0',
       },
@@ -1172,7 +1225,7 @@ const walletList: WalletInfo[] = reactive([
   },
 ])
 
-console.log('walletList', walletList)
+console.log('walletList')
 
 async function ConnectWallet() {
   await checkUserLogin()

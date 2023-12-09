@@ -65,6 +65,7 @@ interface RootState {
     eth: Partial<GetReceiveAddressType> | null
   }
   curretnETHChain: ETHChain
+  currentChainId: string
 }
 const UA = window.navigator.userAgent.toLowerCase()
 
@@ -74,8 +75,10 @@ export const mappingETHChain = () => {
     case '0x1':
     case '0xaa36a7':
       return ETHChain.ETH
+    case '0xa':
     case '0xaa37dc':
       return ETHChain.OP
+    case '0xa4b1':
     case '0x66eee':
       return ETHChain.ARB
   }
@@ -100,6 +103,7 @@ export const useRootStore = defineStore('root', {
       isShowMetaMak: false,
       updatePlanRes: null,
       curretnETHChain: mappingETHChain(),
+      currentChainId: (window as any).ethereum.chainId,
       //@ts-ignore
       exchangeRate: JSON.parse(window.localStorage.getItem('currentRate')) || [],
       // isGetedExchangeRate: false,
@@ -186,6 +190,10 @@ export const useRootStore = defineStore('root', {
     },
   },
   actions: {
+    setCurrentChainID(payload: string) {
+      this.currentChainId = payload
+    },
+
     setCurretnETHChain(payload: ETHChain) {
       this.curretnETHChain = payload
     },
@@ -222,13 +230,16 @@ export const useRootStore = defineStore('root', {
       const mvcRequest = []
 
       if (payload === ChainTypeBalance.ALL) {
-        console.log('this.GetWeb3Wallet', this.GetWeb3Wallet)
+        console.log('this.GetWeb3Wallet', this.GetWeb3Wallet.contract)
 
         const ethCurrency = this.GetWeb3Wallet.provider.getBalance(
           this.GetWeb3Wallet.signer.address
         )
+        console.log('this.GetWeb3Wallet', ethCurrency)
+
         const mvcCurrency = GetSpanceBalance()
         const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
+
         //const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
 
         for (let i of this.MvcFtList) {
@@ -277,6 +288,7 @@ export const useRootStore = defineStore('root', {
           this.GetWeb3Wallet.signer.address
         )
         const usdt = this.GetWeb3Wallet.contract[0].balanceOf(this.GetWeb3Wallet.signer.address)
+
         //const usdc = this.GetWeb3Wallet.contract[1].balanceOf(this.GetWeb3Wallet.signer.address)
         const result: any = await Promise.allSettled([ethCurrency, usdt])
         console.log('result', result)

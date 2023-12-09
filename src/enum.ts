@@ -21,6 +21,7 @@ export enum CoinDecimal {
 export enum ChainTypeBalance {
   ALL = 'ALL',
   ETH = 'ETH',
+
   MVC = 'MVC',
 }
 
