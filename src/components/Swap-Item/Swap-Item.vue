@@ -304,7 +304,6 @@ const allowInputBalance = computed(() => {
 })
 
 const allowSwap = computed(() => {
-  return false
   if (
     sendInput.value &&
     receiveInput.value &&
