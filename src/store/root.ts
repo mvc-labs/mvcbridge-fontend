@@ -198,7 +198,7 @@ export const useRootStore = defineStore('root', {
       this.curretnETHChain = payload
     },
 
-    async setReceiverAddress(payload: ReceiverChainName) {
+    async setReceiverAddress(payload: any) {
       try {
         const ethAddress = await GetReceiveAddress({
           chainName: payload,

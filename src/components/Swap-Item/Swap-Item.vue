@@ -237,6 +237,7 @@ onMounted(() => {
       curretnToChain.value = mappingChainName((window as any)?.ethereum?.chainId)
     }
     setCurrentChainName()
+
     rootStore.setCurretnETHChain(ETHChain[currentChainName.value.toLocaleUpperCase()])
   })
 })
@@ -303,6 +304,7 @@ const allowInputBalance = computed(() => {
 })
 
 const allowSwap = computed(() => {
+  return false
   if (
     sendInput.value &&
     receiveInput.value &&
@@ -500,10 +502,13 @@ function setCurrentChainName() {
   switch (mappingCurrentChainName((window as any)?.ethereum?.chainId)) {
     case ReceiverChainName.ETH:
       currentChainName.value = ReceiverChainName.ETH
+      break
     case ReceiverChainName.OP:
       currentChainName.value = ReceiverChainName.OP
+      break
     case ReceiverChainName.ARB:
       currentChainName.value = ReceiverChainName.ARB
+      break
   }
 }
 
@@ -564,7 +569,8 @@ async function Swap() {
       swapSuccess.value = false
       ConfrimSwapDisable.value = true
       estimatedTransferInfo.val.send = sendInput.value
-      await rootStore.setReceiverAddress(currentChainName.value)
+
+      await rootStore.setReceiverAddress(rootStore.curretnETHChain.toLowerCase())
       // recevierInfo.val = await GetReceiveAddress({
       //   chainName: fromChain.value!,
       //   tokenName: currentAssert.value,
