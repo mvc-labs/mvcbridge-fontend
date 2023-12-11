@@ -14,8 +14,8 @@ import Icon from '@/components/Icon/Icon.vue'
 import './index.scss'
 import * as filters from '@/utils/filters'
 const app = createApp(App)
-
 //
+// 挂载全局过滤器
 // @ts-ignore
 app.config.globalProperties.$filters = {
   ...filters,

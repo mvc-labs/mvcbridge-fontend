@@ -237,6 +237,7 @@ onMounted(() => {
       curretnToChain.value = mappingChainName((window as any)?.ethereum?.chainId)
     }
     setCurrentChainName()
+
     rootStore.setCurretnETHChain(ETHChain[currentChainName.value.toLocaleUpperCase()])
   })
 })
@@ -449,8 +450,13 @@ const txInfo = reactive([
     value: () =>
       currentFromChain.value === MappingChainName.MVC
         ? new Decimal(estimatedTransferInfo.val.time).mul(10).toFixed(0)
-        : new Decimal(estimatedTransferInfo.val.time).mul(12).div(60).toFixed(0),
-    decimal: () => 'minutes',
+        : fromChain.value === MappingChainName.ETH
+        ? new Decimal(estimatedTransferInfo.val.time).mul(12).div(60).toFixed(0)
+        : new Decimal(estimatedTransferInfo.val.time).mul(4).toFixed(0),
+    decimal: () =>
+      fromChain.value === MappingChainName.ARB || fromChain.value === MappingChainName.OP
+        ? 'seconds'
+        : 'minutes',
   },
 ])
 
@@ -500,10 +506,13 @@ function setCurrentChainName() {
   switch (mappingCurrentChainName((window as any)?.ethereum?.chainId)) {
     case ReceiverChainName.ETH:
       currentChainName.value = ReceiverChainName.ETH
+      break
     case ReceiverChainName.OP:
       currentChainName.value = ReceiverChainName.OP
+      break
     case ReceiverChainName.ARB:
       currentChainName.value = ReceiverChainName.ARB
+      break
   }
 }
 
@@ -564,7 +573,8 @@ async function Swap() {
       swapSuccess.value = false
       ConfrimSwapDisable.value = true
       estimatedTransferInfo.val.send = sendInput.value
-      await rootStore.setReceiverAddress(currentChainName.value)
+
+      await rootStore.setReceiverAddress(rootStore.curretnETHChain.toLowerCase())
       // recevierInfo.val = await GetReceiveAddress({
       //   chainName: fromChain.value!,
       //   tokenName: currentAssert.value,
@@ -718,10 +728,17 @@ async function confrimSwap() {
       const value = toQuantity(
         new Decimal(sendInput.value).mul(10 ** currentContractOperate.value.decimal).toString()
       )
-      console.log('rootStore.receiverInfo.eth.address', rootStore.receiverInfo.eth.address)
 
       const tx = await currentContractOperate.value.contract
-        .transfer(`${rootStore.receiverInfo.eth.address}`, value)
+        .transfer(
+          `${rootStore.receiverInfo.eth.address}`,
+          value,
+          fromChain.value == MappingChainName.ARB || fromChain.value == MappingChainName.OP
+            ? {
+                gasLimit: toQuantity(2000000),
+              }
+            : {}
+        )
         .catch((e: any) => {
           swapLoading.value = false
           throw new Error(`Cancel Transfer`)

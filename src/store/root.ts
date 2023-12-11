@@ -198,7 +198,7 @@ export const useRootStore = defineStore('root', {
       this.curretnETHChain = payload
     },
 
-    async setReceiverAddress(payload: ReceiverChainName) {
+    async setReceiverAddress(payload: any) {
       try {
         const ethAddress = await GetReceiveAddress({
           chainName: payload,
@@ -313,17 +313,21 @@ export const useRootStore = defineStore('root', {
           mvcRequest.push(res)
         }
 
-        const result: any = await Promise.allSettled([mvcCurrency, ...mvcRequest])
+        //const result: any = await Promise.allSettled([mvcCurrency, ...mvcRequest])
+        mvcCurrency.then((res) => {
+          this.mvcWalletTokenBalance.space = +res.toFixed(8)
+        })
 
-        console.log('result', result)
+        mvcRequest.forEach((item) => {
+          item.then((res) => {
+            this.mvcWalletTokenBalance.usdt =
+              new Decimal(res[0].confirmedString || 0)
+                .add(res[0].unconfirmed || '0')
+                .div(10 ** res[0].decimal || 0)
+                .toString() || '0'
+          })
+        })
 
-        this.mvcWalletTokenBalance.space = result[0].value.toFixed(8)
-
-        this.mvcWalletTokenBalance.usdt =
-          new Decimal(result[1].value[0]?.confirmedString || 0)
-            .add(result[1].value[0]?.unconfirmed || '0')
-            .div(10 ** result[1].value[0]?.decimal || 0)
-            .toString() || '0'
         // this.mvcWalletTokenBalance.usdc =
         //   new Decimal(result[2].value[0]?.confirmedString || 0)
         //     .add(result[2].value[0]?.unconfirmed || '0')
