@@ -450,8 +450,13 @@ const txInfo = reactive([
     value: () =>
       currentFromChain.value === MappingChainName.MVC
         ? new Decimal(estimatedTransferInfo.val.time).mul(10).toFixed(0)
-        : new Decimal(estimatedTransferInfo.val.time).mul(12).div(60).toFixed(0),
-    decimal: () => 'minutes',
+        : fromChain.value === MappingChainName.ETH
+        ? new Decimal(estimatedTransferInfo.val.time).mul(12).div(60).toFixed(0)
+        : new Decimal(estimatedTransferInfo.val.time).mul(4).toFixed(0),
+    decimal: () =>
+      fromChain.value === MappingChainName.ARB || fromChain.value === MappingChainName.OP
+        ? 'seconds'
+        : 'minutes',
   },
 ])
 
@@ -723,10 +728,17 @@ async function confrimSwap() {
       const value = toQuantity(
         new Decimal(sendInput.value).mul(10 ** currentContractOperate.value.decimal).toString()
       )
-      console.log('rootStore.receiverInfo.eth.address', rootStore.receiverInfo.eth.address)
 
       const tx = await currentContractOperate.value.contract
-        .transfer(`${rootStore.receiverInfo.eth.address}`, value)
+        .transfer(
+          `${rootStore.receiverInfo.eth.address}`,
+          value,
+          fromChain.value == MappingChainName.ARB || fromChain.value == MappingChainName.OP
+            ? {
+                gasLimit: toQuantity(2000000),
+              }
+            : {}
+        )
         .catch((e: any) => {
           swapLoading.value = false
           throw new Error(`Cancel Transfer`)
